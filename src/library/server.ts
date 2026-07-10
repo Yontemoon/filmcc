@@ -18,13 +18,13 @@ const fetchMovieCredits = createServerFn({ method: 'GET' })
     ])
 
     const movie = 'movie' as const
-    const reformatted = {
+    const res = {
       details: movieDetails,
       credits: movieCredits,
       type: 'movie' as typeof movie,
     }
 
-    return reformatted
+    return res
   })
 
 const fetchPersonCredits = createServerFn({ method: 'GET' })

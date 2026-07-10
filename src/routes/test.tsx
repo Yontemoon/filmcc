@@ -1,22 +1,53 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import useGame from '#/hooks/use-game'
+import { Modal } from '@mantine/core'
+import Button from '#/components/ui/button'
+import Timer from '#/components/timer'
+import { formatTime } from '#/library/utils'
 
 export const Route = createFileRoute('/test')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  // Have the router fetch the start and end of the game
+
   const {
     changeController,
     query: { isLoading, data: current, error },
     history,
-  } = useGame()
+    gameOver,
+    stats,
+    time,
+  } = useGame({ end: { id: 5655, type: 'person' } })
 
   return (
     <div>
+      <Timer
+        getElapsedMs={time.getElapsedMs}
+        finalElapsedMs={time.finalTime}
+        isRunning={time.isTimerRunning}
+      />
+      <Modal
+        opened={gameOver}
+        withCloseButton={false}
+        onClose={() => {
+          console.log('Closing Modal')
+        }}
+        centered
+        title={'You finished!'}
+      >
+        <h2>Stats</h2>
+        <p>count: {stats.count}</p>
+        <p>time: {formatTime(stats.time)}</p>
+
+        <Link to={'/'}>
+          <Button>Go back</Button>
+        </Link>
+      </Modal>
       <div className="flex gap-3">
         {history.map((ids, i) => {
-          return <div key={i}>{ids.id}</div>
+          return <div key={i}>{ids.label}</div>
         })}
       </div>
       {isLoading && <div>Loading...</div>}
