@@ -25,9 +25,10 @@ function RouteComponent() {
       {/* IF A MOVIE PAGE IS SHOWN */}
       {current?.type === 'movie' && (
         <div>
+          <h1>{current.details.title}</h1>
           <div className=" mx-auto px-10 grid md:grid-cols-2 w-full gap-5">
             <div>
-              {current.cast.map((credit) => {
+              {current.credits.cast.map((credit) => {
                 return (
                   <div
                     className="hover:underline hover:cursor-pointer"
@@ -36,6 +37,7 @@ function RouteComponent() {
                       changeController({
                         id: credit.id,
                         type: 'person',
+                        label: credit.name,
                       })
                     }}
                   >
@@ -45,7 +47,7 @@ function RouteComponent() {
               })}
             </div>
             <div>
-              {current.crew.map((crew) => {
+              {current.credits.crew.map((crew) => {
                 return (
                   <div
                     className="hover:underline hover:cursor-pointer"
@@ -54,6 +56,7 @@ function RouteComponent() {
                       changeController({
                         id: crew.id,
                         type: 'person',
+                        label: crew.name,
                       })
                     }}
                   >
@@ -70,9 +73,10 @@ function RouteComponent() {
       {/* IF A PERSON (ACTOR/PERSON) IS SHOWN */}
       {current?.type === 'person' && (
         <div>
+          <h1>{current.details.name}</h1>
           <div className=" mx-auto px-10 grid md:grid-cols-2 w-full gap-5">
             <div>
-              {current.cast.map((credit) => {
+              {current.credits.cast.map((credit) => {
                 return (
                   <div
                     className="hover:underline hover:cursor-pointer"
@@ -81,6 +85,7 @@ function RouteComponent() {
                       changeController({
                         id: credit.id,
                         type: 'movie',
+                        label: credit.title,
                       })
                     }}
                   >
@@ -90,7 +95,7 @@ function RouteComponent() {
               })}
             </div>
             <div>
-              {current.crew.map((crew, idx) => {
+              {current.credits.crew.map((crew, idx) => {
                 return (
                   <div
                     className="hover:underline hover:cursor-pointer"
@@ -99,6 +104,7 @@ function RouteComponent() {
                       changeController({
                         id: crew.id,
                         type: 'movie',
+                        label: crew.title,
                       })
                     }}
                   >

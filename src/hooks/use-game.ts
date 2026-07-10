@@ -1,22 +1,23 @@
+import React from 'react'
 import { fetchMovieCredits, fetchPersonCredits } from '#/library/server'
 import { useQuery } from '@tanstack/react-query'
-import React from 'react'
 
 type TType = 'movie' | 'person' | undefined
 
 type TController = {
   type: TType
   id: number
+  label: string
 }
 
 const useGame = () => {
   const [controller, setController] = React.useState<TController>({
     type: 'movie',
     id: 73,
+    label: 'American History X',
   })
-  const [history, setHistory] = React.useState<{ type: TType; id: number }[]>([
-    controller,
-  ])
+
+  const [history, setHistory] = React.useState<TController[]>([controller])
 
   const checkController = (newController: TController) => {
     const isPresent = history.findIndex((curr) => {

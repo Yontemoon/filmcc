@@ -67,9 +67,73 @@ interface T_TMDB_CREW {
   job: string
 }
 
+interface T_TMDB_MOVIE_DETAILS {
+  adult: boolean
+  backdrop_path: string
+  belongs_to_collection: any | null
+  budget: number
+  genres: {
+    id: number
+    name: string
+  }[]
+  homepage: string
+  id: number
+  imdb_id: string
+  origin_country: string[]
+  original_language: string
+  original_title: string
+  overview: string
+  popularity: number
+  poster_path: string
+  production_companies: {
+    id: number
+    logo_path: string | null
+    name: string
+    origin_country: string
+  }[]
+  production_countries: {
+    iso_3166_1: string
+    name: string
+  }[]
+  release_date: string
+  revenue: number
+  runtime: number
+  softcore: boolean
+  spoken_languages: {
+    english_name: string
+    iso_639_1: string
+    name: string
+  }[]
+  status: string
+  tagline: string
+  title: string
+  video: boolean
+  vote_average: number
+  vote_count: number
+}
+
+interface T_TMDB_PERSON_DETAILS {
+  adult: boolean
+  also_known_as: string[]
+  biography: string
+  birthday: string
+  deathday: string | null
+  gender: number
+  homepage: string | null
+  id: number
+  imdb_id: string | null
+  known_for_department: string
+  name: string
+  place_of_birth: string
+  popularity: number
+  profile_path: string
+}
+
 export type {
   T_TMDB_MOVIE_CREDITS,
   T_TMDB_CAST,
   T_TMDB_CREW,
   T_TMDB_PERSON_CREDITS,
+  T_TMDB_MOVIE_DETAILS,
+  T_TMDB_PERSON_DETAILS,
 }
