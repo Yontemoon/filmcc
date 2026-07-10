@@ -45,4 +45,29 @@ const fetchPersonCredits = createServerFn({ method: 'GET' })
     return res
   })
 
-export { fetchMovieCredits, fetchPersonCredits }
+const fetchCreateGame = createServerFn({ method: 'GET' }).handler(async () => {
+  try {
+    const randomOrder = Math.floor(Math.random() * 2)
+    const [movies, people] = await Promise.all([
+      tmdbFetch<{ results: T_TMDB_MOVIE_DETAILS[] }>(
+        `/discover/movie?include_adult?sort_by=popularity.desc`,
+      ).then((res) => res.results),
+      tmdbFetch<{ results: T_TMDB_PERSON_DETAILS[] }>(`/person/popular`).then(
+        (res) => res.results,
+      ),
+    ])
+
+    const randomMovieNum = Math.floor(Math.random() * movies.length)
+    const randomPersonNum = Math.floor(Math.random() * people.length)
+    const randomMovie = movies[randomMovieNum]
+    const randomPerson = people[randomPersonNum]
+
+    return randomOrder === 0
+      ? { start: randomMovie, end: randomPerson }
+      : { start: randomPerson, end: randomMovie }
+  } catch (error) {
+    console.error(error)
+  }
+})
+
+export { fetchMovieCredits, fetchPersonCredits, fetchCreateGame }

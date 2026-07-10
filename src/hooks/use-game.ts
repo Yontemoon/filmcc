@@ -4,23 +4,15 @@ import { useQuery } from '@tanstack/react-query'
 import { notifications } from '@mantine/notifications'
 import { useCounter } from '@mantine/hooks'
 import useTimerRef from './use-timer-ref'
+import type { TType, TController } from '#/types/client.types'
 
-type TType = 'movie' | 'person' | undefined
-
-type TController = {
-  type: TType
-  id: number
-  label: string
+interface PropTypes {
+  start: TController
+  end: TController
 }
 
-type EndType = Omit<TController, 'label'>
-
-const useGame = ({ end }: { end: EndType }) => {
-  const [controller, setController] = React.useState<TController>({
-    type: 'movie',
-    id: 73,
-    label: 'American History X',
-  })
+const useGame = ({ start, end }: PropTypes) => {
+  const [controller, setController] = React.useState<TController>(start)
 
   const { startTimer, stopTimer, isTimerRunning, getElapsedMs } = useTimerRef()
 

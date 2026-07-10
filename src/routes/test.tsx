@@ -1,17 +1,32 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useLoaderData } from '@tanstack/react-router'
 import useGame from '#/hooks/use-game'
 import { Modal } from '@mantine/core'
 import Button from '#/components/ui/button'
 import Timer from '#/components/timer'
 import { formatTime } from '#/library/utils'
+import type { TController } from '#/types/client.types'
+import { fetchCreateGame } from '#/library/server'
+
+const DEMO = {
+  start: {
+    type: 'movie',
+    id: 73,
+    label: 'American History X',
+  },
+  end: { id: 5655, type: 'person', label: 'Wes Anderson' },
+} as { start: TController; end: TController }
 
 export const Route = createFileRoute('/test')({
   component: RouteComponent,
+  loader: async () => {
+    return fetchCreateGame()
+  },
 })
 
 function RouteComponent() {
-  // Have the router fetch the start and end of the game
-
+  const data = Route.useLoaderData()
+  console.log(data)
+  // console.log(data)
   const {
     changeController,
     query: { isLoading, data: current, error },
@@ -19,10 +34,12 @@ function RouteComponent() {
     gameOver,
     stats,
     time,
-  } = useGame({ end: { id: 5655, type: 'person' } })
+  } = useGame(DEMO)
 
   return (
     <div>
+      <div>Start: {data?.start.id}</div>
+      <div>End: {data?.end.id}</div>
       <Timer
         getElapsedMs={time.getElapsedMs}
         finalElapsedMs={time.finalTime}
@@ -120,7 +137,8 @@ function RouteComponent() {
                       })
                     }}
                   >
-                    {credit.title} -- {credit.character}
+                    {credit.title} -- {credit.character} --{' '}
+                    {credit.release_date}
                   </div>
                 )
               })}
@@ -139,7 +157,8 @@ function RouteComponent() {
                       })
                     }}
                   >
-                    {crew.title} -- {crew.job} -- {crew.department}
+                    {crew.title} -- {crew.job} -- {crew.department} --{' '}
+                    {crew.release_date}
                   </div>
                 )
               })}
