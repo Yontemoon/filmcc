@@ -1,11 +1,20 @@
 import { createServerFn } from '@tanstack/react-start'
 import type {
+  T_TMDB_EXTERNAL_IDS,
   T_TMDB_MOVIE_CREDITS,
   T_TMDB_MOVIE_DETAILS,
   T_TMDB_PERSON_CREDITS,
   T_TMDB_PERSON_DETAILS,
 } from '#/types/tmdb.types'
-import { tmdbFetch } from './fetch'
+import { omdbFetch, tmdbFetch } from './fetch'
+import { POPULARITY_LIMIT } from './constants'
+import type { T_OMDB_PERSON_DETAILS } from '#/types/omdb.types'
+import { getRandomNumber } from './utils'
+
+let memory = null as {
+  start: T_TMDB_MOVIE_DETAILS
+  end: T_TMDB_PERSON_DETAILS
+} | null
 
 const fetchMovieCredits = createServerFn({ method: 'GET' })
   .validator((data: { movieId: number }) => data)
@@ -47,27 +56,92 @@ const fetchPersonCredits = createServerFn({ method: 'GET' })
 
 const fetchCreateGame = createServerFn({ method: 'GET' }).handler(async () => {
   try {
-    const randomOrder = Math.floor(Math.random() * 2)
-    const [movies, people] = await Promise.all([
-      tmdbFetch<{ results: T_TMDB_MOVIE_DETAILS[] }>(
-        `/discover/movie?include_adult?sort_by=popularity.desc`,
-      ).then((res) => res.results),
-      tmdbFetch<{ results: T_TMDB_PERSON_DETAILS[] }>(`/person/popular`).then(
-        (res) => res.results,
-      ),
-    ])
+    let numberOfLoops = 1
 
-    const randomMovieNum = Math.floor(Math.random() * movies.length)
-    const randomPersonNum = Math.floor(Math.random() * people.length)
-    const randomMovie = movies[randomMovieNum]
-    const randomPerson = people[randomPersonNum]
+    if (!memory) {
+      const [movies, people] = await Promise.all([
+        tmdbFetch<{ results: T_TMDB_MOVIE_DETAILS[] }>(
+          `/discover/movie?include_adult?sort_by=popularity.desc`,
+        ).then((res) => res.results),
+        getRandomPopularPerson(),
+      ])
+      const randomMovieNum = Math.floor(Math.random() * movies.length)
 
-    return randomOrder === 0
-      ? { start: randomMovie, end: randomPerson }
-      : { start: randomPerson, end: randomMovie }
+      let randomPerson = people
+      let continueSearchingPerson = true
+
+      if (randomPerson) {
+        const isValidPopularPerson = await validateRandomPerson(randomPerson)
+
+        if (isValidPopularPerson) {
+          continueSearchingPerson = false
+        }
+      }
+
+      while (continueSearchingPerson || !randomPerson) {
+        numberOfLoops++
+        const randomTmdbPerson = await getRandomPopularPerson()
+
+        if (!randomTmdbPerson) {
+          continue
+        }
+        const isValid = await validateRandomPerson(randomTmdbPerson)
+
+        if (isValid) {
+          continueSearchingPerson = false
+          randomPerson = randomTmdbPerson
+        }
+      }
+
+      const randomMovie = movies[randomMovieNum]
+      console.info('[Number of people fetches]: ', numberOfLoops)
+      memory = { start: randomMovie, end: randomPerson }
+      return { start: randomMovie, end: randomPerson }
+    } else {
+      return memory
+    }
   } catch (error) {
     console.error(error)
   }
 })
+
+const getRandomPopularPerson = async () => {
+  try {
+    const randomPage = getRandomNumber(100)
+
+    const people = await tmdbFetch<{ results: T_TMDB_PERSON_DETAILS[] }>(
+      `/person/popular?language=en-US&page=${randomPage}`,
+    )
+    const randomIndx = getRandomNumber(people.results.length)
+
+    const tmdbPerson = people.results[randomIndx]
+
+    return tmdbPerson
+  } catch (error) {
+    console.error(error)
+    return null
+  }
+}
+
+const validateRandomPerson = async (personDetails: T_TMDB_PERSON_DETAILS) => {
+  try {
+    const externalPersonData = await tmdbFetch<T_TMDB_EXTERNAL_IDS>(
+      `/person/${personDetails.id}/external_ids`,
+    )
+
+    const imdbId = externalPersonData.imdb_id
+
+    if (imdbId) {
+      const omdbData = await omdbFetch<T_OMDB_PERSON_DETAILS>(
+        `/person/${imdbId}`,
+      )
+      return omdbData.popularity > POPULARITY_LIMIT ? true : false
+    }
+    return false
+  } catch (error) {
+    console.error('[validateRandomPerson]: Something went wrong.')
+    return false
+  }
+}
 
 export { fetchMovieCredits, fetchPersonCredits, fetchCreateGame }

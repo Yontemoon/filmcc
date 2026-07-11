@@ -129,6 +129,20 @@ interface T_TMDB_PERSON_DETAILS {
   profile_path: string
 }
 
+interface T_TMDB_EXTERNAL_IDS {
+  id: number
+  freebase_mid: null | string
+  freebase_id: null | string
+  imdb_id: null | string
+  tvrage_id: null | string
+  wikidata_id: null | string
+  facebook_id: null | string
+  instagram_id: null | string
+  tiktok_id: null | string
+  twitter_id: null | string
+  youtube_id: null | string
+}
+
 export type {
   T_TMDB_MOVIE_CREDITS,
   T_TMDB_CAST,
@@ -136,4 +150,5 @@ export type {
   T_TMDB_PERSON_CREDITS,
   T_TMDB_MOVIE_DETAILS,
   T_TMDB_PERSON_DETAILS,
+  T_TMDB_EXTERNAL_IDS,
 }

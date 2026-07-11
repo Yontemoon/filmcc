@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useLoaderData } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import useGame from '#/hooks/use-game'
 import { Modal } from '@mantine/core'
 import Button from '#/components/ui/button'
@@ -16,17 +16,28 @@ const DEMO = {
   end: { id: 5655, type: 'person', label: 'Wes Anderson' },
 } as { start: TController; end: TController }
 
+const USE_DEMO = true as boolean
+
 export const Route = createFileRoute('/test')({
   component: RouteComponent,
   loader: async () => {
     return fetchCreateGame()
   },
+  pendingComponent: () => {
+    return <div>Loading...</div>
+  },
 })
 
 function RouteComponent() {
   const data = Route.useLoaderData()
-  console.log(data)
-  // console.log(data)
+
+  const controllerInformation = USE_DEMO
+    ? DEMO
+    : ({
+        start: { id: data?.start.id, label: data?.start.title, type: 'movie' },
+        end: { id: data?.end.id, label: data?.end.name, type: 'person' },
+      } as { start: TController; end: TController })
+
   const {
     changeController,
     query: { isLoading, data: current, error },
@@ -34,12 +45,12 @@ function RouteComponent() {
     gameOver,
     stats,
     time,
-  } = useGame(DEMO)
+  } = useGame(controllerInformation)
 
   return (
     <div>
-      <div>Start: {data?.start.id}</div>
-      <div>End: {data?.end.id}</div>
+      <div>Start: {controllerInformation.start.label}</div>
+      <div>End: {controllerInformation.end.label}</div>
       <Timer
         getElapsedMs={time.getElapsedMs}
         finalElapsedMs={time.finalTime}

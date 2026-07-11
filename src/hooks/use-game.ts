@@ -53,6 +53,7 @@ const useGame = ({ start, end }: PropTypes) => {
         title: 'Depicate',
         message: `This is already in your history.`,
       })
+      return
     }
 
     if (newControll.id === end.id && newControll.type === end.type) {

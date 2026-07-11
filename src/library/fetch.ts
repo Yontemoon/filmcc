@@ -1,5 +1,7 @@
+import { OMDB_URL, TMDB_URL } from './constants'
+
 const tmdbFetch = async <T>(url: string) => {
-  const response = await fetch(`https://api.themoviedb.org/3/${url}`, {
+  const response = await fetch(`${TMDB_URL}${url}`, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${process.env.TMDB_API_KEY}`,
@@ -9,4 +11,12 @@ const tmdbFetch = async <T>(url: string) => {
   return data
 }
 
-export { tmdbFetch }
+const omdbFetch = async <T>(url: string) => {
+  const response = await fetch(`${OMDB_URL}${url}`, {
+    method: 'GET',
+  })
+  const data = (await response.json()) as T
+  return data
+}
+
+export { tmdbFetch, omdbFetch }

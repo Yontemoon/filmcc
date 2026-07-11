@@ -17,4 +17,8 @@ const formatTime = (ms: number) => {
   return `${mm}:${ss}:${cs}`
 }
 
-export { formatTime }
+const getRandomNumber = (maxNumber: number) => {
+  return Math.floor(Math.random() * maxNumber)
+}
+
+export { formatTime, getRandomNumber }
