@@ -1,10 +1,9 @@
 import React from 'react'
-import { fetchMovieCredits, fetchPersonCredits } from '#/library/server'
-import { useQuery } from '@tanstack/react-query'
 import { notifications } from '@mantine/notifications'
 import { useCounter } from '@mantine/hooks'
 import useTimerRef from './use-timer-ref'
-import type { TType, TController } from '#/types/client.types'
+import type { TController } from '#/types/client.types'
+import useCredits from '#/hooks/use-credits'
 
 interface PropTypes {
   start: TController
@@ -69,30 +68,6 @@ const useGame = ({ start, end }: PropTypes) => {
     setController(newControll)
     setHistory((prev) => [...prev, newControll])
     increment()
-  }
-
-  const useCredits = (type: TType, id: number | undefined) => {
-    return useQuery({
-      queryKey: [type, id],
-      queryFn: async () => {
-        try {
-          if (!type || !id) {
-            throw new Error('No Id or Type')
-          }
-
-          if (type === 'movie') {
-            const res = await fetchMovieCredits({ data: { movieId: id } })
-            return res
-          } else {
-            const res = await fetchPersonCredits({ data: { personId: id } })
-            return res
-          }
-        } catch (error) {
-          console.error(`[useCredits]: `, error)
-          return null
-        }
-      },
-    })
   }
 
   const query = useCredits(controller.type, controller.id)

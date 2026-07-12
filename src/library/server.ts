@@ -46,6 +46,22 @@ const fetchPersonCredits = createServerFn({ method: 'GET' })
       tmdbFetch<T_TMDB_PERSON_CREDITS>(`/person/${personId}/movie_credits`),
     ])
 
+    personCredits.cast = personCredits.cast
+      .filter((curr) => curr.release_date)
+      .sort((a, b) => {
+        if (!a.release_date) return 1
+        if (!b.release_date) return -1
+        return b.release_date.localeCompare(a.release_date)
+      })
+
+    personCredits.crew = personCredits.crew
+      .filter((curr) => curr.release_date)
+      .sort((a, b) => {
+        if (!a.release_date) return 1
+        if (!b.release_date) return -1
+        return b.release_date.localeCompare(a.release_date)
+      })
+
     const res = {
       details: personDetails,
       credits: personCredits,

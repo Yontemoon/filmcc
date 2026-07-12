@@ -31,7 +31,7 @@ interface T_TMDB_MOVIE_DETAILS {
   overview: string
   popularity: number
   poster_path: string
-  release_date: string
+  release_date: string | null
   softcore: boolean
   video: boolean
   vote_average: number
@@ -95,7 +95,7 @@ interface T_TMDB_MOVIE_DETAILS {
     iso_3166_1: string
     name: string
   }[]
-  release_date: string
+  release_date: string | null
   revenue: number
   runtime: number
   softcore: boolean
