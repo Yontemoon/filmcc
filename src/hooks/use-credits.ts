@@ -7,11 +7,11 @@ const useCredits = (type: TType, id: number | undefined) => {
     queryKey: [type, id],
     queryFn: async () => {
       try {
-        if (!type || !id) {
+        if (!id) {
           throw new Error('No Id or Type')
         }
 
-        if (type === 'movie') {
+        if (type === 'MOVIE') {
           const res = await fetchMovieCredits({ data: { movieId: id } })
           return res
         } else {

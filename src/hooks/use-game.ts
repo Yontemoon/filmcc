@@ -2,7 +2,11 @@ import React from 'react'
 import { notifications } from '@mantine/notifications'
 import { useCounter } from '@mantine/hooks'
 import useTimerRef from './use-timer-ref'
-import type { TController } from '#/types/client.types'
+import type {
+  TController,
+  TMovieController,
+  TPersonController,
+} from '#/types/client.types'
 import useCredits from '#/hooks/use-credits'
 
 interface PropTypes {
@@ -12,12 +16,11 @@ interface PropTypes {
 
 const useGame = ({ start, end }: PropTypes) => {
   const [controller, setController] = React.useState<TController>(start)
-
   const { startTimer, stopTimer, isTimerRunning, getElapsedMs } = useTimerRef()
-
   const [gameOver, setGameOver] = React.useState(false)
-
-  const [history, setHistory] = React.useState<TController[]>([controller])
+  const [history, setHistory] = React.useState<
+    Array<TMovieController | TPersonController>
+  >([])
   const [count, { increment }] = useCounter(0, { min: 0 })
   React.useEffect(() => {
     startTimer()
@@ -50,7 +53,7 @@ const useGame = ({ start, end }: PropTypes) => {
     if (isPresent) {
       notifications.show({
         title: 'Depicate',
-        message: `This is already in your history.`,
+        message: `${newControll.label} is already in your history.`,
       })
       return
     }
@@ -66,11 +69,51 @@ const useGame = ({ start, end }: PropTypes) => {
     }
 
     setController(newControll)
-    setHistory((prev) => [...prev, newControll])
+
     increment()
   }
 
   const query = useCredits(controller.type, controller.id)
+
+  React.useEffect(() => {
+    const { data } = query
+
+    if (history.find((curr) => curr.id === controller.id)) {
+      return
+    }
+
+    if (!data) {
+      return
+    }
+
+    const { type: dataType } = data
+
+    if (controller.type === 'MOVIE' && dataType === 'MOVIE') {
+      const { type, ...restOfController } = controller
+
+      setHistory((prev) => [
+        ...prev,
+        {
+          ...restOfController,
+          type,
+          details: data.details,
+        },
+      ])
+    }
+
+    if (controller.type === 'PERSON' && dataType === 'PERSON') {
+      const { type, ...restOfController } = controller
+
+      setHistory((prev) => [
+        ...prev,
+        {
+          ...restOfController,
+          type,
+          details: data.details,
+        },
+      ])
+    }
+  }, [query.data])
 
   return {
     history,

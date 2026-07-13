@@ -9,15 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TestRouteImport } from './routes/test'
+import { Route as GameRouteImport } from './routes/game'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiCreditsPersonPerson_idRouteImport } from './routes/api/credits.person.$person_id'
 import { Route as ApiCreditsMovieMovie_idRouteImport } from './routes/api/credits.movie.$movie_id'
 
-const TestRoute = TestRouteImport.update({
-  id: '/test',
-  path: '/test',
+const GameRoute = GameRouteImport.update({
+  id: '/game',
+  path: '/game',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -45,14 +45,14 @@ const ApiCreditsMovieMovie_idRoute = ApiCreditsMovieMovie_idRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/test': typeof TestRoute
+  '/game': typeof GameRoute
   '/api/credits/movie/$movie_id': typeof ApiCreditsMovieMovie_idRoute
   '/api/credits/person/$person_id': typeof ApiCreditsPersonPerson_idRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/test': typeof TestRoute
+  '/game': typeof GameRoute
   '/api/credits/movie/$movie_id': typeof ApiCreditsMovieMovie_idRoute
   '/api/credits/person/$person_id': typeof ApiCreditsPersonPerson_idRoute
 }
@@ -60,7 +60,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/test': typeof TestRoute
+  '/game': typeof GameRoute
   '/api/credits/movie/$movie_id': typeof ApiCreditsMovieMovie_idRoute
   '/api/credits/person/$person_id': typeof ApiCreditsPersonPerson_idRoute
 }
@@ -69,21 +69,21 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
-    | '/test'
+    | '/game'
     | '/api/credits/movie/$movie_id'
     | '/api/credits/person/$person_id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
-    | '/test'
+    | '/game'
     | '/api/credits/movie/$movie_id'
     | '/api/credits/person/$person_id'
   id:
     | '__root__'
     | '/'
     | '/about'
-    | '/test'
+    | '/game'
     | '/api/credits/movie/$movie_id'
     | '/api/credits/person/$person_id'
   fileRoutesById: FileRoutesById
@@ -91,18 +91,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  TestRoute: typeof TestRoute
+  GameRoute: typeof GameRoute
   ApiCreditsMovieMovie_idRoute: typeof ApiCreditsMovieMovie_idRoute
   ApiCreditsPersonPerson_idRoute: typeof ApiCreditsPersonPerson_idRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/test': {
-      id: '/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof TestRouteImport
+    '/game': {
+      id: '/game'
+      path: '/game'
+      fullPath: '/game'
+      preLoaderRoute: typeof GameRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -139,7 +139,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  TestRoute: TestRoute,
+  GameRoute: GameRoute,
   ApiCreditsMovieMovie_idRoute: ApiCreditsMovieMovie_idRoute,
   ApiCreditsPersonPerson_idRoute: ApiCreditsPersonPerson_idRoute,
 }

@@ -31,11 +31,11 @@ export default function Header() {
             About
           </Link>
           <Link
-            to="/test"
+            to="/game"
             className="nav-link"
             activeProps={{ className: 'nav-link is-active' }}
           >
-            Test
+            Start Game
           </Link>
           <a
             href="https://tanstack.com/start/latest/docs/framework/react/overview"

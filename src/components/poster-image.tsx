@@ -13,7 +13,7 @@ const PosterImage: React.FC<PosterImageProps> = ({
   posterPath,
   id,
   altText = 'Movie poster',
-  className = 'w-[92px] h-[138px]',
+  className = 'w-10 h-15',
   ...props
 }) => {
   const [hasError, setHasError] = React.useState(false)

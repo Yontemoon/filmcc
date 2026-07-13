@@ -11,12 +11,11 @@ type ProfileImageProps = {
 const ProfileImage: React.FC<ProfileImageProps> = ({
   profilePath,
   creditId,
-  className = 'w-[66px] h-[66px]',
+  className = 'w-10 h-10',
   ...props
 }) => {
   const [hasError, setHasError] = useState(false)
 
-  // Determine if we should show the fallback
   const showFallback = !profilePath || hasError
 
   return (
@@ -25,7 +24,6 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
       {...props}
     >
       {showFallback ? (
-        // Backup UI: Clean SVG Avatar icon
         <svg
           className="w-1/2 h-1/2 text-slate-400"
           fill="currentColor"
@@ -39,7 +37,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
           className="w-full h-full object-cover"
           alt={`image-${creditId}`}
           src={`${TMDB_IMAGE_PROFILE_URL}${profilePath}`}
-          onError={() => setHasError(true)} // Catch broken links/404s dynamically
+          onError={() => setHasError(true)}
         />
       )}
     </div>

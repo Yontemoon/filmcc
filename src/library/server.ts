@@ -26,11 +26,11 @@ const fetchMovieCredits = createServerFn({ method: 'GET' })
       tmdbFetch<T_TMDB_MOVIE_CREDITS>(`/movie/${movieId}/credits`),
     ])
 
-    const movie = 'movie' as const
+    const movie = 'MOVIE' as const
     const res = {
       details: movieDetails,
       credits: movieCredits,
-      type: 'movie' as typeof movie,
+      type: 'MOVIE' as typeof movie,
     }
 
     return res
@@ -65,7 +65,7 @@ const fetchPersonCredits = createServerFn({ method: 'GET' })
     const res = {
       details: personDetails,
       credits: personCredits,
-      type: 'person' as const,
+      type: 'PERSON' as const,
     }
     return res
   })
