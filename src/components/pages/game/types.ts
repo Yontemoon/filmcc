@@ -11,6 +11,7 @@ type TMovieCrewCol = {
   department: string
   job: string
   profile_url: string
+  jobs: string[]
 }
 
 type TPersonCastCol = {
@@ -28,6 +29,7 @@ type TPersonCrewCol = {
   poster_url: string
   job: string
   department: string
+  jobs: string[]
 }
 
 export type { TMovieCastCol, TMovieCrewCol, TPersonCastCol, TPersonCrewCol }

@@ -7,8 +7,21 @@ import type {
 } from './types'
 import ProfileImage from '#/components/profile-image'
 import PosterImage from '#/components/poster-image'
+import { Pill } from '@mantine/core'
 
 const movieCastCol: ColumnDef<TMovieCastCol>[] = [
+  {
+    accessorKey: 'profile_url',
+    header: () => null,
+    cell: ({ row }) => {
+      return (
+        <ProfileImage
+          profilePath={row.original.profile_url}
+          creditId={row.original.id}
+        />
+      )
+    },
+  },
   {
     accessorKey: 'name',
     header: 'Name',
@@ -30,6 +43,9 @@ const movieCastCol: ColumnDef<TMovieCastCol>[] = [
     accessorKey: 'role',
     header: 'Role',
   },
+]
+
+const movieCrewCol: ColumnDef<TMovieCrewCol>[] = [
   {
     accessorKey: 'profile_url',
     header: 'profile_url',
@@ -42,9 +58,6 @@ const movieCastCol: ColumnDef<TMovieCastCol>[] = [
       )
     },
   },
-]
-
-const movieCrewCol: ColumnDef<TMovieCrewCol>[] = [
   {
     accessorKey: 'name',
     header: 'Name',
@@ -63,60 +76,35 @@ const movieCrewCol: ColumnDef<TMovieCrewCol>[] = [
     },
   },
   {
-    accessorKey: 'job',
-    header: 'Job',
-  },
-  {
-    accessorKey: 'profile_url',
-    header: 'profile_url',
+    accessorKey: 'jobs',
+    header: 'Jobs',
     cell: ({ row }) => {
+      const jobs = row.original.jobs
       return (
-        <ProfileImage
-          profilePath={row.original.profile_url}
-          creditId={row.original.id}
-        />
-      )
-    },
-  },
-]
-
-const personCrewCol: ColumnDef<TPersonCrewCol>[] = [
-  {
-    accessorKey: 'title',
-    header: 'Title',
-    cell: ({ row, table }) => {
-      const onClickName = table.options.meta?.onClickName
-      return (
-        <div
-          className="hover:cursor-pointer hover:underline "
-          onClick={() => {
-            if (onClickName) onClickName(row.original)
-          }}
-        >
-          {row.original.title}
+        <div className="space-y-1">
+          {jobs.map((job) => (
+            <Pill>{job}</Pill>
+          ))}
         </div>
-      )
-    },
-  },
-  {
-    accessorKey: 'job',
-    header: 'Job',
-  },
-  {
-    accessorKey: 'poster_url',
-    header: 'POSTER URL',
-    cell: ({ row }) => {
-      return (
-        <PosterImage
-          posterPath={row.original.poster_url}
-          id={row.original.id.toString()}
-        />
       )
     },
   },
 ]
 
 const personCastCol: ColumnDef<TPersonCastCol>[] = [
+  {
+    accessorKey: 'poster_url',
+    header: () => null,
+    cell: ({ row }) => {
+      return (
+        <PosterImage
+          className="w-10 h-10"
+          posterPath={row.original.poster_url}
+          id={row.original.id.toString()}
+        />
+      )
+    },
+  },
   {
     accessorKey: 'title',
     header: 'Title',
@@ -138,15 +126,50 @@ const personCastCol: ColumnDef<TPersonCastCol>[] = [
     accessorKey: 'role',
     header: 'ROLE',
   },
+]
+
+const personCrewCol: ColumnDef<TPersonCrewCol>[] = [
   {
     accessorKey: 'poster_url',
-    header: 'POSTER URL',
+    header: () => null,
     cell: ({ row }) => {
       return (
         <PosterImage
+          className="w-10 h-10"
           posterPath={row.original.poster_url}
           id={row.original.id.toString()}
         />
+      )
+    },
+  },
+  {
+    accessorKey: 'title',
+    header: 'Title',
+    cell: ({ row, table }) => {
+      const onClickName = table.options.meta?.onClickName
+      return (
+        <div
+          className="hover:cursor-pointer hover:underline "
+          onClick={() => {
+            if (onClickName) onClickName(row.original)
+          }}
+        >
+          {row.original.title}
+        </div>
+      )
+    },
+  },
+  {
+    accessorKey: 'jobs',
+    header: 'Jobs',
+    cell: ({ row }) => {
+      const jobs = row.original.jobs
+      return (
+        <div className="space-y-1">
+          {jobs.map((job) => (
+            <Pill>{job}</Pill>
+          ))}
+        </div>
       )
     },
   },

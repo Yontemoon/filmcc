@@ -9,7 +9,6 @@ import type { TController } from '#/types/client.types'
 import { fetchCreateGame } from '#/library/server'
 import Spinner from '#/components/ui/spinner'
 import History from '#/components/pages/game/history'
-import type { TUseCreditsResults } from '#/hooks/hooks.types'
 import DataTable from '#/components/ui/table/headless-table'
 import {
   movieCastCol,
@@ -17,71 +16,18 @@ import {
   personCastCol,
   personCrewCol,
 } from '#/components/pages/game/columns'
+import { reformatForTable } from '#/components/pages/game/utils'
 
 const DEMO = {
   start: {
-    type: 'MOVIE',
     id: 73,
+    type: 'MOVIE',
     label: 'American History X',
   },
   end: { id: 5655, type: 'PERSON', label: 'Wes Anderson' },
 } as { start: TController; end: TController }
 
 const USE_DEMO = false as boolean
-
-const reformatForTable = (data: TUseCreditsResults['data']) => {
-  if (!data) {
-    return
-  }
-
-  if (data.type === 'MOVIE') {
-    const castCredits = data.credits.cast.map((cast) => {
-      return {
-        id: cast.id,
-        name: cast.name,
-        role: cast.character,
-        profile_url: cast.profile_path,
-      }
-    })
-
-    const crewCredits = data.credits.crew.map((crew) => {
-      return {
-        id: crew.id,
-        name: crew.name,
-        department: crew.department,
-        job: crew.job,
-        profile_url: crew.profile_path,
-      }
-    })
-    return {
-      type: 'MOVIE' as const,
-      crew: crewCredits,
-      cast: castCredits,
-    }
-  } else {
-    const castCredits = data.credits.cast.map((credit) => {
-      return {
-        date: credit.release_date,
-        title: credit.title,
-        role: credit.character,
-        poster_url: credit.poster_path,
-        id: credit.id,
-      }
-    })
-
-    const crewCredits = data.credits.crew.map((crew) => {
-      return {
-        id: crew.id,
-        release_date: crew.release_date,
-        title: crew.title,
-        poster_url: crew.poster_path,
-        job: crew.job,
-        department: crew.department,
-      }
-    })
-    return { type: 'PERSON' as const, crew: crewCredits, cast: castCredits }
-  }
-}
 
 export const Route = createFileRoute('/game')({
   component: RouteComponent,

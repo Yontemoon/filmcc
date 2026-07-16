@@ -28,7 +28,7 @@ const History = ({ history }: PropTypes) => {
                 if (indx === lastIndx) {
                   return (
                     <div key={curr.id}>
-                      <div>Score: {indx + 1}</div>
+                      <div>{indx + 1}</div>
                       <PosterImage
                         className="w-10 h-15"
                         posterPath={curr.details.poster_path}
@@ -41,7 +41,7 @@ const History = ({ history }: PropTypes) => {
                     <div key={curr.id} className="flex items-center">
                       <Line />
                       <div>
-                        <div>Score: {indx + 1}</div>
+                        <div>{indx + 1}</div>
                         <PosterImage
                           className="w-10 h-15"
                           posterPath={curr.details.poster_path}
@@ -53,9 +53,10 @@ const History = ({ history }: PropTypes) => {
                 }
               } else {
                 if (indx === 0 || indx === lastIndx) {
+                  const start = indx === 0
                   return (
                     <div key={curr.id}>
-                      <div>Score: {indx + 1}</div>
+                      <div>{indx + 1}</div>
                       <ProfileImage
                         key={curr.id}
                         className="w-10 h-15"
@@ -69,7 +70,7 @@ const History = ({ history }: PropTypes) => {
                     <div key={curr.id} className="flex items-center">
                       <Line />
                       <div>
-                        <div>Score: {indx + 1}</div>
+                        <div>{indx + 1}</div>
                         <ProfileImage
                           className="w-10 h-15"
                           profilePath={curr.details.profile_path}
