@@ -70,13 +70,10 @@ const useGame = ({ start, end }: PropTypes) => {
   }
 
   const changeController = (newControll: TController): void => {
-    setController(newControll)
-
     if (gameState === 'IN_PROGRESS') {
       const isPresent = checkController(newControll)
 
       if (isPresent) {
-        console.log('is present')
         notifications.show({
           title: 'Already chosen!',
           message: `${newControll.label} is already in your history.`,
@@ -92,8 +89,10 @@ const useGame = ({ start, end }: PropTypes) => {
           count: count + 1,
           time: finalTime,
         })
+        return
       }
 
+      setController(newControll)
       increment()
     }
   }
@@ -101,7 +100,7 @@ const useGame = ({ start, end }: PropTypes) => {
   const query = useCredits(controller.type, controller.id)
 
   React.useEffect(() => {
-    if (gameState === 'IN_PROGRESS') {
+    if (gameState === 'IN_PROGRESS' || gameState === 'START') {
       const { data } = query
 
       if (history.find((curr) => curr.id === controller.id)) {

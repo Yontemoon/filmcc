@@ -54,7 +54,7 @@ const History = ({ history }: PropTypes) => {
               } else {
                 if (indx === 0 || indx === lastIndx) {
                   return (
-                    <div>
+                    <div key={curr.id}>
                       <div>Score: {indx + 1}</div>
                       <ProfileImage
                         key={curr.id}
