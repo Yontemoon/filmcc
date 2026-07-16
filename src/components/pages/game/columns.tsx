@@ -8,14 +8,20 @@ import type {
 import ProfileImage from '#/components/profile-image'
 import PosterImage from '#/components/poster-image'
 import { Pill } from '@mantine/core'
+import { displayYear } from '#/library/utils'
 
 const movieCastCol: ColumnDef<TMovieCastCol>[] = [
   {
     accessorKey: 'profile_url',
     header: () => null,
-    cell: ({ row }) => {
+    enableSorting: false,
+    cell: ({ row, table }) => {
+      const onClickName = table.options.meta?.onClickName
       return (
         <ProfileImage
+          onClick={() => {
+            if (onClickName) onClickName(row.original)
+          }}
           profilePath={row.original.profile_url}
           creditId={row.original.id}
         />
@@ -48,10 +54,15 @@ const movieCastCol: ColumnDef<TMovieCastCol>[] = [
 const movieCrewCol: ColumnDef<TMovieCrewCol>[] = [
   {
     accessorKey: 'profile_url',
-    header: 'profile_url',
-    cell: ({ row }) => {
+    header: () => null,
+    enableSorting: false,
+    cell: ({ row, table }) => {
+      const onClickName = table.options.meta?.onClickName
       return (
         <ProfileImage
+          onClick={() => {
+            if (onClickName) onClickName(row.original)
+          }}
           profilePath={row.original.profile_url}
           creditId={row.original.id}
         />
@@ -95,9 +106,14 @@ const personCastCol: ColumnDef<TPersonCastCol>[] = [
   {
     accessorKey: 'poster_url',
     header: () => null,
-    cell: ({ row }) => {
+    enableSorting: false,
+    cell: ({ row, table }) => {
+      const onClickName = table.options.meta?.onClickName
       return (
         <PosterImage
+          onClick={() => {
+            if (onClickName) onClickName(row.original)
+          }}
           className="w-10 h-10"
           posterPath={row.original.poster_url}
           id={row.original.id.toString()}
@@ -110,6 +126,8 @@ const personCastCol: ColumnDef<TPersonCastCol>[] = [
     header: 'Title',
     cell: ({ row, table }) => {
       const onClickName = table.options.meta?.onClickName
+      const year = row.original.date && displayYear(row.original.date)
+
       return (
         <div
           className="hover:cursor-pointer hover:underline "
@@ -117,14 +135,14 @@ const personCastCol: ColumnDef<TPersonCastCol>[] = [
             if (onClickName) onClickName(row.original)
           }}
         >
-          {row.original.title}
+          {row.original.title} {`(  ${year})`}
         </div>
       )
     },
   },
   {
     accessorKey: 'role',
-    header: 'ROLE',
+    header: 'Role',
   },
 ]
 
@@ -132,9 +150,14 @@ const personCrewCol: ColumnDef<TPersonCrewCol>[] = [
   {
     accessorKey: 'poster_url',
     header: () => null,
-    cell: ({ row }) => {
+    enableSorting: false,
+    cell: ({ row, table }) => {
+      const onClickName = table.options.meta?.onClickName
       return (
         <PosterImage
+          onClick={() => {
+            if (onClickName) onClickName(row.original)
+          }}
           className="w-10 h-10"
           posterPath={row.original.poster_url}
           id={row.original.id.toString()}
@@ -147,6 +170,8 @@ const personCrewCol: ColumnDef<TPersonCrewCol>[] = [
     header: 'Title',
     cell: ({ row, table }) => {
       const onClickName = table.options.meta?.onClickName
+      const year =
+        row.original.release_date && displayYear(row.original.release_date)
       return (
         <div
           className="hover:cursor-pointer hover:underline "
@@ -154,7 +179,7 @@ const personCrewCol: ColumnDef<TPersonCrewCol>[] = [
             if (onClickName) onClickName(row.original)
           }}
         >
-          {row.original.title}
+          {row.original.title} ({year ?? `(${year})`})
         </div>
       )
     },

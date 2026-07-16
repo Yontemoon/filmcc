@@ -17,15 +17,7 @@ import {
   personCrewCol,
 } from '#/components/pages/game/columns'
 import { reformatForTable } from '#/components/pages/game/utils'
-
-const DEMO = {
-  start: {
-    id: 73,
-    type: 'MOVIE',
-    label: 'American History X',
-  },
-  end: { id: 5655, type: 'PERSON', label: 'Wes Anderson' },
-} as { start: TController; end: TController }
+import { DEMO } from '#/library/constants'
 
 const USE_DEMO = false as boolean
 

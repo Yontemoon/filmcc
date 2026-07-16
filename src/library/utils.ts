@@ -17,8 +17,12 @@ const formatTime = (ms: number) => {
   return `${mm}:${ss}:${cs}`
 }
 
+const displayYear = (date: string) => {
+  return new Date(date).getFullYear()
+}
+
 const getRandomNumber = (maxNumber: number) => {
   return Math.floor(Math.random() * maxNumber)
 }
 
-export { formatTime, getRandomNumber }
+export { formatTime, getRandomNumber, displayYear }
