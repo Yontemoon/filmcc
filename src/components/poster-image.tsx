@@ -9,13 +9,13 @@ type PosterImageProps = {
   className?: string
 } & ComponentProps<'div'>
 
-const PosterImage: React.FC<PosterImageProps> = ({
+const PosterImage = ({
   posterPath,
   id,
   altText = 'Movie poster',
   className = 'w-10 h-15',
   ...props
-}) => {
+}: PosterImageProps) => {
   const [hasError, setHasError] = React.useState(false)
 
   const showFallback = !posterPath || hasError

@@ -14,17 +14,21 @@ interface PropTypes {
   end: TController
 }
 
+type TGameState = 'START' | 'IN_PROGRESS' | 'END' | 'STAYED'
+
 const useGame = ({ start, end }: PropTypes) => {
   const [controller, setController] = React.useState<TController>(start)
   const { startTimer, stopTimer, isTimerRunning, getElapsedMs } = useTimerRef()
-  const [gameOver, setGameOver] = React.useState(false)
+  const [gameState, setGameState] = React.useState<TGameState>('START')
   const [history, setHistory] = React.useState<
     Array<TMovieController | TPersonController>
   >([])
   const [count, { increment }] = useCounter(0, { min: 0 })
   React.useEffect(() => {
-    startTimer()
-  }, [])
+    if (gameState === 'IN_PROGRESS') {
+      startTimer()
+    }
+  }, [gameState])
 
   const [stats, setStats] = React.useState({
     count: count,
@@ -32,9 +36,11 @@ const useGame = ({ start, end }: PropTypes) => {
   })
 
   React.useEffect(() => {
-    setStats((prev) => {
-      return { ...prev, count: count }
-    })
+    if (gameState === 'IN_PROGRESS') {
+      setStats((prev) => {
+        return { ...prev, count: count }
+      })
+    }
   }, [count])
 
   const checkController = (newController: TController) => {
@@ -47,75 +53,97 @@ const useGame = ({ start, end }: PropTypes) => {
     return isPresent >= 0 ? true : false
   }
 
+  const startGame = () => {
+    if (gameState === 'START') {
+      setGameState('IN_PROGRESS')
+    }
+  }
+  const stayInGame = () => {
+    if (gameState === 'END') {
+      setGameState('STAYED')
+    }
+  }
+  const gameOver = () => {
+    if (gameState === 'IN_PROGRESS') {
+      setGameState('END')
+    }
+  }
+
   const changeController = (newControll: TController): void => {
-    const isPresent = checkController(newControll)
-
-    if (isPresent) {
-      notifications.show({
-        title: 'Depicate',
-        message: `${newControll.label} is already in your history.`,
-      })
-      return
-    }
-
-    if (newControll.id === end.id && newControll.type === end.type) {
-      setGameOver(true)
-
-      const finalTime = stopTimer()
-      setStats({
-        count: count + 1,
-        time: finalTime,
-      })
-    }
-
     setController(newControll)
 
-    increment()
+    if (gameState === 'IN_PROGRESS') {
+      const isPresent = checkController(newControll)
+
+      if (isPresent) {
+        console.log('is present')
+        notifications.show({
+          title: 'Already chosen!',
+          message: `${newControll.label} is already in your history.`,
+        })
+        return
+      }
+
+      if (newControll.id === end.id && newControll.type === end.type) {
+        setGameState('END')
+
+        const finalTime = stopTimer()
+        setStats({
+          count: count + 1,
+          time: finalTime,
+        })
+      }
+
+      increment()
+    }
   }
 
   const query = useCredits(controller.type, controller.id)
 
   React.useEffect(() => {
-    const { data } = query
+    if (gameState === 'IN_PROGRESS') {
+      const { data } = query
 
-    if (history.find((curr) => curr.id === controller.id)) {
-      return
-    }
+      if (history.find((curr) => curr.id === controller.id)) {
+        return
+      }
 
-    if (!data) {
-      return
-    }
+      if (!data) {
+        return
+      }
 
-    const { type: dataType } = data
+      const { type: dataType } = data
 
-    if (controller.type === 'MOVIE' && dataType === 'MOVIE') {
-      const { type, ...restOfController } = controller
+      if (controller.type === 'MOVIE' && dataType === 'MOVIE') {
+        const { type, ...restOfController } = controller
 
-      setHistory((prev) => [
-        ...prev,
-        {
-          ...restOfController,
-          type,
-          details: data.details,
-        },
-      ])
-    }
+        setHistory((prev) => [
+          ...prev,
+          {
+            ...restOfController,
+            type,
+            details: data.details,
+          },
+        ])
+      }
 
-    if (controller.type === 'PERSON' && dataType === 'PERSON') {
-      const { type, ...restOfController } = controller
+      if (controller.type === 'PERSON' && dataType === 'PERSON') {
+        const { type, ...restOfController } = controller
 
-      setHistory((prev) => [
-        ...prev,
-        {
-          ...restOfController,
-          type,
-          details: data.details,
-        },
-      ])
+        setHistory((prev) => [
+          ...prev,
+          {
+            ...restOfController,
+            type,
+            details: data.details,
+          },
+        ])
+      }
     }
   }, [query.data])
 
   return {
+    startGame,
     history,
     query,
     changeController,
@@ -126,6 +154,8 @@ const useGame = ({ start, end }: PropTypes) => {
       getElapsedMs,
       finalTime: stats.time,
     },
+    stayInGame,
+    gameState,
   }
 }
 

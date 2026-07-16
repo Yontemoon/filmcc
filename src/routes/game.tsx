@@ -1,3 +1,4 @@
+import React from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import useGame from '#/hooks/use-game'
 import { Modal, Group } from '@mantine/core'
@@ -6,11 +7,16 @@ import Timer from '#/components/timer'
 import { formatTime } from '#/library/utils'
 import type { TController } from '#/types/client.types'
 import { fetchCreateGame } from '#/library/server'
-import ProfileImage from '#/components/profile-image'
 import Spinner from '#/components/ui/spinner'
-import PosterImage from '#/components/poster-image'
-import { CircleCheck } from 'lucide-react'
 import History from '#/components/pages/game/history'
+import type { TUseCreditsResults } from '#/hooks/hooks.types'
+import DataTable from '#/components/ui/table/headless-table'
+import {
+  movieCastCol,
+  movieCrewCol,
+  personCastCol,
+  personCrewCol,
+} from '#/components/pages/game/columns'
 
 const DEMO = {
   start: {
@@ -21,58 +27,61 @@ const DEMO = {
   end: { id: 5655, type: 'PERSON', label: 'Wes Anderson' },
 } as { start: TController; end: TController }
 
-const USE_DEMO = true as boolean
+const USE_DEMO = false as boolean
 
-// const reformatForTable = (data: TUseCreditsResults['data']) => {
-//   if (!data) {
-//     return
-//   }
+const reformatForTable = (data: TUseCreditsResults['data']) => {
+  if (!data) {
+    return
+  }
 
-//   if (data.type === 'movie') {
-//     const castCredits = data.credits.cast.map((cast) => {
-//       return {
-//         id: cast.id,
-//         name: cast.name,
-//         character: cast.character,
-//         profile_url: cast.profile_path,
-//       }
-//     })
+  if (data.type === 'MOVIE') {
+    const castCredits = data.credits.cast.map((cast) => {
+      return {
+        id: cast.id,
+        name: cast.name,
+        role: cast.character,
+        profile_url: cast.profile_path,
+      }
+    })
 
-//     const crewCredits = data.credits.crew.map((crew) => {
-//       return {
-//         id: crew.id,
-//         department: crew.department,
-//         job: crew.job,
-//         profile_url: crew.profile_path,
-//       }
-//     })
-//     return {
-//       crew: crewCredits,
-//       cast: castCredits,
-//     }
-//   } else {
-//     const castCredits = data.credits.cast.map((credit) => {
-//       return {
-//         date: credit.release_date,
-//         title: credit.title,
-//         role: credit.character,
-//         poster: credit.poster_path,
-//         id: credit.id,
-//       }
-//     })
+    const crewCredits = data.credits.crew.map((crew) => {
+      return {
+        id: crew.id,
+        name: crew.name,
+        department: crew.department,
+        job: crew.job,
+        profile_url: crew.profile_path,
+      }
+    })
+    return {
+      type: 'MOVIE' as const,
+      crew: crewCredits,
+      cast: castCredits,
+    }
+  } else {
+    const castCredits = data.credits.cast.map((credit) => {
+      return {
+        date: credit.release_date,
+        title: credit.title,
+        role: credit.character,
+        poster_url: credit.poster_path,
+        id: credit.id,
+      }
+    })
 
-//     const crewCredits = data.credits.crew.map((crew) => {
-//       return {
-//         id: crew.id,
-//         title: crew.title,
-//         poster_url: crew.poster_path,
-//         job: crew.job,
-//         department: crew.department,
-//       }
-//     })
-//     return { crew: crewCredits, cast: castCredits }
-//   }
-// }
+    const crewCredits = data.credits.crew.map((crew) => {
+      return {
+        id: crew.id,
+        release_date: crew.release_date,
+        title: crew.title,
+        poster_url: crew.poster_path,
+        job: crew.job,
+        department: crew.department,
+      }
+    })
+    return { type: 'PERSON' as const, crew: crewCredits, cast: castCredits }
+  }
+}
 
 export const Route = createFileRoute('/game')({
   component: RouteComponent,
@@ -99,26 +108,54 @@ function RouteComponent() {
       } as { start: TController; end: TController })
 
   const {
+    startGame,
     changeController,
+    stayInGame,
     query: { isLoading, data: current, error },
     history,
-    gameOver,
+    gameState,
     stats,
     time,
   } = useGame(controllerInformation)
-  console.log(current)
 
-  // const memoTableData = useMemo(() => {
-  //   return reformatForTable(current)
-  // }, [current])
+  const memoTableData = React.useMemo(() => {
+    return reformatForTable(current)
+  }, [current])
 
   return (
     <Group>
       <Modal
-        opened={gameOver}
-        withCloseButton={false}
+        opened={gameState === 'START'}
         onClose={() => {
-          console.log('Closing Modal')
+          console.log('passing here')
+        }}
+        centered
+        title={'You are about to start!'}
+      >
+        <h2>Are you ready?</h2>
+        <p>
+          You are on {controllerInformation.start.label} and have to get to{' '}
+          {controllerInformation.end.label}
+        </p>
+
+        <div className="w-full grid grid-cols-2 gap-2">
+          <Button
+            className="w-full"
+            onClick={() => {
+              startGame()
+            }}
+          >
+            I am ready!
+          </Button>
+          <Link to={'/'} className="w-full">
+            <Button>Go back</Button>
+          </Link>
+        </div>
+      </Modal>
+      <Modal
+        opened={gameState === 'END'}
+        onClose={() => {
+          stayInGame()
         }}
         centered
         title={'You finished!'}
@@ -127,19 +164,20 @@ function RouteComponent() {
         <p>count: {stats.count}</p>
         <p>time: {formatTime(stats.time)}</p>
         <div className="w-full grid grid-cols-2 gap-2">
-          <Button className="w-full">Stay & Explore</Button>
+          <Button
+            className="w-full"
+            onClick={() => {
+              stayInGame()
+            }}
+          >
+            Stay & Explore
+          </Button>
           <Link to={'/'} className="w-full">
             <Button>Go back</Button>
           </Link>
         </div>
       </Modal>
       <div className="mx-auto max-w-275 w-full my-0 flex flex-col min-h-screen">
-        {isLoading && (
-          <div className="flex justify-center">
-            <Spinner />
-          </div>
-        )}
-        {error && <div>{error.message}</div>}
         <div id="header">
           <div>Start: {controllerInformation.start.label}</div>
           <div>End: {controllerInformation.end.label}</div>
@@ -151,219 +189,63 @@ function RouteComponent() {
         </div>
 
         <div className="flex-1" id="main-body">
-          {/* IF A MOVIE PAGE IS SHOWN */}
-          {current?.type === 'MOVIE' && (
-            <div>
-              <h1>{current.details.title}</h1>
-              <div className=" mx-auto px-10 grid md:grid-cols-2 w-full gap-5">
-                <div className="space-y-3">
-                  {current.credits.cast.map((credit) => {
-                    const isUsed = history
-                      .filter((val) => val.type === 'PERSON')
-                      .find((val) => val.id === credit.id)
-                    return (
-                      <div
-                        key={credit.credit_id}
-                        className="flex justify-between"
-                      >
-                        <div className="flex gap-2">
-                          <ProfileImage
-                            creditId={credit.credit_id}
-                            profilePath={credit.profile_path}
-                            onClick={() => {
-                              changeController({
-                                id: credit.id,
-                                type: 'PERSON',
-                                label: credit.name,
-                              })
-                            }}
-                          />
-                          <div>
-                            <div
-                              className="hover:cursor-pointer hover:underline text-lg"
-                              onClick={() => {
-                                changeController({
-                                  id: credit.id,
-                                  type: 'PERSON',
-                                  label: credit.name,
-                                })
-                              }}
-                            >
-                              {credit.name}
-                            </div>
-                            <div className="text-sm">{credit.character}</div>
-                          </div>
-                        </div>
-
-                        {isUsed && (
-                          <div>
-                            <CircleCheck className="text-red-500" />
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-                <div className="space-y-3">
-                  {current.credits.crew.map((crew) => {
-                    const isUsed = history
-                      .filter((val) => val.type === 'PERSON')
-                      .find((val) => val.id === crew.id)
-                    return (
-                      <div
-                        className="flex justify-between w-full"
-                        key={crew.credit_id}
-                      >
-                        <div className="flex gap-2">
-                          <ProfileImage
-                            creditId={crew.credit_id}
-                            profilePath={crew.profile_path}
-                            onClick={() => {
-                              changeController({
-                                id: crew.id,
-                                type: 'PERSON',
-                                label: crew.name,
-                              })
-                            }}
-                          />
-                          <div>
-                            <div
-                              className="hover:cursor-pointer hover:underline text-lg"
-                              onClick={() => {
-                                changeController({
-                                  id: crew.id,
-                                  type: 'PERSON',
-                                  label: crew.name,
-                                })
-                              }}
-                            >
-                              {crew.name}
-                            </div>
-                            <div className="text-sm">
-                              {crew.known_for_department} -- {crew.job}
-                            </div>
-                          </div>
-                        </div>
-                        {isUsed && (
-                          <div>
-                            <CircleCheck className="text-red-500" />
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
+          {isLoading && (
+            <div className="flex justify-center">
+              <Spinner />
             </div>
           )}
+          {error && <div>{error.message}</div>}
 
-          {/* IF A PERSON (ACTOR/PERSON) IS SHOWN */}
-          {current?.type === 'PERSON' && (
-            <div>
-              <h1>{current.details.name}</h1>
-              <div className=" mx-auto px-10 grid md:grid-cols-2 w-full gap-5 text-sm">
-                <div className="space-y-3">
-                  {current.credits.cast.map((credit) => {
-                    const isUsed = history
-                      .filter((val) => val.type === 'MOVIE')
-                      .find((val) => val.id === credit.id)
-                    return (
-                      <div className="flex gap-2 w-full" key={credit.credit_id}>
-                        <div className="flex justify-between w-full">
-                          <div className="flex gap-2">
-                            <PosterImage
-                              id={credit.id.toString()}
-                              posterPath={credit.poster_path}
-                              onClick={() => {
-                                changeController({
-                                  id: credit.id,
-                                  type: 'MOVIE',
-                                  label: credit.title,
-                                })
-                              }}
-                            />
-                            <div>
-                              <div
-                                className="text-lg hover:cursor-pointer hover:underline"
-                                onClick={() => {
-                                  changeController({
-                                    id: credit.id,
-                                    type: 'MOVIE',
-                                    label: credit.title,
-                                  })
-                                }}
-                              >
-                                {credit.title}
-                              </div>
-
-                              {credit.release_date && (
-                                <div>
-                                  {new Date(credit.release_date).getFullYear()}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          {isUsed && (
-                            <div>
-                              <CircleCheck className="text-red-500" />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-                <div className="space-y-3">
-                  {current.credits.crew.map((crew, idx) => {
-                    const isUsed = history
-                      .filter((val) => val.type === 'MOVIE')
-                      .find((val) => val.id === crew.id)
-                    return (
-                      <div className="flex gap-2" key={`${idx}-${crew.id}`}>
-                        <div className="flex justify-between w-full">
-                          <div className="flex gap-2">
-                            <PosterImage
-                              key={`${idx}-${crew.id}`}
-                              id={crew.id.toString()}
-                              posterPath={crew.poster_path}
-                              onClick={() => {
-                                changeController({
-                                  id: crew.id,
-                                  type: 'MOVIE',
-                                  label: crew.title,
-                                })
-                              }}
-                            />
-                            <div>
-                              <div
-                                className="text-lg hover:cursor-pointer hover:underline"
-                                onClick={() => {
-                                  changeController({
-                                    id: crew.id,
-                                    type: 'MOVIE',
-                                    label: crew.title,
-                                  })
-                                }}
-                              >
-                                {crew.title}
-                              </div>
-
-                              <div className="text-sm">{crew.job}</div>
-                              {/* <div>{crew.release_date}</div> */}
-                            </div>
-                          </div>
-
-                          {isUsed && (
-                            <div>
-                              <CircleCheck className="text-red-500" />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
+          {memoTableData?.type === 'MOVIE' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 ">
+              <DataTable
+                data={memoTableData.cast}
+                columns={movieCastCol}
+                onClickName={(rowData) => {
+                  changeController({
+                    id: rowData.id,
+                    type: 'PERSON',
+                    label: rowData.name,
+                  })
+                }}
+              />
+              <DataTable
+                data={memoTableData.crew}
+                columns={movieCrewCol}
+                onClickName={(rowData) => {
+                  changeController({
+                    id: rowData.id,
+                    type: 'PERSON',
+                    label: rowData.name,
+                  })
+                }}
+              />
+            </div>
+          )}
+          {memoTableData?.type === 'PERSON' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 ">
+              <DataTable
+                data={memoTableData.cast}
+                columns={personCastCol}
+                onClickName={(rowData) => {
+                  changeController({
+                    id: rowData.id,
+                    type: 'MOVIE',
+                    label: rowData.title,
+                  })
+                }}
+              />
+              <DataTable
+                data={memoTableData.crew}
+                columns={personCrewCol}
+                onClickName={(rowData) => {
+                  changeController({
+                    id: rowData.id,
+                    type: 'MOVIE',
+                    label: rowData.title,
+                  })
+                }}
+              />
             </div>
           )}
         </div>

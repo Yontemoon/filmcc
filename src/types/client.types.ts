@@ -11,11 +11,6 @@ type TController = {
   label: string
 }
 
-// type TControllerTest = {
-//   id: number
-//   label: string
-// }
-
 type TBaseController<T extends TType, TDetails> = Omit<TController, 'type'> & {
   type: T
   details: TDetails
