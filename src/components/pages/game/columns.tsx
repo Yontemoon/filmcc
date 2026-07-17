@@ -9,6 +9,7 @@ import ProfileImage from '#/components/profile-image'
 import PosterImage from '#/components/poster-image'
 import Badge from '#/components/ui/badge'
 import { displayYear } from '#/library/utils'
+import { Text } from '@mantine/core'
 
 const movieCastCol: ColumnDef<TMovieCastCol>[] = [
   {
@@ -40,7 +41,7 @@ const movieCastCol: ColumnDef<TMovieCastCol>[] = [
             if (onClickName) onClickName(row.original)
           }}
         >
-          {row.original.name}
+          <Text size="xs">{row.original.name}</Text>
         </div>
       )
     },
@@ -48,10 +49,18 @@ const movieCastCol: ColumnDef<TMovieCastCol>[] = [
   {
     accessorKey: 'role',
     header: 'Role',
+    cell: ({ row }) => {
+      return (
+        <>
+          <Text size="xs">{row.original.role}</Text>
+        </>
+      )
+    },
   },
   {
     accessorKey: 'already_added',
-    header: 'Added?',
+    header: () => null,
+    enableSorting: false,
     cell: ({ row }) => {
       const added = row.original.already_added
 
@@ -115,7 +124,7 @@ const movieCrewCol: ColumnDef<TMovieCrewCol>[] = [
       return (
         <div className="space-x-1">
           {jobs.map((job) => (
-            <Badge>{job}</Badge>
+            <Badge size="xs">{job}</Badge>
           ))}
         </div>
       )
@@ -123,7 +132,8 @@ const movieCrewCol: ColumnDef<TMovieCrewCol>[] = [
   },
   {
     accessorKey: 'already_added',
-    header: 'Added?',
+    header: () => null,
+    enableSorting: false,
     cell: ({ row }) => {
       const added = row.original.already_added
       if (added) {
@@ -187,7 +197,8 @@ const personCastCol: ColumnDef<TPersonCastCol>[] = [
   },
   {
     accessorKey: 'already_added',
-    header: 'Added?',
+    header: () => null,
+    enableSorting: false,
     cell: ({ row }) => {
       const added = row.original.already_added
 
@@ -254,7 +265,7 @@ const personCrewCol: ColumnDef<TPersonCrewCol>[] = [
       return (
         <div className="space-x-1">
           {jobs.map((job) => (
-            <Badge>{job}</Badge>
+            <Badge size="xs">{job}</Badge>
           ))}
         </div>
       )
@@ -262,7 +273,8 @@ const personCrewCol: ColumnDef<TPersonCrewCol>[] = [
   },
   {
     accessorKey: 'already_added',
-    header: 'Added?',
+    header: () => null,
+    enableSorting: false,
     cell: ({ row }) => {
       const added = row.original.already_added
       if (added) {

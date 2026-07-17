@@ -118,9 +118,9 @@ function DataTable<TData, TValue>({
           <Table.Tbody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <Table.Tr key={row.id}>
+                <Table.Tr key={row.id} className="m-0 p-0">
                   {row.getVisibleCells().map((cell) => (
-                    <Table.Td key={cell.id}>
+                    <Table.Td key={cell.id} className="p-0.5! m-0">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),

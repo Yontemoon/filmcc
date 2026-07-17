@@ -122,7 +122,7 @@ interface T_TMDB_PERSON_DETAILS {
   homepage: string | null
   id: number
   imdb_id: string | null
-  known_for_department: string
+  known_for_department: 'Acting' | string
   name: string
   place_of_birth: string
   popularity: number

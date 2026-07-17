@@ -13,6 +13,7 @@ const Line = () => {
 
 const History = ({ history }: PropTypes) => {
   const lastIndx = history.length - 1
+
   return (
     <div
       id="footer"
@@ -23,12 +24,12 @@ const History = ({ history }: PropTypes) => {
           <div className="flex flex-row-reverse">
             {history.map((curr, indx) => {
               const type = curr.type
-
+              const start = indx === 0
               if (type === 'MOVIE') {
                 if (indx === lastIndx) {
                   return (
                     <div key={curr.id}>
-                      <div>{indx + 1}</div>
+                      <div>{start ? 'Start' : indx}</div>
                       <PosterImage
                         className="w-10 h-15"
                         posterPath={curr.details.poster_path}
@@ -41,7 +42,7 @@ const History = ({ history }: PropTypes) => {
                     <div key={curr.id} className="flex items-center">
                       <Line />
                       <div>
-                        <div>{indx + 1}</div>
+                        <div>{start ? 'Start' : indx}</div>
                         <PosterImage
                           className="w-10 h-15"
                           posterPath={curr.details.poster_path}
@@ -53,12 +54,10 @@ const History = ({ history }: PropTypes) => {
                 }
               } else {
                 if (indx === 0 || indx === lastIndx) {
-                  const start = indx === 0
                   return (
                     <div key={curr.id}>
-                      <div>{indx + 1}</div>
+                      <div>{start ? 'Start' : indx}</div>
                       <ProfileImage
-                        key={curr.id}
                         className="w-10 h-15"
                         profilePath={curr.details.profile_path}
                         creditId={`${curr.id}-${indx}`}
@@ -70,7 +69,7 @@ const History = ({ history }: PropTypes) => {
                     <div key={curr.id} className="flex items-center">
                       <Line />
                       <div>
-                        <div>{indx + 1}</div>
+                        <div>{indx}</div>
                         <ProfileImage
                           className="w-10 h-15"
                           profilePath={curr.details.profile_path}

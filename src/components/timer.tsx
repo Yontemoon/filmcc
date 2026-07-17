@@ -6,10 +6,14 @@ const Timer = ({
   isRunning,
   getElapsedMs,
   finalElapsedMs,
+  label = 'Time: ',
+  className,
 }: {
   isRunning: boolean
   getElapsedMs: () => number
   finalElapsedMs: number | null
+  label?: string
+  className?: string
 }) => {
   const [displayMs, setDisplayMs] = React.useState(() => getElapsedMs())
 
@@ -26,7 +30,12 @@ const Timer = ({
     return () => clearInterval(interval)
   }, [isRunning, getElapsedMs, finalElapsedMs])
 
-  return <div>Time: {formatTime(displayMs)}</div>
+  return (
+    <span className={className}>
+      {label}
+      {formatTime(displayMs)}
+    </span>
+  )
 }
 
 export default Timer

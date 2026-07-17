@@ -101,7 +101,11 @@ const reformatForTable = (
       },
       [],
     )
-    return { type: 'PERSON' as const, crew: crewCredits, cast: castCredits }
+    return {
+      type: 'PERSON' as const,
+      crew: crewCredits.filter((movie) => movie.poster_url),
+      cast: castCredits.filter((movie) => movie.poster_url),
+    }
   }
 }
 
