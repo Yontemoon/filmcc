@@ -3,6 +3,7 @@ type TMovieCastCol = {
   name: string
   role: string
   profile_url: string
+  already_added: boolean
 }
 
 type TMovieCrewCol = {
@@ -12,6 +13,7 @@ type TMovieCrewCol = {
   job: string
   profile_url: string
   jobs: string[]
+  already_added: boolean
 }
 
 type TPersonCastCol = {
@@ -20,6 +22,7 @@ type TPersonCastCol = {
   title: string
   role: string
   poster_url: string
+  already_added: boolean
 }
 
 type TPersonCrewCol = {
@@ -30,6 +33,7 @@ type TPersonCrewCol = {
   job: string
   department: string
   jobs: string[]
+  already_added: boolean
 }
 
 export type { TMovieCastCol, TMovieCrewCol, TPersonCastCol, TPersonCrewCol }

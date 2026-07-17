@@ -1,7 +1,11 @@
 import type { TUseCreditsResults } from '#/hooks/hooks.types'
+import type { TMovieController, TPersonController } from '#/types/client.types'
 import type { TMovieCrewCol, TPersonCrewCol } from './types'
 
-const reformatForTable = (data: TUseCreditsResults['data']) => {
+const reformatForTable = (
+  data: TUseCreditsResults['data'],
+  history: (TMovieController | TPersonController)[],
+) => {
   if (!data) {
     return
   }
@@ -15,6 +19,10 @@ const reformatForTable = (data: TUseCreditsResults['data']) => {
           acc[foundIndx].jobs = [...acc[foundIndx].jobs, curr.job]
           return acc
         } else {
+          const isDuplicate = history.findIndex((val) => {
+            return val.id === curr.id && val.type === 'PERSON'
+          })
+
           const newReduce = {
             id: curr.id,
             name: curr.name,
@@ -22,6 +30,7 @@ const reformatForTable = (data: TUseCreditsResults['data']) => {
             job: curr.job,
             profile_url: curr.profile_path,
             jobs: Array(curr.job),
+            already_added: isDuplicate >= 0 ? true : false,
           }
 
           acc.push(newReduce)
@@ -32,11 +41,15 @@ const reformatForTable = (data: TUseCreditsResults['data']) => {
     )
 
     const castCredits = data.credits.cast.map((cast) => {
+      const isDuplicate = history.findIndex(
+        (val) => val.id === cast.id && val.type === 'PERSON',
+      )
       return {
         id: cast.id,
         name: cast.name,
         role: cast.character,
         profile_url: cast.profile_path,
+        already_added: isDuplicate >= 0 ? true : false,
       }
     })
 
@@ -47,18 +60,25 @@ const reformatForTable = (data: TUseCreditsResults['data']) => {
     }
   } else {
     const castCredits = data.credits.cast.map((credit) => {
+      const isDuplicate = history.findIndex(
+        (val) => val.id === credit.id && val.type === 'MOVIE',
+      )
       return {
         date: credit.release_date,
         title: credit.title,
         role: credit.character,
         poster_url: credit.poster_path,
         id: credit.id,
+        already_added: isDuplicate >= 0 ? true : false,
       }
     })
 
     const crewCredits = data.credits.crew.reduce(
       (acc: TPersonCrewCol[], curr) => {
         const foundIndx = acc.findIndex((val) => val.id === curr.id)
+        const isDuplicate = history.findIndex(
+          (val) => val.id === curr.id && val.type === 'MOVIE',
+        )
 
         if (foundIndx >= 0) {
           acc[foundIndx].jobs = [...acc[foundIndx].jobs, curr.job]
@@ -72,6 +92,7 @@ const reformatForTable = (data: TUseCreditsResults['data']) => {
             release_date: curr.release_date,
             poster_url: curr.poster_path,
             jobs: Array(curr.job),
+            already_added: isDuplicate >= 0 ? true : false,
           }
 
           acc.push(newReduce)

@@ -7,7 +7,7 @@ import type {
 } from './types'
 import ProfileImage from '#/components/profile-image'
 import PosterImage from '#/components/poster-image'
-import { Pill } from '@mantine/core'
+import Badge from '#/components/ui/badge'
 import { displayYear } from '#/library/utils'
 
 const movieCastCol: ColumnDef<TMovieCastCol>[] = [
@@ -48,6 +48,27 @@ const movieCastCol: ColumnDef<TMovieCastCol>[] = [
   {
     accessorKey: 'role',
     header: 'Role',
+  },
+  {
+    accessorKey: 'already_added',
+    header: 'Added?',
+    cell: ({ row }) => {
+      const added = row.original.already_added
+
+      if (added) {
+        return (
+          <Badge circle variant="filled">
+            Added
+          </Badge>
+        )
+      } else {
+        return (
+          <Badge variant="outline" circle>
+            Not
+          </Badge>
+        )
+      }
+    },
   },
 ]
 
@@ -92,12 +113,32 @@ const movieCrewCol: ColumnDef<TMovieCrewCol>[] = [
     cell: ({ row }) => {
       const jobs = row.original.jobs
       return (
-        <div className="space-y-1">
+        <div className="space-x-1">
           {jobs.map((job) => (
-            <Pill>{job}</Pill>
+            <Badge>{job}</Badge>
           ))}
         </div>
       )
+    },
+  },
+  {
+    accessorKey: 'already_added',
+    header: 'Added?',
+    cell: ({ row }) => {
+      const added = row.original.already_added
+      if (added) {
+        return (
+          <Badge circle variant="filled">
+            Added
+          </Badge>
+        )
+      } else {
+        return (
+          <Badge variant="outline" circle>
+            Not
+          </Badge>
+        )
+      }
     },
   },
 ]
@@ -143,6 +184,27 @@ const personCastCol: ColumnDef<TPersonCastCol>[] = [
   {
     accessorKey: 'role',
     header: 'Role',
+  },
+  {
+    accessorKey: 'already_added',
+    header: 'Added?',
+    cell: ({ row }) => {
+      const added = row.original.already_added
+
+      if (added) {
+        return (
+          <Badge circle variant="filled">
+            Added
+          </Badge>
+        )
+      } else {
+        return (
+          <Badge variant="outline" circle>
+            Not
+          </Badge>
+        )
+      }
+    },
   },
 ]
 
@@ -190,12 +252,32 @@ const personCrewCol: ColumnDef<TPersonCrewCol>[] = [
     cell: ({ row }) => {
       const jobs = row.original.jobs
       return (
-        <div className="space-y-1">
+        <div className="space-x-1">
           {jobs.map((job) => (
-            <Pill>{job}</Pill>
+            <Badge>{job}</Badge>
           ))}
         </div>
       )
+    },
+  },
+  {
+    accessorKey: 'already_added',
+    header: 'Added?',
+    cell: ({ row }) => {
+      const added = row.original.already_added
+      if (added) {
+        return (
+          <Badge circle variant="filled">
+            Added
+          </Badge>
+        )
+      } else {
+        return (
+          <Badge variant="outline" circle>
+            Not
+          </Badge>
+        )
+      }
     },
   },
 ]

@@ -57,8 +57,8 @@ function RouteComponent() {
   } = useGame(controllerInformation)
 
   const memoTableData = React.useMemo(() => {
-    return reformatForTable(current)
-  }, [current])
+    return reformatForTable(current, history)
+  }, [current, history])
 
   return (
     <Group>
