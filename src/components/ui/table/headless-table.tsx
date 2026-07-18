@@ -72,14 +72,14 @@ function DataTable<TData, TValue>({
       <ScrollArea>
         <Table striped={striped} highlightOnHover={highlightOnHover}>
           <Table.Thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <Table.Tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+            {table.getHeaderGroups().map((headerGroup, indx) => (
+              <Table.Tr key={`${headerGroup.id}-${indx}`}>
+                {headerGroup.headers.map((header, idx) => {
                   const isSortable = header.column.getCanSort()
                   const sortedState = header.column.getIsSorted()
 
                   return (
-                    <Table.Th key={header.id}>
+                    <Table.Th key={`${header.id}-${indx}-${idx}`}>
                       {header.isPlaceholder ? null : isSortable ? (
                         <UnstyledButton
                           onClick={header.column.getToggleSortingHandler()}
@@ -117,10 +117,13 @@ function DataTable<TData, TValue>({
           </Table.Thead>
           <Table.Tbody>
             {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <Table.Tr key={row.id} className="m-0 p-0">
-                  {row.getVisibleCells().map((cell) => (
-                    <Table.Td key={cell.id} className="p-0.5! m-0">
+              table.getRowModel().rows.map((row, indx) => (
+                <Table.Tr key={`${row.id}-${indx}`} className="m-0 p-0">
+                  {row.getVisibleCells().map((cell, idx) => (
+                    <Table.Td
+                      key={`${cell.id}-${indx}-${idx}`}
+                      className="p-0.5! m-0"
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),

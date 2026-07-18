@@ -14,7 +14,7 @@ interface PropTypes {
   end: TController
 }
 
-type TGameState = 'START' | 'IN_PROGRESS' | 'END' | 'STAYED'
+type TGameState = 'START' | 'IN_PROGRESS' | 'END' | 'STAYED' | 'FAILED'
 
 const useGame = ({ start, end }: PropTypes) => {
   const [controller, setController] = React.useState<TController>(start)

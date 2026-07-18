@@ -1,3 +1,4 @@
+import React from 'react'
 import Spinner from '#/components/ui/spinner'
 import DataTable from '#/components/ui/table/headless-table'
 import type { UseQueryResult } from '@tanstack/react-query'
@@ -19,11 +20,9 @@ import type {
   TMovieController,
   TPersonController,
 } from '#/types/client.types'
-import React from 'react'
-
 import type { TMovieCrewCol, TPersonCrewCol } from './types'
 import PosterImage from '#/components/poster-image'
-import { HoverCard, Button, Text, Group } from '@mantine/core'
+import { HoverCard, Text, Group } from '@mantine/core'
 import { displayYear } from '#/library/utils'
 
 type PropTypes = {
@@ -158,7 +157,9 @@ const GridLayout = ({ memoData, changeController, details }: LayoutProps) => {
                   </HoverCard.Target>
                   <HoverCard.Dropdown>
                     <Text size="sm">
-                      {movie.title} ({movie.date && displayYear(movie.date)})
+                      {movie.title} ({movie.date && displayYear(movie.date)}){' '}
+                      {movie.role && 'as '}
+                      {movie.role && movie.role}
                     </Text>
                   </HoverCard.Dropdown>
                 </HoverCard>
@@ -199,7 +200,9 @@ const GridLayout = ({ memoData, changeController, details }: LayoutProps) => {
                   <HoverCard.Dropdown>
                     <Text size="sm">
                       {movie.title} (
-                      {movie.release_date && displayYear(movie.release_date)})
+                      {movie.release_date && displayYear(movie.release_date)}){' '}
+                      {movie.job && 'as '}
+                      {movie.job && movie.job}
                     </Text>
                   </HoverCard.Dropdown>
                 </HoverCard>

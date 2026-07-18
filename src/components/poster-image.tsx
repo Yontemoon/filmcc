@@ -73,7 +73,6 @@ const PosterImage = ({
             <HoverCard.Target>
               <Image
                 layout="fullWidth"
-                aspectRatio={3 / 2}
                 className="w-full h-full object-fill"
                 alt={`${altText}-${id}`}
                 onLoad={() => {

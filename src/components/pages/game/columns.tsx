@@ -123,8 +123,10 @@ const movieCrewCol: ColumnDef<TMovieCrewCol>[] = [
       const jobs = row.original.jobs
       return (
         <div className="space-x-1">
-          {jobs.map((job) => (
-            <Badge size="xs">{job}</Badge>
+          {jobs.map((job, indx) => (
+            <Badge size="xs" key={indx}>
+              {job}
+            </Badge>
           ))}
         </div>
       )
@@ -264,8 +266,10 @@ const personCrewCol: ColumnDef<TPersonCrewCol>[] = [
       const jobs = row.original.jobs
       return (
         <div className="space-x-1">
-          {jobs.map((job) => (
-            <Badge size="xs">{job}</Badge>
+          {jobs.map((job, indx) => (
+            <Badge size="xs" key={indx}>
+              {job}
+            </Badge>
           ))}
         </div>
       )
