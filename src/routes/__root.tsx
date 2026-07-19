@@ -1,8 +1,6 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import Footer from '../components/Footer'
-import Header from '../components/Header'
 
 import '@mantine/core/styles.css'
 import '@mantine/notifications/styles.css'
@@ -60,10 +58,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             buttonPosition="bottom-left"
           />
           <MantineProvider>
-            <Header />
+            {/* <Header /> */}
             {children}
             <Notifications />
-            <Footer />
+            {/* <Footer /> */}
           </MantineProvider>
           <TanStackDevtools
             config={{

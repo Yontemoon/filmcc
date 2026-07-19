@@ -66,11 +66,11 @@ const PosterImage = ({
             </svg>
           </div>
         ) : (
-          <div
-            className={`${isLoaded ? 'opacity-100' : 'opacity-0'} ${className} min-h-full min-w-full shrink-0 aspect-2/3 border hover:border-3 overflow-hidden rounded-md bg-slate-800 flex items-center justify-center shadow-sm border-slate-700 hover:cursor-pointer`}
-            {...props}
-          >
-            <HoverCard.Target>
+          <HoverCard.Target>
+            <div
+              className={`${isLoaded ? 'opacity-100' : 'opacity-0'} ${className} min-h-full min-w-full shrink-0 aspect-2/3 border hover:border-3 overflow-hidden rounded-md bg-slate-800 flex items-center justify-center shadow-sm border-slate-700 hover:cursor-pointer`}
+              {...props}
+            >
               <Image
                 layout="fullWidth"
                 className="w-full h-full object-fill"
@@ -85,8 +85,8 @@ const PosterImage = ({
                 }
                 onError={() => setHasError(true)}
               />
-            </HoverCard.Target>
-          </div>
+            </div>
+          </HoverCard.Target>
         )}
         {!showFallback && showExpand && (
           <HoverCard.Dropdown className="fixed! top-4! right-4! left-auto! transform-none!">

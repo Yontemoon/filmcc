@@ -24,16 +24,16 @@ const useGame = ({ start, end }: PropTypes) => {
     Array<TMovieController | TPersonController>
   >([])
   const [count, { increment }] = useCounter(0, { min: 0 })
+  const [stats, setStats] = React.useState({
+    count: count,
+    time: 0,
+  })
+
   React.useEffect(() => {
     if (gameState === 'IN_PROGRESS') {
       startTimer()
     }
   }, [gameState])
-
-  const [stats, setStats] = React.useState({
-    count: count,
-    time: 0,
-  })
 
   React.useEffect(() => {
     if (gameState === 'IN_PROGRESS') {
@@ -66,34 +66,6 @@ const useGame = ({ start, end }: PropTypes) => {
   const gameOver = () => {
     if (gameState === 'IN_PROGRESS') {
       setGameState('END')
-    }
-  }
-
-  const changeController = (newControll: TController): void => {
-    if (gameState === 'IN_PROGRESS') {
-      const isPresent = checkController(newControll)
-
-      if (isPresent) {
-        notifications.show({
-          title: 'Already chosen!',
-          message: `${newControll.label} is already in your history.`,
-        })
-        return
-      }
-
-      if (newControll.id === end.id && newControll.type === end.type) {
-        setGameState('END')
-
-        const finalTime = stopTimer()
-        setStats({
-          count: count + 1,
-          time: finalTime,
-        })
-        return
-      }
-
-      setController(newControll)
-      increment()
     }
   }
 
@@ -138,8 +110,103 @@ const useGame = ({ start, end }: PropTypes) => {
           },
         ])
       }
+
+      if (query.data?.credits) {
+        // TODO do the same with Movie Section
+        if (data.type === 'PERSON') {
+          const historyPersonsIds = history
+            .filter((control) => control.type === 'MOVIE')
+            .map((control) => control.id)
+
+          let NumberOfCastTaken = 0
+          const castLength = query.data.credits.cast.length
+
+          for (const movie of query.data.credits.cast) {
+            const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
+            if (isTaken >= 0) {
+              NumberOfCastTaken++
+            }
+          }
+
+          if (castLength !== 0 && NumberOfCastTaken === castLength) {
+            setGameState('FAILED')
+          }
+
+          let numberofCrewTaken = 0
+          const crewLength = query.data.credits.crew.length
+
+          for (const movie of query.data.credits.crew) {
+            const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
+            if (isTaken >= 0) {
+              numberofCrewTaken++
+            }
+          }
+          if (crewLength !== 0 && numberofCrewTaken === crewLength) {
+            setGameState('FAILED')
+          }
+        } else {
+          const historyPersonsIds = history
+            .filter((control) => control.type === 'PERSON')
+            .map((control) => control.id)
+
+          let NumberOfCastTaken = 0
+          const castLength = query.data.credits.cast.length
+
+          for (const movie of query.data.credits.cast) {
+            const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
+            if (isTaken >= 0) {
+              NumberOfCastTaken++
+            }
+          }
+
+          if (castLength !== 0 && NumberOfCastTaken === castLength) {
+            setGameState('FAILED')
+          }
+
+          let numberofCrewTaken = 0
+          const crewLength = query.data.credits.crew.length
+
+          for (const movie of query.data.credits.crew) {
+            const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
+            if (isTaken >= 0) {
+              numberofCrewTaken++
+            }
+          }
+          if (crewLength !== 0 && numberofCrewTaken === crewLength) {
+            setGameState('FAILED')
+          }
+        }
+      }
     }
   }, [query.data])
+
+  const changeController = (newControll: TController): void => {
+    if (gameState === 'IN_PROGRESS') {
+      const isPresent = checkController(newControll)
+
+      if (isPresent) {
+        notifications.show({
+          title: 'Already chosen!',
+          message: `${newControll.label} is already in your history.`,
+        })
+        return
+      }
+
+      if (newControll.id === end.id && newControll.type === end.type) {
+        setGameState('END')
+
+        const finalTime = stopTimer()
+        setStats({
+          count: count + 1,
+          time: finalTime,
+        })
+        return
+      }
+
+      setController(newControll)
+      increment()
+    }
+  }
 
   return {
     startGame,

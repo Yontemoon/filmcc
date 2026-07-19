@@ -9,6 +9,7 @@ type TController = {
   type: TType
   id: number
   label: string
+  img_path: string
 }
 
 type TBaseController<T extends TType, TDetails> = Omit<TController, 'type'> & {

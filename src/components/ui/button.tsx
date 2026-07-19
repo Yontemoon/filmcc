@@ -1,12 +1,13 @@
 import { Button as MantineButton } from '@mantine/core'
-import type { ButtonHTMLAttributes } from 'react'
+import type { ButtonProps } from '@mantine/core'
+// import type { ButtonHTMLAttributes } from 'react'
 
 const Button = ({
   children,
   ...props
 }: {
   children: React.ReactNode
-} & ButtonHTMLAttributes<HTMLButtonElement>) => {
+} & ButtonProps) => {
   return (
     <MantineButton variant="filled" {...props}>
       {children}

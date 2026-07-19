@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import useGame from '#/hooks/use-game'
 import { Modal, Group } from '@mantine/core'
 import Button from '#/components/ui/button'
@@ -29,12 +29,23 @@ export const Route = createFileRoute('/game')({
 
 function RouteComponent() {
   const data = Route.useLoaderData()
+  const router = useRouter()
 
   const controllerInformation = USE_DEMO
     ? DEMO
     : ({
-        start: { id: data?.start.id, label: data?.start.title, type: 'MOVIE' },
-        end: { id: data?.end.id, label: data?.end.name, type: 'PERSON' },
+        start: {
+          id: data?.start.id,
+          label: data?.start.title,
+          type: 'MOVIE',
+          img_path: data?.start.poster_path,
+        },
+        end: {
+          id: data?.end.id,
+          label: data?.end.name,
+          type: 'PERSON',
+          img_path: data?.end.profile_path,
+        },
       } as { start: TController; end: TController })
 
   const {
@@ -50,6 +61,30 @@ function RouteComponent() {
 
   return (
     <Group>
+      <Modal
+        opened={gameState === 'FAILED'}
+        onClose={() => {
+          console.log('passing here')
+        }}
+        centered
+        title={'You have failed!'}
+      >
+        <h2>You cannot make any other moves.</h2>
+
+        <div className="w-full grid grid-cols-2 gap-2">
+          <Button
+            className="w-full"
+            onClick={() => {
+              router.invalidate()
+            }}
+          >
+            Redo
+          </Button>
+          <Link to={'/'} className="w-full">
+            <Button>Go home</Button>
+          </Link>
+        </div>
+      </Modal>
       <Modal
         opened={gameState === 'START'}
         onClose={() => {

@@ -15,7 +15,7 @@ import {
 import PosterImage from '#/components/poster-image'
 import ProfileImage from '#/components/profile-image'
 import Timer from '#/components/timer'
-import { Film, User } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 type HistoryItem = TMovieController | TPersonController
 
@@ -30,50 +30,6 @@ type PropTypes = {
     finalTime: number | null
   }
 }
-
-const FilmIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    viewBox="0 0 24 24"
-    aria-hidden="true"
-  >
-    <Film />
-  </svg>
-)
-
-const PersonIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    fill="currentColor"
-    viewBox="0 0 24 24"
-    aria-hidden="true"
-  >
-    <User />
-  </svg>
-)
-
-const ArrowIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    viewBox="0 0 24 24"
-    aria-hidden="true"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M14 5l7 7-7 7M21 12H3"
-    />
-  </svg>
-)
 
 const Endpoint = ({
   kicker,
@@ -96,9 +52,21 @@ const Endpoint = ({
         minWidth: 0,
       }}
     >
-      <ThemeIcon variant="light" color={color} size={40} radius="md">
-        {controller.type === 'MOVIE' ? <FilmIcon /> : <PersonIcon />}
-      </ThemeIcon>
+      {controller.type === 'MOVIE' ? (
+        <PosterImage
+          className="h-15 w-12"
+          posterPath={controller.img_path}
+          id={controller.id.toString()}
+          altText={`${controller.img_path}-${controller.id}`}
+        />
+      ) : (
+        <ProfileImage
+          className="h-12 w-12"
+          profilePath={controller.img_path}
+          creditId={controller.id}
+        />
+      )}
+
       <div style={{ minWidth: 0, textAlign: reversed ? 'right' : 'left' }}>
         <Badge variant="light" color={color} size="xs" radius="sm">
           {kicker}
@@ -118,6 +86,7 @@ const CurrentImage = ({ current }: { current: HistoryItem }) => {
         className="h-12 w-9"
         posterPath={current.details.poster_path}
         id={current.id.toString()}
+        altText={`${current.img_path}-${current.id}`}
       />
     )
   }
@@ -137,32 +106,23 @@ const Header = ({ start, end, history, moves, time }: PropTypes) => {
     <Paper withBorder radius="lg" p="md" mb="md" shadow="xs">
       {/* Journey: start -> target */}
       <Group justify="space-between" wrap="nowrap" gap="sm">
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <Endpoint
-            kicker="Start"
-            color="teal"
-            controller={start}
-            align="start"
-          />
-        </div>
+        <Endpoint
+          kicker="Start"
+          color="teal"
+          controller={start}
+          align="start"
+        />
 
         <Stack align="center" gap={2} px="xs">
-          <ThemeIcon variant="subtle" color="gray" size="sm">
-            <ArrowIcon />
+          <ThemeIcon variant="subtle" color="gray" size="md">
+            <ArrowRight />
           </ThemeIcon>
           <Text size="xs" c="dimmed" fw={600} tt="uppercase">
             Goal
           </Text>
         </Stack>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <Endpoint
-            kicker="Target"
-            color="grape"
-            controller={end}
-            align="end"
-          />
-        </div>
+        <Endpoint kicker="Target" color="grape" controller={end} align="end" />
       </Group>
 
       <Divider my="sm" />
