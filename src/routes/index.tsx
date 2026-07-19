@@ -12,19 +12,20 @@ function App() {
       <HomeHeader />
 
       <Container maw={960}>
-        <Flex gap={'lg'} direction={'column'} align={'start'}>
-          <Title>
+        <Flex gap={'lg'} direction={'column'} align={'start'} columnGap={'lg'}>
+          <h1 className="text-6xl font-black ">
             Test your knowledge of chaining movies and people together.
-          </Title>
-          <Text>
+          </h1>
+          <div className="text-gray-500 text-2xl">
             Connect audiences to all of your content with just one link. Claim
             your unique link and start personalizing your link page. It is
             totally free.
-          </Text>
-
-          <Button radius={'sm'} size="lg">
-            <Link to={'/game'}>Try out a game</Link>
-          </Button>
+          </div>
+          <div className="flex justify-end w-full">
+            <Button radius={'sm'} size="lg">
+              <Link to={'/game'}>Test your knowledge</Link>
+            </Button>
+          </div>
         </Flex>
       </Container>
     </AppShell>
