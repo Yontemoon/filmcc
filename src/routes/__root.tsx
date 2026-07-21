@@ -50,17 +50,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="antialiased wrap-anywhere ">
         <QueryProvider>
-          <ReactQueryDevtools
-            initialIsOpen={false}
-            buttonPosition="bottom-left"
-          />
+          <ReactQueryDevtools initialIsOpen={false} buttonPosition="top-left" />
           <MantineProvider>
             {children}
             <Notifications />
           </MantineProvider>
           <TanStackDevtools
             config={{
-              position: 'bottom-right',
+              position: 'top-right',
             }}
             plugins={[
               {

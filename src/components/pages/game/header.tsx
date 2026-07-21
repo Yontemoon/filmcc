@@ -9,6 +9,7 @@ import ProfileImage from '#/components/profile-image'
 import Timer from '#/components/timer'
 import Paper from '#/components/ui/paper/paper'
 import { ArrowRight } from 'lucide-react'
+import classes from './game.module.css'
 
 type HistoryItem = TMovieController | TPersonController
 
@@ -100,72 +101,79 @@ const Header = ({ start, end, history, moves, time }: PropTypes) => {
   const current = history.length > 0 ? history[history.length - 1] : null
 
   return (
-    <Paper withBorder radius="lg" p="md" mb="md" shadow="xs">
-      {/* Journey: start -> target */}
-      <Group justify="space-between" wrap="nowrap" gap="sm">
-        <Endpoint
-          kicker="Start"
-          color="teal"
-          controller={start}
-          align="start"
-        />
+    <div className={classes.headerSticky} id="header">
+      <Paper withBorder radius="lg" p="md" mb="md" shadow="xs">
+        {/* Journey: start -> target */}
+        <Group justify="space-between" wrap="nowrap" gap="sm">
+          <Endpoint
+            kicker="Start"
+            color="teal"
+            controller={start}
+            align="start"
+          />
 
-        <Stack align="center" gap={2} px="xs">
-          <ThemeIcon variant="subtle" color="gray" size="md">
-            <ArrowRight />
-          </ThemeIcon>
-          <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-            Goal
-          </Text>
-        </Stack>
-
-        <Endpoint kicker="Target" color="grape" controller={end} align="end" />
-      </Group>
-
-      <Divider my="sm" />
-
-      {/* Now + stats */}
-      <Group justify="space-between" wrap="wrap" gap="sm">
-        <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
-          <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-            Now
-          </Text>
-          {current ? (
-            <Group gap={8} wrap="nowrap" style={{ minWidth: 0 }}>
-              <CurrentImage current={current} />
-              <Text fw={700} size="sm" truncate title={current.label}>
-                {current.label}
-              </Text>
-            </Group>
-          ) : (
-            <Text size="sm" c="dimmed" truncate>
-              {start.label}
+          <Stack align="center" gap={2} px="xs">
+            <ThemeIcon variant="subtle" color="gray" size="md">
+              <ArrowRight />
+            </ThemeIcon>
+            <Text size="xs" c="dimmed" fw={600} tt="uppercase">
+              Goal
             </Text>
-          )}
+          </Stack>
+
+          <Endpoint
+            kicker="Target"
+            color="grape"
+            controller={end}
+            align="end"
+          />
         </Group>
 
-        <Group gap="xs" wrap="nowrap">
-          <Badge
-            className="w-42"
-            variant="light"
-            color="cyan"
-            size="lg"
-            radius="sm"
-            leftSection="Time"
-          >
-            <Timer
-              label=""
-              isRunning={time.isTimerRunning}
-              getElapsedMs={time.getElapsedMs}
-              finalElapsedMs={time.finalTime}
-            />
-          </Badge>
-          <Badge variant="light" color="gray" size="lg" radius="sm">
-            {moves} moves
-          </Badge>
+        <Divider my="sm" />
+
+        {/* Now + stats */}
+        <Group justify="space-between" wrap="wrap" gap="sm">
+          <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
+            <Text size="xs" c="dimmed" fw={600} tt="uppercase">
+              Now
+            </Text>
+            {current ? (
+              <Group gap={8} wrap="nowrap" style={{ minWidth: 0 }}>
+                <CurrentImage current={current} />
+                <Text fw={700} size="sm" truncate title={current.label}>
+                  {current.label}
+                </Text>
+              </Group>
+            ) : (
+              <Text size="sm" c="dimmed" truncate>
+                {start.label}
+              </Text>
+            )}
+          </Group>
+
+          <Group gap="xs" wrap="nowrap">
+            <Badge
+              className="w-42"
+              variant="light"
+              color="cyan"
+              size="lg"
+              radius="sm"
+              leftSection="Time"
+            >
+              <Timer
+                label=""
+                isRunning={time.isTimerRunning}
+                getElapsedMs={time.getElapsedMs}
+                finalElapsedMs={time.finalTime}
+              />
+            </Badge>
+            <Badge variant="light" color="gray" size="lg" radius="sm">
+              {moves} moves
+            </Badge>
+          </Group>
         </Group>
-      </Group>
-    </Paper>
+      </Paper>
+    </div>
   )
 }
 

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import useGame from '#/hooks/use-game'
-import { Modal, Group } from '@mantine/core'
+import { Modal, ScrollArea } from '@mantine/core'
 import Button from '#/components/ui/button'
 import { formatTime } from '#/library/utils'
 import type { TController } from '#/types/client.types'
@@ -12,6 +12,9 @@ import { DEMO } from '#/library/constants'
 import MainBody from '#/components/pages/game/body'
 
 const USE_DEMO = false as boolean
+
+// Height of the fixed bottom history bar. Change this one value to resize it.
+const HISTORY_HEIGHT = '6rem'
 
 export const Route = createFileRoute('/game')({
   component: RouteComponent,
@@ -60,7 +63,7 @@ function RouteComponent() {
   } = useGame(controllerInformation)
 
   return (
-    <Group>
+    <>
       <Modal
         opened={gameState === 'FAILED'}
         onClose={() => {
@@ -138,8 +141,9 @@ function RouteComponent() {
           </Link>
         </div>
       </Modal>
-      <div className="mx-auto max-w-275 w-full space-y-3 flex flex-col min-h-screen px-2 my-2">
-        <div id="header">
+      <div className="mx-auto max-w-275 w-full flex flex-col h-screen px-2 ">
+        {/* Scrollable region: header (sticky) + main body */}
+        <ScrollArea className="flex-1 min-h-0 overflow-y-auto pb-5 px-5">
           <Header
             start={controllerInformation.start}
             end={controllerInformation.end}
@@ -147,16 +151,21 @@ function RouteComponent() {
             moves={stats.count}
             time={time}
           />
+
+          <div className="px-2" id="main-body">
+            <MainBody
+              changeController={changeController}
+              history={history}
+              query={query}
+            />
+          </div>
+        </ScrollArea>
+
+        {/* Fixed-at-bottom history — change HISTORY_HEIGHT to resize */}
+        <div className="shrink-0" style={{ height: HISTORY_HEIGHT }}>
+          <History history={history} />
         </div>
-        <div className="flex-1" id="main-body">
-          <MainBody
-            changeController={changeController}
-            history={history}
-            query={query}
-          />
-        </div>
-        <History history={history} />
       </div>
-    </Group>
+    </>
   )
 }

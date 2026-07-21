@@ -1,8 +1,6 @@
-// CustomHoverCard.tsx
 import { HoverCard } from '@mantine/core'
 import type { HoverCardProps } from '@mantine/core'
 import classes from './hover.module.css'
-import Paper from '../paper/paper'
 
 interface HoverCardInterface extends HoverCardProps {
   trigger: React.ReactNode

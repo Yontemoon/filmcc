@@ -9,3 +9,12 @@
 .imageLift:hover {
   transform: translateY(-4px);
 }
+
+.headerSticky {
+  position: sticky;
+  z-index: 200;
+  top: 0;
+  padding-top: 0.25rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}

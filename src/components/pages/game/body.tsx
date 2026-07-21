@@ -127,7 +127,7 @@ const GridLayout = ({ memoData, changeController, details }: LayoutProps) => {
     details?.type === 'PERSON' &&
     details.details.known_for_department === 'Acting'
   return (
-    <div className="grid md:grid-cols-6 grid-cols-3 gap-2">
+    <div className="grid md:grid-cols-6 grid-cols-3 gap-2 ">
       {showCastFirst &&
         memoData?.type === 'PERSON' &&
         memoData.cast.map((movie) => {
