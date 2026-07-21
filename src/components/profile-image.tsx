@@ -77,17 +77,19 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
                   <Spinner />
                 </div>
               )}
-              <Paper>
-                <Image
-                  ref={imgRef}
-                  layout="fullWidth"
-                  onLoad={handleOnLoad}
-                  className={`w-full h-full object-cover ${expandingLoading ? 'invisible' : ''}`}
-                  alt={`image-${creditId}-expand`}
-                  src={expandedProfileUrl}
-                  onError={() => setHasError(true)}
-                />
-              </Paper>
+              <div className={expandingLoading ? 'invisible' : ''}>
+                <Paper>
+                  <Image
+                    ref={imgRef}
+                    layout="fullWidth"
+                    onLoad={handleOnLoad}
+                    className={`w-full h-full object-cover ${expandingLoading ? 'invisible' : ''}`}
+                    alt={`image-${creditId}-expand`}
+                    src={expandedProfileUrl}
+                    onError={() => setHasError(true)}
+                  />
+                </Paper>
+              </div>
             </div>
           </HoverCard.Dropdown>
         )}

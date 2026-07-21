@@ -45,7 +45,7 @@ const Poster = ({
 
   return (
     <Paper withBorder {...props} opacity={isLoaded ? '100' : '0'}>
-      <HoverCard width="auto" shadow="md">
+      <HoverCard width="280" shadow="md">
         {showFallback ? (
           <div className="flex h-full w-full items-center justify-center bg-slate-800">
             <svg
@@ -88,22 +88,27 @@ const Poster = ({
         )}
         {!showFallback && showExpand && (
           <HoverCard.Dropdown className="fixed! top-4! right-4! left-auto! transform-none!">
-            <div className="relative flex h-24 w-24 items-center justify-center">
+            <div className="relative flex min-h-24 min-w-24 items-center justify-center">
               {expandingLoading && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Spinner />
                 </div>
               )}
-              <img
-                ref={imgRef}
-                onLoad={handleOnLoad}
-                className={`h-full w-full object-cover ${
-                  expandingLoading ? 'invisible' : ''
-                }`}
-                alt={`image-${id}-expand`}
-                src={expandedProfileUrl}
-                onError={() => setHasError(true)}
-              />
+              <div className={expandingLoading ? 'invisible' : ''}>
+                <Paper withBorder>
+                  <Image
+                    ref={imgRef}
+                    layout="fullWidth"
+                    onLoad={handleOnLoad}
+                    className={`h-full w-full object-cover ${
+                      expandingLoading ? 'invisible' : ''
+                    }`}
+                    alt={`image-${id}-expand`}
+                    src={expandedProfileUrl}
+                    onError={() => setHasError(true)}
+                  />
+                </Paper>
+              </div>
             </div>
           </HoverCard.Dropdown>
         )}
