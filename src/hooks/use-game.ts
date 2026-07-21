@@ -1,6 +1,6 @@
 import React from 'react'
 import { notifications } from '@mantine/notifications'
-import { useCounter } from '@mantine/hooks'
+import { useCounter, useWindowScroll } from '@mantine/hooks'
 import useTimerRef from './use-timer-ref'
 import type {
   TController,
@@ -18,6 +18,8 @@ type TGameState = 'START' | 'IN_PROGRESS' | 'END' | 'STAYED' | 'FAILED'
 
 const useGame = ({ start, end }: PropTypes) => {
   const [controller, setController] = React.useState<TController>(start)
+  const [scroll, scrollTo] = useWindowScroll()
+
   const { startTimer, stopTimer, isTimerRunning, getElapsedMs } = useTimerRef()
   const [gameState, setGameState] = React.useState<TGameState>('START')
   const [history, setHistory] = React.useState<
@@ -205,6 +207,9 @@ const useGame = ({ start, end }: PropTypes) => {
 
       setController(newControll)
       increment()
+      scrollTo({
+        y: 0,
+      })
     }
   }
 

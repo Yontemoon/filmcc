@@ -1,4 +1,5 @@
 import React from 'react'
+
 import Spinner from '#/components/ui/spinner'
 import DataTable from '#/components/ui/table/headless-table'
 import type { UseQueryResult } from '@tanstack/react-query'
@@ -21,9 +22,11 @@ import type {
   TPersonController,
 } from '#/types/client.types'
 import type { TMovieCrewCol, TPersonCrewCol } from './types'
-import PosterImage from '#/components/poster-image'
-import { HoverCard, Text, Group } from '@mantine/core'
+import PosterImage from '#/components/poster/poster'
+import { Text } from '@mantine/core'
 import { displayYear } from '#/library/utils'
+import Hover from '#/components/ui/hover/hover'
+import classes from './game.module.css'
 
 type PropTypes = {
   history: (TMovieController | TPersonController)[]
@@ -131,39 +134,32 @@ const GridLayout = ({ memoData, changeController, details }: LayoutProps) => {
           return (
             <div
               key={movie.id}
+              className={classes.imageLift}
               onClick={() => {
                 changeController({
                   id: movie.id,
                   type: 'MOVIE',
                   label: movie.title,
+                  img_path: movie.poster_url,
                 })
               }}
             >
-              <Group>
-                <HoverCard
-                  openDelay={100}
-                  withArrow
-                  position="top"
-                  arrowSize={15}
-                >
-                  <HoverCard.Target>
-                    <PosterImage
-                      posterPath={movie.poster_url}
-                      id={movie.id.toString()}
-                      className="w-full h-full"
-                      showExpand={false}
-                      hd={true}
-                    />
-                  </HoverCard.Target>
-                  <HoverCard.Dropdown>
-                    <Text size="sm">
-                      {movie.title} ({movie.date && displayYear(movie.date)}){' '}
-                      {movie.role && 'as '}
-                      {movie.role && movie.role}
-                    </Text>
-                  </HoverCard.Dropdown>
-                </HoverCard>
-              </Group>
+              <Hover
+                trigger={
+                  <PosterImage
+                    posterPath={movie.poster_url}
+                    id={movie.id.toString()}
+                    showExpand={false}
+                    hd={true}
+                  />
+                }
+              >
+                <Text size="xs">
+                  {movie.title} ({movie.date && displayYear(movie.date)}){' '}
+                  {movie.role && 'as '}
+                  {movie.role && movie.role}
+                </Text>
+              </Hover>
             </div>
           )
         })}
@@ -172,41 +168,34 @@ const GridLayout = ({ memoData, changeController, details }: LayoutProps) => {
         memoData.crew.map((movie) => {
           return (
             <div
+              className={classes.imageLift}
               key={movie.id}
               onClick={() => {
                 changeController({
                   id: movie.id,
                   type: 'MOVIE',
                   label: movie.title,
+                  img_path: movie.poster_url,
                 })
               }}
             >
-              <Group>
-                <HoverCard
-                  openDelay={100}
-                  withArrow
-                  position="top"
-                  arrowSize={15}
-                >
-                  <HoverCard.Target>
-                    <PosterImage
-                      posterPath={movie.poster_url}
-                      id={movie.id.toString()}
-                      className="w-full h-full"
-                      showExpand={false}
-                      hd={true}
-                    />
-                  </HoverCard.Target>
-                  <HoverCard.Dropdown>
-                    <Text size="sm">
-                      {movie.title} (
-                      {movie.release_date && displayYear(movie.release_date)}){' '}
-                      {movie.job && 'as '}
-                      {movie.job && movie.job}
-                    </Text>
-                  </HoverCard.Dropdown>
-                </HoverCard>
-              </Group>
+              <Hover
+                trigger={
+                  <PosterImage
+                    posterPath={movie.poster_url}
+                    id={movie.id.toString()}
+                    showExpand={false}
+                    hd={true}
+                  />
+                }
+              >
+                <Text size="xs">
+                  {movie.title} (
+                  {movie.release_date && displayYear(movie.release_date)}){' '}
+                  {movie.job && 'as '}
+                  {movie.job && movie.job}
+                </Text>
+              </Hover>
             </div>
           )
         })}
@@ -227,6 +216,7 @@ const TableLayout = ({ memoData, changeController }: LayoutProps) => {
                 id: rowData.id,
                 type: 'PERSON',
                 label: rowData.name,
+                img_path: rowData.profile_url,
               })
             }}
           />
@@ -238,6 +228,7 @@ const TableLayout = ({ memoData, changeController }: LayoutProps) => {
                 id: rowData.id,
                 type: 'PERSON',
                 label: rowData.name,
+                img_path: rowData.profile_url,
               })
             }}
           />
@@ -253,6 +244,7 @@ const TableLayout = ({ memoData, changeController }: LayoutProps) => {
                 id: rowData.id,
                 type: 'MOVIE',
                 label: rowData.title,
+                img_path: rowData.poster_url,
               })
             }}
           />
@@ -264,6 +256,7 @@ const TableLayout = ({ memoData, changeController }: LayoutProps) => {
                 id: rowData.id,
                 type: 'MOVIE',
                 label: rowData.title,
+                img_path: rowData.poster_url,
               })
             }}
           />

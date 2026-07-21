@@ -6,7 +6,7 @@ import type {
   TPersonCrewCol,
 } from './types'
 import ProfileImage from '#/components/profile-image'
-import PosterImage from '#/components/poster-image'
+import PosterImage from '#/components/poster/poster'
 import Badge from '#/components/ui/badge'
 import { displayYear } from '#/library/utils'
 import { Text } from '@mantine/core'
@@ -19,13 +19,15 @@ const movieCastCol: ColumnDef<TMovieCastCol>[] = [
     cell: ({ row, table }) => {
       const onClickName = table.options.meta?.onClickName
       return (
-        <ProfileImage
-          onClick={() => {
-            if (onClickName) onClickName(row.original)
-          }}
-          profilePath={row.original.profile_url}
-          creditId={row.original.id}
-        />
+        <div className="h-12 w-12">
+          <ProfileImage
+            onClick={() => {
+              if (onClickName) onClickName(row.original)
+            }}
+            profilePath={row.original.profile_url}
+            creditId={row.original.id}
+          />
+        </div>
       )
     },
   },
@@ -89,13 +91,15 @@ const movieCrewCol: ColumnDef<TMovieCrewCol>[] = [
     cell: ({ row, table }) => {
       const onClickName = table.options.meta?.onClickName
       return (
-        <ProfileImage
-          onClick={() => {
-            if (onClickName) onClickName(row.original)
-          }}
-          profilePath={row.original.profile_url}
-          creditId={row.original.id}
-        />
+        <div className="h-12 w-12">
+          <ProfileImage
+            onClick={() => {
+              if (onClickName) onClickName(row.original)
+            }}
+            profilePath={row.original.profile_url}
+            creditId={row.original.id}
+          />
+        </div>
       )
     },
   },

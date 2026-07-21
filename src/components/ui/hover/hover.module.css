@@ -1,0 +1,12 @@
+/* CustomHoverCard.module.css */
+.dropdown {
+  background-color: var(--mantine-color-body);
+  border: 2px solid var(--mantine-color-dark-5);
+  border-radius: var(--mantine-radius-md);
+  box-shadow: var(--mantine-shadow-xl);
+  padding: var(--mantine-spacing-md);
+}
+
+.arrow {
+  border: 2px solid var(--mantine-color-dark-5);
+}

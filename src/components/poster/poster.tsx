@@ -4,10 +4,11 @@ import {
   TMDB_IMAGE_POSTER_URL,
   TMDB_IMAGE_POSTER_URL_EXPAND,
 } from '#/library/constants'
-import { HoverCard, Group } from '@mantine/core'
+import { HoverCard } from '@mantine/core'
 import useImgLoader from '#/hooks/use-img-loader'
-import Spinner from './ui/spinner'
+import Spinner from '#/components/ui/spinner'
 import { Image } from '@unpic/react'
+import Paper from '../ui/paper/paper'
 
 type PosterImageProps = {
   posterPath: string | null | undefined
@@ -18,7 +19,7 @@ type PosterImageProps = {
   hd?: boolean
 } & ComponentProps<'div'>
 
-const PosterImage = ({
+const Poster = ({
   posterPath,
   id,
   showExpand = true,
@@ -43,14 +44,12 @@ const PosterImage = ({
   const showFallback = !posterPath || hasError
 
   return (
-    <Group>
-      <HoverCard shadow="md" width={280} openDelay={300}>
+    <Paper withBorder {...props} opacity={isLoaded ? '100' : '0'}>
+      <HoverCard width="auto" shadow="md">
         {showFallback ? (
-          <div
-            className={`${className} shrink-0 aspect-2/3 overflow-hidden rounded-md bg-slate-800 flex items-center justify-center border border-slate-700 shadow-sm`}
-          >
+          <div className="flex h-full w-full items-center justify-center bg-slate-800">
             <svg
-              className="w-2/3 h-2/3 text-slate-500"
+              className="h-2/3 w-2/3 text-slate-500"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
@@ -61,23 +60,22 @@ const PosterImage = ({
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
+                d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 00-1 1z"
               />
             </svg>
           </div>
         ) : (
           <HoverCard.Target>
             <div
-              className={`${isLoaded ? 'opacity-100' : 'opacity-0'} ${className} min-h-full min-w-full shrink-0 aspect-2/3 border hover:border-3 overflow-hidden rounded-md bg-slate-800 flex items-center justify-center shadow-sm border-slate-700 hover:cursor-pointer`}
-              {...props}
+              className={`h-full w-full hover:cursor-pointer transition-opacity duration-200 ${
+                isLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
             >
               <Image
                 layout="fullWidth"
-                className="w-full h-full object-fill"
+                className="h-full w-full object-cover"
                 alt={`${altText}-${id}`}
-                onLoad={() => {
-                  setIsLoaded(true)
-                }}
+                onLoad={() => setIsLoaded(true)}
                 src={
                   hd
                     ? `${expandedProfileUrl}`
@@ -90,7 +88,7 @@ const PosterImage = ({
         )}
         {!showFallback && showExpand && (
           <HoverCard.Dropdown className="fixed! top-4! right-4! left-auto! transform-none!">
-            <div className="relative flex min-h-24 min-w-24 items-center justify-center">
+            <div className="relative flex h-24 w-24 items-center justify-center">
               {expandingLoading && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Spinner />
@@ -99,7 +97,9 @@ const PosterImage = ({
               <img
                 ref={imgRef}
                 onLoad={handleOnLoad}
-                className={`w-full h-full object-cover ${expandingLoading ? 'invisible' : ''}`}
+                className={`h-full w-full object-cover ${
+                  expandingLoading ? 'invisible' : ''
+                }`}
                 alt={`image-${id}-expand`}
                 src={expandedProfileUrl}
                 onError={() => setHasError(true)}
@@ -108,8 +108,8 @@ const PosterImage = ({
           </HoverCard.Dropdown>
         )}
       </HoverCard>
-    </Group>
+    </Paper>
   )
 }
 
-export default PosterImage
+export default Poster

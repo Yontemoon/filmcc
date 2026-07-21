@@ -1,5 +1,5 @@
 import type { TMovieController, TPersonController } from '#/types/client.types'
-import PosterImage from '#/components/poster-image'
+import PosterImage from '#/components/poster/poster'
 import ProfileImage from '#/components/profile-image'
 import { ScrollArea } from '@mantine/core'
 
@@ -30,11 +30,13 @@ const History = ({ history }: PropTypes) => {
                   return (
                     <div key={curr.id}>
                       <div>{start ? 'Start' : indx}</div>
-                      <PosterImage
-                        className="w-10 h-15"
-                        posterPath={curr.details.poster_path}
-                        id={curr.id.toString()}
-                      />
+                      <div className="w-10 h-15">
+                        {' '}
+                        <PosterImage
+                          posterPath={curr.details.poster_path}
+                          id={curr.id.toString()}
+                        />
+                      </div>
                     </div>
                   )
                 } else {
@@ -43,11 +45,12 @@ const History = ({ history }: PropTypes) => {
                       <Line />
                       <div>
                         <div>{start ? 'Start' : indx}</div>
-                        <PosterImage
-                          className="w-10 h-15"
-                          posterPath={curr.details.poster_path}
-                          id={curr.id.toString()}
-                        />
+                        <div className="w-10 h-15">
+                          <PosterImage
+                            posterPath={curr.details.poster_path}
+                            id={curr.id.toString()}
+                          />
+                        </div>
                       </div>
                     </div>
                   )
@@ -57,11 +60,12 @@ const History = ({ history }: PropTypes) => {
                   return (
                     <div key={curr.id}>
                       <div>{start ? 'Start' : indx}</div>
-                      <ProfileImage
-                        className="w-10 h-15"
-                        profilePath={curr.details.profile_path}
-                        creditId={`${curr.id}-${indx}`}
-                      />
+                      <div className="w-10 h-15">
+                        <ProfileImage
+                          profilePath={curr.details.profile_path}
+                          creditId={`${curr.id}-${indx}`}
+                        />
+                      </div>
                     </div>
                   )
                 } else {
@@ -70,11 +74,12 @@ const History = ({ history }: PropTypes) => {
                       <Line />
                       <div>
                         <div>{indx}</div>
-                        <ProfileImage
-                          className="w-10 h-15"
-                          profilePath={curr.details.profile_path}
-                          creditId={`${curr.id}-${indx}`}
-                        />
+                        <div className="w-10 h-15">
+                          <ProfileImage
+                            profilePath={curr.details.profile_path}
+                            creditId={`${curr.id}-${indx}`}
+                          />
+                        </div>
                       </div>
                     </div>
                   )

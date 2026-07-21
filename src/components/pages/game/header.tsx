@@ -3,18 +3,11 @@ import type {
   TMovieController,
   TPersonController,
 } from '#/types/client.types'
-import {
-  Paper,
-  Group,
-  Stack,
-  Text,
-  Badge,
-  ThemeIcon,
-  Divider,
-} from '@mantine/core'
-import PosterImage from '#/components/poster-image'
+import { Group, Stack, Text, Badge, ThemeIcon, Divider } from '@mantine/core'
+import PosterImage from '#/components/poster/poster'
 import ProfileImage from '#/components/profile-image'
 import Timer from '#/components/timer'
+import Paper from '#/components/ui/paper/paper'
 import { ArrowRight } from 'lucide-react'
 
 type HistoryItem = TMovieController | TPersonController
@@ -53,18 +46,20 @@ const Endpoint = ({
       }}
     >
       {controller.type === 'MOVIE' ? (
-        <PosterImage
-          className="h-15 w-12"
-          posterPath={controller.img_path}
-          id={controller.id.toString()}
-          altText={`${controller.img_path}-${controller.id}`}
-        />
+        <div className="h-15 w-12">
+          <PosterImage
+            posterPath={controller.img_path}
+            id={controller.id.toString()}
+            altText={`${controller.img_path}-${controller.id}`}
+          />
+        </div>
       ) : (
-        <ProfileImage
-          className="h-12 w-12"
-          profilePath={controller.img_path}
-          creditId={controller.id}
-        />
+        <div className="h-12 w-12">
+          <ProfileImage
+            profilePath={controller.img_path}
+            creditId={controller.id}
+          />
+        </div>
       )}
 
       <div style={{ minWidth: 0, textAlign: reversed ? 'right' : 'left' }}>
@@ -82,20 +77,22 @@ const Endpoint = ({
 const CurrentImage = ({ current }: { current: HistoryItem }) => {
   if (current.type === 'MOVIE') {
     return (
-      <PosterImage
-        className="h-12 w-9"
-        posterPath={current.details.poster_path}
-        id={current.id.toString()}
-        altText={`${current.img_path}-${current.id}`}
-      />
+      <div className="h-12 w-9">
+        <PosterImage
+          posterPath={current.details.poster_path}
+          id={current.id.toString()}
+          altText={`${current.img_path}-${current.id}`}
+        />
+      </div>
     )
   }
   return (
-    <ProfileImage
-      className="h-12 w-12"
-      profilePath={current.details.profile_path}
-      creditId={current.id}
-    />
+    <div className="h-12 w-12">
+      <ProfileImage
+        profilePath={current.details.profile_path}
+        creditId={current.id}
+      />
+    </div>
   )
 }
 
@@ -149,8 +146,9 @@ const Header = ({ start, end, history, moves, time }: PropTypes) => {
 
         <Group gap="xs" wrap="nowrap">
           <Badge
+            className="w-42"
             variant="light"
-            color="teal"
+            color="cyan"
             size="lg"
             radius="sm"
             leftSection="Time"

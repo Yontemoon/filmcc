@@ -1,7 +1,7 @@
 import { Loader } from '@mantine/core'
 
 const Spinner = () => {
-  return <Loader color="blue" />
+  return <Loader />
 }
 
 export default Spinner

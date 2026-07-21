@@ -7,12 +7,9 @@ import '@mantine/notifications/styles.css'
 
 import appCss from '../styles.css?url'
 
-import {
-  ColorSchemeScript,
-  MantineProvider,
-  mantineHtmlProps,
-} from '@mantine/core'
+import { ColorSchemeScript, mantineHtmlProps } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
+import MantineProvider from '#/provider/mantine'
 
 import QueryProvider from '#/provider/query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
@@ -51,17 +48,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
-      <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)]">
+      <body className="antialiased wrap-anywhere ">
         <QueryProvider>
           <ReactQueryDevtools
             initialIsOpen={false}
             buttonPosition="bottom-left"
           />
           <MantineProvider>
-            {/* <Header /> */}
             {children}
             <Notifications />
-            {/* <Footer /> */}
           </MantineProvider>
           <TanStackDevtools
             config={{
