@@ -1,12 +1,10 @@
 import { createServerFn } from '@tanstack/react-start'
 import type {
   T_TMDB_EXTERNAL_IDS,
-  T_TMDB_MOVIE_CREDITS,
   T_TMDB_MOVIE_DETAILS,
-  T_TMDB_PERSON_CREDITS,
   T_TMDB_PERSON_DETAILS,
 } from '#/types/tmdb.types'
-import { omdbFetch, tmdbFetch } from './fetch'
+import { getTmdbMovie, getTmdbPerson, omdbFetch, tmdbFetch } from './fetch'
 import { POPULARITY_LIMIT } from './constants'
 import type { T_OMDB_PERSON_DETAILS } from '#/types/omdb.types'
 import { getRandomNumber } from './utils'
@@ -21,10 +19,7 @@ const fetchMovieCredits = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const movieId = data.movieId
 
-    const [movieDetails, movieCredits] = await Promise.all([
-      tmdbFetch<T_TMDB_MOVIE_DETAILS>(`/movie/${movieId}?language=en-US`),
-      tmdbFetch<T_TMDB_MOVIE_CREDITS>(`/movie/${movieId}/credits`),
-    ])
+    const { movieDetails, movieCredits } = await getTmdbMovie(movieId)
 
     const movie = 'MOVIE' as const
     const res = {
@@ -42,10 +37,7 @@ const fetchPersonCredits = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const personId = data.personId
 
-    const [personDetails, personCredits] = await Promise.all([
-      tmdbFetch<T_TMDB_PERSON_DETAILS>(`/person/${personId}?language=en-US`),
-      tmdbFetch<T_TMDB_PERSON_CREDITS>(`/person/${personId}/movie_credits`),
-    ])
+    const { personDetails, personCredits } = await getTmdbPerson(personId)
 
     personCredits.cast = personCredits.cast
       .filter((curr) => curr.release_date)

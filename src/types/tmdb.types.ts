@@ -127,6 +127,7 @@ interface T_TMDB_PERSON_DETAILS {
   place_of_birth: string
   popularity: number
   profile_path: string
+  known_for: T_TMDB_MOVIE_DETAILS[]
 }
 
 interface T_TMDB_EXTERNAL_IDS {

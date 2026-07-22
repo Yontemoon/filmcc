@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Title, Group, Text, AppShell, Container, Flex } from '@mantine/core'
+import { AppShell, Container, Flex } from '@mantine/core'
 import Button from '#/components/ui/button'
 
 import { HomeHeader } from '#/components/pages/home/header'
