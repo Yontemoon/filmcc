@@ -9,9 +9,13 @@ import { nitro } from 'nitro/vite'
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
+  server: {
+    port: 3000,
+  },
   plugins: [
     devtools(),
     nitro({ rollupConfig: { external: [/^@sentry\//] } }),
+
     tailwindcss(),
     tanstackStart(),
     viteReact(),
