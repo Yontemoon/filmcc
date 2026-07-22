@@ -251,6 +251,7 @@ const TableLayout = ({ memoData, changeController }: TableLayoutProps) => {
           <DataTable
             data={memoData.cast}
             columns={movieCastCol}
+            highlightOnHover={false}
             onClickName={(rowData) => {
               changeController({
                 id: rowData.id,
@@ -263,6 +264,7 @@ const TableLayout = ({ memoData, changeController }: TableLayoutProps) => {
           <DataTable
             data={memoData.crew}
             columns={movieCrewCol}
+            highlightOnHover={false}
             onClickName={(rowData) => {
               changeController({
                 id: rowData.id,

@@ -71,13 +71,22 @@ function DataTable<TData, TValue>({
         leftSection={<SearchIcon size={16} />}
       />
       <ScrollArea>
-        <Paper withBorder>
+        <Paper
+          withBorder
+          classNames={{
+            root: classes.tableContainer,
+          }}
+        >
           <Table
             striped={striped}
             highlightOnHover={highlightOnHover}
-            withColumnBorders={true}
             verticalSpacing={'xs'}
             className={classes.table}
+            classNames={{
+              tr: classes.tableRow,
+              td: classes.tableCell,
+              th: classes.tableHead,
+            }}
           >
             <Table.Thead className={classes.tHead}>
               {table.getHeaderGroups().map((headerGroup, indx) => (
@@ -126,12 +135,9 @@ function DataTable<TData, TValue>({
             <Table.Tbody>
               {table.getRowModel().rows.length ? (
                 table.getRowModel().rows.map((row, indx) => (
-                  <Table.Tr key={`${row.id}-${indx}`} className="m-0 p-0">
+                  <Table.Tr key={`${row.id}-${indx}`}>
                     {row.getVisibleCells().map((cell, idx) => (
-                      <Table.Td
-                        key={`${cell.id}-${indx}-${idx}`}
-                        className="p-0.5! m-0"
-                      >
+                      <Table.Td key={`${cell.id}-${indx}-${idx}`} className="">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),
@@ -142,7 +148,7 @@ function DataTable<TData, TValue>({
                 ))
               ) : (
                 <Table.Tr>
-                  <Table.Td colSpan={columns.length} className="text-center">
+                  <Table.Td colSpan={columns.length}>
                     No results found.
                   </Table.Td>
                 </Table.Tr>

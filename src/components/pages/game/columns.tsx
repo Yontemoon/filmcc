@@ -9,41 +9,34 @@ import ProfileImage from '#/components/profile-image'
 import PosterImage from '#/components/poster/poster'
 import Badge from '#/components/ui/badge'
 import { displayYear } from '#/library/utils'
-import { Text } from '@mantine/core'
+import { Group, Scroller, Text } from '@mantine/core'
+import ColorSwatch from '#/components/ui/color-swatch/color-swatch'
 
 const movieCastCol: ColumnDef<TMovieCastCol>[] = [
-  {
-    accessorKey: 'profile_url',
-    header: () => null,
-    enableSorting: false,
-    cell: ({ row, table }) => {
-      const onClickName = table.options.meta?.onClickName
-      return (
-        <div className="h-12 w-12">
-          <ProfileImage
-            onClick={() => {
-              if (onClickName) onClickName(row.original)
-            }}
-            profilePath={row.original.profile_url}
-            creditId={row.original.id}
-          />
-        </div>
-      )
-    },
-  },
   {
     accessorKey: 'name',
     header: 'Name',
     cell: ({ row, table }) => {
       const onClickName = table.options.meta?.onClickName
       return (
-        <div
-          className="hover:cursor-pointer hover:underline "
-          onClick={() => {
-            if (onClickName) onClickName(row.original)
-          }}
-        >
-          <Text size="xs">{row.original.name}</Text>
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8">
+            <ProfileImage
+              onClick={() => {
+                if (onClickName) onClickName(row.original)
+              }}
+              profilePath={row.original.profile_url}
+              creditId={row.original.id}
+            />
+          </div>
+          <div
+            className="hover:cursor-pointer hover:underline "
+            onClick={() => {
+              if (onClickName) onClickName(row.original)
+            }}
+          >
+            <Text size="xs">{row.original.name}</Text>
+          </div>
         </div>
       )
     },
@@ -62,22 +55,15 @@ const movieCastCol: ColumnDef<TMovieCastCol>[] = [
   {
     accessorKey: 'already_added',
     header: () => null,
+
     enableSorting: false,
     cell: ({ row }) => {
       const added = row.original.already_added
 
       if (added) {
-        return (
-          <Badge circle variant="filled">
-            Added
-          </Badge>
-        )
+        return <ColorSwatch color="var(--mantine-color-red-5)" size={20} />
       } else {
-        return (
-          <Badge variant="outline" circle>
-            Not
-          </Badge>
-        )
+        return <ColorSwatch color="var(--mantine-color-teal-5)" size={20} />
       }
     },
   },
@@ -85,37 +71,31 @@ const movieCastCol: ColumnDef<TMovieCastCol>[] = [
 
 const movieCrewCol: ColumnDef<TMovieCrewCol>[] = [
   {
-    accessorKey: 'profile_url',
-    header: () => null,
-    enableSorting: false,
-    cell: ({ row, table }) => {
-      const onClickName = table.options.meta?.onClickName
-      return (
-        <div className="h-12 w-12">
-          <ProfileImage
-            onClick={() => {
-              if (onClickName) onClickName(row.original)
-            }}
-            profilePath={row.original.profile_url}
-            creditId={row.original.id}
-          />
-        </div>
-      )
-    },
-  },
-  {
     accessorKey: 'name',
     header: 'Name',
     cell: ({ row, table }) => {
       const onClickName = table.options.meta?.onClickName
       return (
-        <div
-          className="hover:cursor-pointer hover:underline "
-          onClick={() => {
-            if (onClickName) onClickName(row.original)
-          }}
-        >
-          {row.original.name}
+        <div className="flex gap-3 items-center">
+          <div className="h-8 w-8 min-w-8 min-h-8">
+            <ProfileImage
+              onClick={() => {
+                if (onClickName) onClickName(row.original)
+              }}
+              profilePath={row.original.profile_url}
+              creditId={row.original.id}
+            />
+          </div>
+          <div className="hover:cursor-pointer hover:underline ">
+            <Text
+              size="xs"
+              onClick={() => {
+                if (onClickName) onClickName(row.original)
+              }}
+            >
+              {row.original.name}
+            </Text>
+          </div>
         </div>
       )
     },
@@ -126,13 +106,13 @@ const movieCrewCol: ColumnDef<TMovieCrewCol>[] = [
     cell: ({ row }) => {
       const jobs = row.original.jobs
       return (
-        <div className="space-x-1">
+        <Group wrap="wrap" gap={'xs'}>
           {jobs.map((job, indx) => (
             <Badge size="xs" key={indx}>
               {job}
             </Badge>
           ))}
-        </div>
+        </Group>
       )
     },
   },
@@ -143,17 +123,9 @@ const movieCrewCol: ColumnDef<TMovieCrewCol>[] = [
     cell: ({ row }) => {
       const added = row.original.already_added
       if (added) {
-        return (
-          <Badge circle variant="filled">
-            Added
-          </Badge>
-        )
+        return <ColorSwatch color="var(--mantine-color-red-5)" size={20} />
       } else {
-        return (
-          <Badge variant="outline" circle>
-            Not
-          </Badge>
-        )
+        return <ColorSwatch color="var(--mantine-color-teal-5)" size={20} />
       }
     },
   },
@@ -269,13 +241,15 @@ const personCrewCol: ColumnDef<TPersonCrewCol>[] = [
     cell: ({ row }) => {
       const jobs = row.original.jobs
       return (
-        <div className="space-x-1">
-          {jobs.map((job, indx) => (
-            <Badge size="xs" key={indx}>
-              {job}
-            </Badge>
-          ))}
-        </div>
+        <Scroller maw={200}>
+          <Group gap={'xs'} wrap="nowrap">
+            {jobs.map((job, indx) => (
+              <Badge size="xs" key={indx}>
+                {job}
+              </Badge>
+            ))}
+          </Group>
+        </Scroller>
       )
     },
   },

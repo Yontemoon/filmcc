@@ -18,7 +18,7 @@ type TGameState = 'START' | 'IN_PROGRESS' | 'END' | 'STAYED' | 'FAILED'
 
 const useGame = ({ start, end }: PropTypes) => {
   const [controller, setController] = React.useState<TController>(start)
-  const [scroll, scrollTo] = useWindowScroll()
+  const [_scroll, scrollTo] = useWindowScroll()
 
   const { startTimer, stopTimer, isTimerRunning, getElapsedMs } = useTimerRef()
   const [gameState, setGameState] = React.useState<TGameState>('START')

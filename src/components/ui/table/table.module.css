@@ -3,3 +3,19 @@
   flex-direction: column;
   gap: 0.5rem;
 }
+
+.tableCell {
+  border-top: 2px solid var(--mantine-color-dark-5);
+  padding: 0.125rem;
+}
+
+.tableHead {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  border-right: 2px solid var(--mantine-color-dark-5);
+  /* border-spacing: 15px; */
+}
+
+.tableHead:last-child {
+  border-right: none;
+}

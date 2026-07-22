@@ -36,6 +36,7 @@ const fetchMovieCredits = createServerFn({ method: 'GET' })
     return res
   })
 
+const regexSelf = /\bself\b/i
 const fetchPersonCredits = createServerFn({ method: 'GET' })
   .validator((data: { personId: number }) => data)
   .handler(async ({ data }) => {
@@ -48,6 +49,8 @@ const fetchPersonCredits = createServerFn({ method: 'GET' })
 
     personCredits.cast = personCredits.cast
       .filter((curr) => curr.release_date)
+      .filter((curr) => !regexSelf.test(curr.character))
+      .filter((curr) => curr.character !== '')
       .sort((a, b) => {
         if (!a.release_date) return 1
         if (!b.release_date) return -1

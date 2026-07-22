@@ -43,14 +43,16 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
     <Paper {...props}>
       <HoverCard width={280} shadow="md" position="right" openDelay={300}>
         {showFallback ? (
-          <svg
-            className="w-1/2 h-1/2 text-slate-400"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
+          <div className="flex items-center justify-center h-full">
+            <svg
+              className="w-1/2 h-1/2 text-slate-400"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
         ) : (
           <HoverCard.Target>
             <div
