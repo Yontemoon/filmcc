@@ -6,7 +6,7 @@ COPY . ./
 RUN npm run build
 
 FROM node:lts-alpine
-WORKDIR /app
+WORKDIR /src
 COPY --from=build /src/.output ./.output
 COPY --from=build /src/package*.json ./
 EXPOSE 3000
