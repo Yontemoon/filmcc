@@ -46,6 +46,7 @@ const getTmdbMovie = async (movieId: number) => {
 }
 
 // // TODO WORK ON THIS NEXT
+// * DIRECTOR, WRITER, CINEMATOGRAPHER, COMPOSER (MUSIC), EDITOR
 // const crewJobs = [
 //   'Director',
 //   'Editor',

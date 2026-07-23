@@ -5,6 +5,7 @@ import {
 
 const theme = createTheme({
   primaryColor: 'teal',
+  scale: 1,
   lineHeights: {
     xs: '1.4',
     sm: '1.45',
