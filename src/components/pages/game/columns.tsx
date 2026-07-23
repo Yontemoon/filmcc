@@ -8,7 +8,7 @@ import type {
 import ProfileImage from '#/components/profile-image'
 import PosterImage from '#/components/poster/poster'
 import Badge from '#/components/ui/badge'
-import { displayYear } from '#/library/utils'
+import { displayYear } from '#/lib/utils'
 import { Group, Scroller, Text } from '@mantine/core'
 import ColorSwatch from '#/components/ui/color-swatch/color-swatch'
 

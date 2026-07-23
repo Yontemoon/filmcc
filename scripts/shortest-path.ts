@@ -15,7 +15,7 @@ import {
   getSearchTmdbPerson,
   getTmdbMovie,
   getTmdbPerson,
-} from '../src/library/fetch'
+} from '../src/lib/fetch'
 
 type NodeKey = string
 type Neighbor = { key: NodeKey; label: string; via: string }

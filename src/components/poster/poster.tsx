@@ -3,7 +3,7 @@ import type { ComponentProps } from 'react'
 import {
   TMDB_IMAGE_POSTER_URL,
   TMDB_IMAGE_POSTER_URL_EXPAND,
-} from '#/library/constants'
+} from '#/lib/constants'
 import { HoverCard } from '@mantine/core'
 import useImgLoader from '#/hooks/use-img-loader'
 import Spinner from '#/components/ui/spinner'

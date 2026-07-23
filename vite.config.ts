@@ -12,14 +12,7 @@ const config = defineConfig({
   server: {
     port: 3000,
   },
-  plugins: [
-    devtools(),
-    nitro({ rollupConfig: { external: [/^@sentry\//] } }),
-
-    tailwindcss(),
-    tanstackStart(),
-    viteReact(),
-  ],
+  plugins: [devtools(), nitro(), tailwindcss(), tanstackStart(), viteReact()],
 })
 
 export default config

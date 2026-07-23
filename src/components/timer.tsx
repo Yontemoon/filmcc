@@ -1,4 +1,4 @@
-import { formatTime } from '#/library/utils'
+import { formatTime } from '#/lib/utils'
 import React from 'react'
 
 // Props drilled come from the useGame hook.

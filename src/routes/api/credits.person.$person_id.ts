@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { tmdbFetch } from '#/library/fetch'
+import { tmdbFetch } from '#/lib/fetch'
 
 export const Route = createFileRoute(`/api/credits/person/$person_id`)({
   server: {
