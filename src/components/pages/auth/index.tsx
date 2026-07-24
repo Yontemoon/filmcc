@@ -5,42 +5,99 @@ import Checkbox from '#/components/ui/checkbox'
 import { Link } from '@tanstack/react-router'
 import { signIn, signUp } from '#/lib/auth-client'
 import { useForm, isEmail, hasLength, matchesField } from '@mantine/form'
+import { notifications } from '@mantine/notifications'
+
+interface SignInInt {
+  email: string
+  password: string
+  rememberMe: boolean
+}
 
 const SigninComp = () => {
+  const form = useForm<SignInInt>({
+    mode: 'uncontrolled',
+    initialValues: {
+      email: '',
+      password: '',
+      rememberMe: true,
+    },
+    validate: {
+      email: isEmail('Invalid email'),
+    },
+  })
+
+  const handleSignIn = async (values: SignInInt) => {
+    try {
+      const { error } = await signIn.email({
+        email: values.email,
+        password: values.password,
+        rememberMe: values.rememberMe,
+        callbackURL: '/dashboard',
+      })
+
+      if (error) {
+        notifications.show({
+          message: error.message,
+        })
+
+        throw new Error(error.message)
+      }
+    } catch (error) {
+      console.error('[Error Signing In]: ', error)
+    }
+  }
   return (
-    <div className={classes.wrapper}>
-      <Paper className={classes.form}>
-        <Title order={2} className={classes.title}>
-          Welcome back to FilmCC!
-        </Title>
+    <form onSubmit={form.onSubmit(handleSignIn)}>
+      <div className={classes.wrapper}>
+        <Paper className={classes.form}>
+          <Title order={2} className={classes.title}>
+            Welcome back to FilmCC!
+          </Title>
 
-        <TextInput
-          label="Email address"
-          placeholder="hello@gmail.com"
-          size="md"
-          radius="sm"
-        />
-        <PasswordInput
-          label="Password"
-          placeholder="Your password"
-          mt="md"
-          size="md"
-          radius="sm"
-        />
-        <Checkbox label="Keep me logged in" mt="xl" size="sm" />
-        <Button fullWidth mt="xl" size="md" radius="sm">
-          Login
-        </Button>
+          <TextInput
+            label="Email address"
+            placeholder="hello@gmail.com"
+            size="md"
+            radius="sm"
+            key={form.key('email')}
+            {...form.getInputProps('email')}
+          />
+          <PasswordInput
+            label="Password"
+            placeholder="Your password"
+            mt="md"
+            size="md"
+            radius="sm"
+            key={form.key('password')}
+            {...form.getInputProps('password')}
+          />
+          <Checkbox
+            label="Keep me logged in"
+            mt="xl"
+            size="sm"
+            key={form.key('rememberMe')}
+            {...form.getInputProps('rememberMe')}
+          />
+          <Button
+            fullWidth
+            mt="xl"
+            size="md"
+            radius="sm"
+            type="submit"
+            loading={form.submitting}
+          >
+            Login
+          </Button>
 
-        <Text ta="center" mt="md">
-          Don&apos;t have an account? {/* <Link to={'/signup'}> */}
-          <Anchor fw={500} component={Link} to="/signup">
-            Register
-          </Anchor>
-          {/* </Link> */}
-        </Text>
-      </Paper>
-    </div>
+          <Text ta="center" mt="md">
+            Don&apos;t have an account?
+            <Anchor fw={500} component={Link} to="/signup">
+              Register
+            </Anchor>
+          </Text>
+        </Paper>
+      </div>
+    </form>
   )
 }
 type SigninForm = {

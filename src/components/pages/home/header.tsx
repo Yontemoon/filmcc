@@ -26,7 +26,7 @@ export function HomeHeader() {
           </Group>
         ) : (
           <Link to="/dashboard">
-            <Button>Go Here</Button>
+            <Button variant="transparent">Play</Button>
           </Link>
         )}
       </Container>

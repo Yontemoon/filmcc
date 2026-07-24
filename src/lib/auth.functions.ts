@@ -20,4 +20,15 @@ const ensureSession = createServerFn({ method: 'GET' }).handler(async () => {
   return session
 })
 
-export { getSession, ensureSession }
+const signOut = createServerFn({ method: 'POST' }).handler(async () => {
+  const headers = getRequestHeaders()
+  const session = await auth.api.getSession({ headers })
+
+  if (!session) {
+    throw new Error('Unauthorized')
+  }
+
+  return auth.api.signOut()
+})
+
+export { getSession, ensureSession, signOut }
