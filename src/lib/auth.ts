@@ -5,7 +5,7 @@ import { username } from 'better-auth/plugins'
 import db from '#/lib/db'
 import * as schema from '#/lib/db/schema'
 
-export const auth = betterAuth({
+const auth = betterAuth({
   advanced: {
     database: {
       generateId: 'uuid',
@@ -21,3 +21,5 @@ export const auth = betterAuth({
   }),
   plugins: [username(), tanstackStartCookies()],
 })
+
+export { auth }

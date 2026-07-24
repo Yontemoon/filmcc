@@ -25,7 +25,9 @@ export function HomeHeader() {
             </Link>
           </Group>
         ) : (
-          <Button>Go Here</Button>
+          <Link to="/dashboard">
+            <Button>Go Here</Button>
+          </Link>
         )}
       </Container>
     </header>
