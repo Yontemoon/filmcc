@@ -18,7 +18,7 @@ import type {
 } from '#/types/client.types'
 import type { TMovieCrewCol, TPersonCrewCol } from './types'
 import PosterImage from '#/components/poster/poster'
-import { Text, Tabs } from '@mantine/core'
+import { Text, Tabs, Grid } from '@mantine/core'
 import { displayYear } from '#/lib/utils'
 import Hover from '#/components/ui/hover/hover'
 import classes from './game.module.css'
@@ -131,82 +131,92 @@ const GridLayout = ({
       </Tabs.List>
       <div className="py-7">
         <Tabs.Panel value="CAST">
-          <div className="grid md:grid-cols-6 grid-cols-3 gap-2">
+          <Grid>
             {memoData?.type === 'PERSON' &&
               memoData.cast.map((movie) => {
                 return (
-                  <div
-                    key={movie.id}
-                    className={classes.imageLift}
-                    onClick={() => {
-                      changeController({
-                        id: movie.id,
-                        type: 'MOVIE',
-                        label: movie.title,
-                        img_path: movie.poster_url,
-                      })
-                    }}
-                  >
-                    <Hover
-                      trigger={
-                        <PosterImage
-                          posterPath={movie.poster_url}
-                          id={movie.id.toString()}
-                          showExpand={false}
-                          hd={true}
-                        />
-                      }
+                  <Grid.Col key={movie.id} span={{ base: 4, md: 3, lg: 2 }}>
+                    <div
+                      className={classes.imageLift}
+                      onClick={() => {
+                        changeController({
+                          id: movie.id,
+                          type: 'MOVIE',
+                          label: movie.title,
+                          img_path: movie.poster_url,
+                        })
+                      }}
                     >
-                      <Text size="xs">
-                        {movie.title} ({movie.date && displayYear(movie.date)}){' '}
-                        {movie.role && 'as '}
-                        {movie.role && movie.role}
+                      <PosterImage
+                        posterPath={movie.poster_url}
+                        id={movie.id.toString()}
+                        showExpand={false}
+                        hd={true}
+                      />
+                    </div>
+                    <div className={classes.movieInfo}>
+                      <Text
+                        classNames={{
+                          root: classes.movieInfo,
+                        }}
+                        size="sm"
+                      >
+                        {movie.title}
                       </Text>
-                    </Hover>
-                  </div>
+                      <Text c="dimmed" className={classes.movieInfo} size="xs">
+                        {movie.date && displayYear(movie.date)}
+                        {movie.date && ' ·'} {movie.role}
+                      </Text>
+                    </div>
+                  </Grid.Col>
                 )
               })}
-          </div>
+          </Grid>
         </Tabs.Panel>
 
         <Tabs.Panel value="CREW">
-          <div className="grid md:grid-cols-6 grid-cols-3 gap-2">
+          <Grid>
             {memoData?.type === 'PERSON' &&
               memoData.crew.map((movie) => {
                 return (
-                  <div
-                    className={classes.imageLift}
-                    key={movie.id}
-                    onClick={() => {
-                      changeController({
-                        id: movie.id,
-                        type: 'MOVIE',
-                        label: movie.title,
-                        img_path: movie.poster_url,
-                      })
-                    }}
-                  >
-                    <Hover
-                      trigger={
-                        <PosterImage
-                          posterPath={movie.poster_url}
-                          id={movie.id.toString()}
-                          showExpand={false}
-                          hd={true}
-                        />
-                      }
+                  <Grid.Col key={movie.id} span={{ base: 4, md: 3, lg: 2 }}>
+                    <div
+                      className={classes.imageLift}
+                      onClick={() => {
+                        changeController({
+                          id: movie.id,
+                          type: 'MOVIE',
+                          label: movie.title,
+                          img_path: movie.poster_url,
+                        })
+                      }}
                     >
-                      <Text size="xs">
-                        {movie.title} (
-                        {movie.release_date && displayYear(movie.release_date)}){' '}
-                        {movie.job && 'as '}
-                        {movie.job && movie.job}
+                      <PosterImage
+                        posterPath={movie.poster_url}
+                        id={movie.id.toString()}
+                        showExpand={false}
+                        hd={true}
+                      />
+                    </div>
+
+                    <div className={classes.movieInfo}>
+                      <Text
+                        classNames={{
+                          root: classes.movieInfo,
+                        }}
+                        size="sm"
+                      >
+                        {movie.title}
                       </Text>
-                    </Hover>
-                  </div>
+                      <Text c="dimmed" className={classes.movieInfo} size="xs">
+                        {movie.release_date && displayYear(movie.release_date)}
+                        {movie.release_date && ' ·'} {movie.job}
+                      </Text>
+                    </div>
+                  </Grid.Col>
                 )
               })}
-          </div>
+          </Grid>
         </Tabs.Panel>
       </div>
     </Tabs>

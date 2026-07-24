@@ -3,17 +3,22 @@ import { AppShell, Container, Flex } from '@mantine/core'
 import Button from '#/components/ui/button'
 
 import { HomeHeader } from '#/components/pages/home/header'
-import { Suspense } from 'react'
+import { getSession } from '#/lib/auth.functions'
 
-export const Route = createFileRoute('/')({ component: App })
+export const Route = createFileRoute('/')({
+  beforeLoad: async () => {
+    const data = await getSession()
+    return { user: data?.user ?? null }
+  },
+  component: HomePage,
+})
 
-function App() {
+function HomePage() {
   return (
     <AppShell header={{ height: 60 }} padding="md">
       <Container maw={960}>
-        <Suspense>
-          <HomeHeader />
-        </Suspense>
+        <HomeHeader />
+
         <Flex gap={'lg'} direction={'column'} align={'start'} columnGap={'lg'}>
           <h1 className="text-6xl font-black ">
             Test your knowledge of chaining movies and people together.

@@ -2,20 +2,17 @@ import { Container, Group } from '@mantine/core'
 import classes from './header.module.css'
 import Button from '#/components/ui/button'
 import { Link } from '@tanstack/react-router'
-import { useSession } from '#/lib/auth-client'
-import Spinner from '#/components/ui/spinner'
+import { Route } from '#/routes'
 
 export function HomeHeader() {
-  const { data, isPending } = useSession()
+  const { user } = Route.useRouteContext()
 
   return (
     <header className={classes.header}>
       <Container size="md" className={classes.inner}>
         <div>Film CC</div>
 
-        {isPending ? (
-          <Spinner />
-        ) : !data ? (
+        {!user ? (
           <Group gap={2}>
             <Link to="/signin">
               <Button variant="transparent">Sign In</Button>
