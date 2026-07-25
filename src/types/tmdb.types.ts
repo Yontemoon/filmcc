@@ -42,7 +42,7 @@ interface T_TMDB_CAST {
   adult: boolean
   gender: number
   id: number
-  known_for_department: string
+  known_for_department: 'Acting'
   name: string
   original_name: string
   popularity: number

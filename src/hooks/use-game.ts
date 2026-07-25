@@ -8,6 +8,11 @@ import type {
   TPersonController,
 } from '#/types/client.types'
 import useCredits from '#/hooks/use-credits'
+import { useQueryClient } from '@tanstack/react-query'
+import type {
+  T_TMDB_PERSON_CREDITS,
+  T_TMDB_PERSON_DETAILS,
+} from '#/types/tmdb.types'
 
 interface PropTypes {
   start: TController
@@ -19,6 +24,7 @@ type TGameState = 'START' | 'IN_PROGRESS' | 'END' | 'STAYED' | 'FAILED'
 const useGame = ({ start, end }: PropTypes) => {
   const [controller, setController] = React.useState<TController>(start)
   const [_scroll, scrollTo] = useWindowScroll()
+  const queryClient = useQueryClient()
 
   const { startTimer, stopTimer, isTimerRunning, getElapsedMs } = useTimerRef()
   const [gameState, setGameState] = React.useState<TGameState>('START')
@@ -86,18 +92,56 @@ const useGame = ({ start, end }: PropTypes) => {
       }
 
       const { type: dataType } = data
-
+      const isStart = history.length === 0
       if (controller.type === 'MOVIE' && dataType === 'MOVIE') {
         const { type, ...restOfController } = controller
 
-        setHistory((prev) => [
-          ...prev,
-          {
-            ...restOfController,
-            type,
-            details: data.details,
-          },
-        ])
+        if (isStart) {
+          setHistory((prev) => [
+            ...prev,
+            {
+              ...restOfController,
+              type,
+              details: data.details,
+              creditInfo: {
+                roleName: null,
+                roleType: null,
+              },
+            },
+          ])
+        } else {
+          const prevController = history[history.length - 1]
+          const prevControlId = prevController.id
+          const prevControlCache = queryClient.getQueryData([
+            'PERSON',
+            prevControlId,
+          ]) as {
+            details: T_TMDB_PERSON_DETAILS
+            credits: T_TMDB_PERSON_CREDITS
+            type: 'PERSON'
+          }
+
+          const creditInfo =
+            prevControlCache.credits.cast.find((c) => c.id === controller.id) ??
+            prevControlCache.credits.crew.find((c) => c.id === controller.id)
+
+          const isCast = creditInfo && 'character' in creditInfo
+
+          setHistory((prev) => [
+            ...prev,
+            {
+              ...restOfController,
+              type,
+              details: data.details,
+              creditInfo: creditInfo
+                ? {
+                    roleName: isCast ? creditInfo.character : null,
+                    roleType: isCast ? 'Acting' : creditInfo.job,
+                  }
+                : null,
+            },
+          ])
+        }
       }
 
       if (controller.type === 'PERSON' && dataType === 'PERSON') {
@@ -109,6 +153,10 @@ const useGame = ({ start, end }: PropTypes) => {
             ...restOfController,
             type,
             details: data.details,
+            creditInfo: {
+              roleName: null,
+              roleType: null,
+            },
           },
         ])
       }

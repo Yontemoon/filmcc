@@ -7,18 +7,29 @@ type PropTypes = {
   history: (TMovieController | TPersonController)[]
 }
 
-const Line = () => {
-  return <div className="border border-black w-8" />
-}
+const Line = () =>
+  //   {
+  //   roleType,
+  //   role,
+  // }: {
+  //   roleType: string | 'Acting'
+  //   role: string
+  // }
+  {
+    return (
+      <div>
+        {/* {roleType === 'Acting' ? <div>as {role}</div> : <div>{role}</div>} */}
+        <div className="border border-black w-20" />
+      </div>
+    )
+  }
 
 const History = ({ history }: PropTypes) => {
+  console.log({ history })
   const lastIndx = history.length - 1
 
   return (
-    <div
-      id="footer"
-      className="h-full bg-olive-400 sm:px-20 px-5"
-    >
+    <div id="footer" className="h-full bg-olive-400 sm:px-20 px-5">
       <ScrollArea h="100%">
         <div className="flex gap-2 items-center px-2 py-2 h-full text-xs">
           <div className="flex flex-row-reverse">

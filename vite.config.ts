@@ -11,6 +11,7 @@ const config = defineConfig({
   resolve: { tsconfigPaths: true },
   server: {
     port: 3000,
+    open: true,
   },
   plugins: [devtools(), nitro(), tailwindcss(), tanstackStart(), viteReact()],
 })

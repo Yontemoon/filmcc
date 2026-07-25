@@ -139,17 +139,20 @@ const validateRandomPerson = async (personDetails: T_TMDB_PERSON_DETAILS) => {
     const externalPersonData = await tmdbFetch<T_TMDB_EXTERNAL_IDS>(
       `/person/${personDetails.id}/external_ids`,
     )
-
+    console.log({ externalPersonData })
     const imdbId = externalPersonData.imdb_id
 
     if (imdbId) {
       const omdbData = await omdbFetch<T_OMDB_PERSON_DETAILS>(
         `/person/${imdbId}`,
       )
+      console.log({ omdbData })
+
       return omdbData.popularity > POPULARITY_LIMIT ? true : false
     }
     return false
   } catch (error) {
+    console.error(error)
     console.error('[validateRandomPerson]: Something went wrong.')
     return false
   }

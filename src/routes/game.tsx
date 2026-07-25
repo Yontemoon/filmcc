@@ -11,32 +11,18 @@ import Header from '#/components/pages/game/header'
 import { DEMO } from '#/lib/constants'
 import MainBody from '#/components/pages/game/body'
 
-const USE_DEMO = false as boolean
+const USE_DEMO = true as boolean
 
-// Height of the fixed bottom history bar. Change this one value to resize it.
 const HISTORY_HEIGHT = '6rem'
 
 export const Route = createFileRoute('/game')({
   component: RouteComponent,
   loader: async () => {
-    return fetchCreateGame()
-  },
-  pendingComponent: () => {
-    return (
-      <div className="flex justify-center">
-        <Spinner />
-      </div>
-    )
-  },
-})
-
-function RouteComponent() {
-  const data = Route.useLoaderData()
-  const router = useRouter()
-
-  const controllerInformation = USE_DEMO
-    ? DEMO
-    : ({
+    if (USE_DEMO) {
+      return DEMO
+    } else {
+      const data = await fetchCreateGame()
+      const controllerInformation = {
         start: {
           id: data?.start.id,
           label: data?.start.title,
@@ -49,7 +35,22 @@ function RouteComponent() {
           type: 'PERSON',
           img_path: data?.end.profile_path,
         },
-      } as { start: TController; end: TController })
+      } as { start: TController; end: TController }
+      return controllerInformation
+    }
+  },
+  pendingComponent: () => {
+    return (
+      <div className="flex justify-center">
+        <Spinner />
+      </div>
+    )
+  },
+})
+
+function RouteComponent() {
+  const controllerInformation = Route.useLoaderData()
+  const router = useRouter()
 
   const {
     startGame,
@@ -141,7 +142,7 @@ function RouteComponent() {
           </Link>
         </div>
       </Modal>
-      <div className="mx-auto max-w-275 w-full flex flex-col h-screen px-2 ">
+      <div className="mx-auto max-w-300 w-full flex flex-col h-screen px-2 ">
         {/* Scrollable region: header (sticky) + main body */}
         <ScrollArea className="flex-1 min-h-0 overflow-y-auto pb-5 px-5">
           <Header

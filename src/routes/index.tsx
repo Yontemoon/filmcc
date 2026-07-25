@@ -29,9 +29,11 @@ function HomePage() {
             totally free.
           </div>
           <div className="flex justify-end w-full">
-            <Button radius={'sm'} size="lg">
-              <Link to={'/game'}>Test your knowledge</Link>
-            </Button>
+            <Link to={'/game'}>
+              <Button radius={'sm'} size="lg">
+                Test your knowledge
+              </Button>
+            </Link>
           </div>
         </Flex>
       </Container>

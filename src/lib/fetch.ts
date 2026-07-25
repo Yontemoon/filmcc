@@ -13,8 +13,12 @@ const tmdbFetch = async <T>(url: string) => {
       Authorization: `Bearer ${process.env.TMDB_API_KEY}`,
     },
   })
-  const data = (await response.json()) as T
-  return data
+
+  if (!response.ok) {
+    console.error('[tmdbFetch] response not OK: ', response.text)
+    // throw new Error(response.statusText)
+  }
+  return response.json() as T
 }
 
 const getSearchTmdbMovie = async (query: string) => {
@@ -24,7 +28,7 @@ const getSearchTmdbMovie = async (query: string) => {
     total_pages: number
     total_results: number
   }>(`/search/movie?query=${query}&include_adult=false&language=en-US&page=1`)
-  return data.results
+  return data
 }
 
 const getSearchTmdbPerson = async (query: string) => {

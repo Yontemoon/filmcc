@@ -20,7 +20,6 @@ import type { TMovieCrewCol, TPersonCrewCol } from './types'
 import PosterImage from '#/components/poster/poster'
 import { Text, Tabs, Grid } from '@mantine/core'
 import { displayYear } from '#/lib/utils'
-import Hover from '#/components/ui/hover/hover'
 import classes from './game.module.css'
 
 type PropTypes = {

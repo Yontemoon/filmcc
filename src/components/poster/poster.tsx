@@ -31,19 +31,11 @@ const Poster = ({
     : ''
 
   const [hasError, setHasError] = React.useState(false)
-  const pathBool = Boolean(posterPath)
   const [isLoaded, setIsLoaded] = React.useState(false)
-
-  // const { expandingLoading, handleOnLoad, imgRef } = useImgLoader({
-  //   init: pathBool,
-  //   path: expandedProfileUrl,
-  // })
-
   const showFallback = !posterPath || hasError
 
   return (
     <AspectRatio ratio={2 / 3} opacity={isLoaded ? '100' : '0'} {...props}>
-      {/* <HoverCard width="280" shadow="md"> */}
       {showFallback ? (
         <div className="flex h-full w-full items-center justify-center bg-slate-800">
           <svg
@@ -63,7 +55,6 @@ const Poster = ({
           </svg>
         </div>
       ) : (
-        // <HoverCard.Target>
         <div
           className={`w-full h-full hover:cursor-pointer transition-opacity duration-200 ${
             isLoaded ? 'opacity-100' : 'opacity-0'
@@ -84,33 +75,7 @@ const Poster = ({
             onError={() => setHasError(true)}
           />
         </div>
-        // </HoverCard.Target>
       )}
-      {/* {!showFallback && showExpand && (
-        <HoverCard.Dropdown className="fixed! top-4! right-4! left-auto! transform-none!">
-          <div className="relative flex min-h-24 min-w-24 items-center justify-center">
-            {expandingLoading && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Spinner />
-              </div>
-            )}
-
-            <Image
-              ref={imgRef}
-              layout="fullWidth"
-              onLoad={handleOnLoad}
-              className={`h-full w-full object-cover ${
-                expandingLoading ? 'invisible' : ''
-              }`}
-              alt={`image-${id}-expand`}
-              src={expandedProfileUrl}
-              onError={() => setHasError(true)}
-            />
-
-          </div>
-        </HoverCard.Dropdown>
-      )} */}
-      {/* </HoverCard> */}
     </AspectRatio>
   )
 }
