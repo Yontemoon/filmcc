@@ -3,108 +3,63 @@ import PosterImage from '#/components/poster/poster'
 import ProfileImage from '#/components/profile-image'
 import { ScrollArea, Text } from '@mantine/core'
 
+type HistoryItem = TMovieController | TPersonController
+
 type PropTypes = {
-  history: (TMovieController | TPersonController)[]
+  history: HistoryItem[]
 }
 
-const Line = () =>
-  //   {
-  //   roleType,
-  //   role,
-  // }: {
-  //   roleType: string | 'Acting'
-  //   role: string
-  // }
-  {
-    return (
-      <div>
-        {/* {roleType === 'Acting' ? <div>as {role}</div> : <div>{role}</div>} */}
-        <div className="border border-black w-20" />
-      </div>
-    )
-  }
+// Thin connector drawn between consecutive nodes.
+const Connector = () => <div className="h-px w-4 shrink-0 bg-black/40" />
 
-const History = ({ history }: PropTypes) => {
-  console.log({ history })
-  const lastIndx = history.length - 1
+const Node = ({ item, indx }: { item: HistoryItem; indx: number }) => {
+  const isStart = indx === 0
+  const role = item.creditInfo?.roleName
+  const title = role ? `${item.label} — ${role}` : item.label
 
   return (
+    <div
+      className="flex w-16 shrink-0 flex-col items-center gap-0.5"
+      title={title}
+    >
+      <Text size="10px" c="dimmed" fw={700} tt="uppercase" className="leading-none">
+        {isStart ? 'Start' : indx}
+      </Text>
+      {item.type === 'MOVIE' ? (
+        <div className="h-12 w-8">
+          <PosterImage posterPath={item.details.poster_path} id={item.id.toString()} />
+        </div>
+      ) : (
+        <div className="h-10 w-10">
+          <ProfileImage
+            profilePath={item.details.profile_path}
+            creditId={`${item.id}-${indx}`}
+          />
+        </div>
+      )}
+      <Text
+        size="xs"
+        fw={600}
+        lineClamp={1}
+        className="w-full text-center leading-tight"
+      >
+        {item.label}
+      </Text>
+    </div>
+  )
+}
+
+const History = ({ history }: PropTypes) => {
+  return (
     <div id="footer" className="h-full bg-olive-400 sm:px-20 px-5">
-      <ScrollArea h="100%">
-        <div className="flex gap-2 items-center px-2 py-2 h-full text-xs">
-          <div className="flex flex-row-reverse">
-            {history.map((curr, indx) => {
-              const type = curr.type
-              const start = indx === 0
-              if (type === 'MOVIE') {
-                if (indx === lastIndx) {
-                  return (
-                    <div key={curr.id}>
-                      <div>{start ? 'Start' : indx}</div>
-                      <div className="w-10 h-15">
-                        <PosterImage
-                          posterPath={curr.details.poster_path}
-                          id={curr.id.toString()}
-                        />
-                      </div>{' '}
-                      <Text size="xs">{curr.label}</Text>
-                      <Text size="xs">{curr.creditInfo?.roleName}</Text>
-                    </div>
-                  )
-                } else {
-                  return (
-                    <div key={curr.id} className="flex items-center">
-                      <Line />
-                      <div>
-                        <div>{start ? 'Start' : indx}</div>
-                        <div className="w-10 h-15">
-                          <PosterImage
-                            posterPath={curr.details.poster_path}
-                            id={curr.id.toString()}
-                          />
-                        </div>
-                        <Text size="xs">{curr.label}</Text>
-                        <Text size="xs">{curr.creditInfo?.roleName}</Text>
-                      </div>
-                    </div>
-                  )
-                }
-              } else {
-                if (indx === 0 || indx === lastIndx) {
-                  return (
-                    <div key={curr.id}>
-                      <div>{start ? 'Start' : indx}</div>
-                      <div className="w-10 h-15">
-                        <ProfileImage
-                          profilePath={curr.details.profile_path}
-                          creditId={`${curr.id}-${indx}`}
-                        />
-                      </div>
-                      <Text size="xs">{curr.label}</Text>
-                      <Text size="xs">{curr.creditInfo?.roleName}</Text>
-                    </div>
-                  )
-                } else {
-                  return (
-                    <div key={curr.id} className="flex items-center">
-                      <Line />
-                      <div>
-                        <div>{indx}</div>
-                        <div className="w-10 h-15">
-                          <ProfileImage
-                            profilePath={curr.details.profile_path}
-                            creditId={`${curr.id}-${indx}`}
-                          />
-                        </div>
-                        <Text size="xs">{curr.label}</Text>
-                        <Text size="xs">{curr.creditInfo?.roleName}</Text>
-                      </div>
-                    </div>
-                  )
-                }
-              }
-            })}
-          </div>
+      <ScrollArea h="100%" type="hover">
+        <div className="flex h-full items-center gap-0 px-2">
+          {history.map((curr, indx) => (
+            <div key={`${curr.id}-${indx}`} className="flex items-center">
+              {indx > 0 && <Connector />}
+              <Node item={curr} indx={indx} />
+            </div>
+          ))}
         </div>
       </ScrollArea>
     </div>

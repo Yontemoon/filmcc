@@ -47,7 +47,7 @@ const Endpoint = ({
       }}
     >
       {controller.type === 'MOVIE' ? (
-        <div className="h-15 w-12">
+        <div className="h-12 w-9">
           <PosterImage
             posterPath={controller.img_path}
             id={controller.id.toString()}
@@ -55,7 +55,7 @@ const Endpoint = ({
           />
         </div>
       ) : (
-        <div className="h-12 w-12">
+        <div className="h-10 w-10">
           <ProfileImage
             profilePath={controller.img_path}
             creditId={controller.id}
@@ -78,7 +78,7 @@ const Endpoint = ({
 const CurrentImage = ({ current }: { current: HistoryItem }) => {
   if (current.type === 'MOVIE') {
     return (
-      <div className="h-12 w-9">
+      <div className="h-10 w-7">
         <PosterImage
           posterPath={current.details.poster_path}
           id={current.id.toString()}
@@ -88,7 +88,7 @@ const CurrentImage = ({ current }: { current: HistoryItem }) => {
     )
   }
   return (
-    <div className="h-12 w-12">
+    <div className="h-9 w-9">
       <ProfileImage
         profilePath={current.details.profile_path}
         creditId={current.id}
@@ -102,7 +102,7 @@ const Header = ({ start, end, history, moves, time }: PropTypes) => {
 
   return (
     <div className={classes.headerSticky} id="header">
-      <Paper withBorder radius="lg" p="md" mb="md" shadow="xs">
+      <Paper withBorder radius="lg" p="sm" mb="xs" shadow="xs">
         {/* Journey: start -> target */}
         <Group justify="space-between" wrap="nowrap" gap="sm">
           <Endpoint
@@ -129,7 +129,7 @@ const Header = ({ start, end, history, moves, time }: PropTypes) => {
           />
         </Group>
 
-        <Divider my="sm" />
+        <Divider my={6} />
 
         {/* Now + stats */}
         <Group justify="space-between" wrap="wrap" gap="sm">
