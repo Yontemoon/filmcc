@@ -15,6 +15,10 @@ type TController = {
 type TBaseController<T extends TType, TDetails> = Omit<TController, 'type'> & {
   type: T
   details: TDetails
+  creditInfo?: {
+    roleName: string | null
+    roleType: string
+  } | null
 }
 type TMovieController = TBaseController<'MOVIE', T_TMDB_MOVIE_DETAILS>
 type TPersonController = TBaseController<'PERSON', T_TMDB_PERSON_DETAILS>

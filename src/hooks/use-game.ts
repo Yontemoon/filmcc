@@ -10,6 +10,8 @@ import type {
 import useCredits from '#/hooks/use-credits'
 import { useQueryClient } from '@tanstack/react-query'
 import type {
+  T_TMDB_MOVIE_CREDITS,
+  T_TMDB_MOVIE_DETAILS,
   T_TMDB_PERSON_CREDITS,
   T_TMDB_PERSON_DETAILS,
 } from '#/types/tmdb.types'
@@ -103,10 +105,7 @@ const useGame = ({ start, end }: PropTypes) => {
               ...restOfController,
               type,
               details: data.details,
-              creditInfo: {
-                roleName: null,
-                roleType: null,
-              },
+              creditInfo: null,
             },
           ])
         } else {
@@ -147,18 +146,49 @@ const useGame = ({ start, end }: PropTypes) => {
       if (controller.type === 'PERSON' && dataType === 'PERSON') {
         const { type, ...restOfController } = controller
 
-        setHistory((prev) => [
-          ...prev,
-          {
-            ...restOfController,
-            type,
-            details: data.details,
-            creditInfo: {
-              roleName: null,
-              roleType: null,
+        if (isStart) {
+          setHistory((prev) => [
+            ...prev,
+            {
+              ...restOfController,
+              type,
+              details: data.details,
+              creditInfo: null,
             },
-          },
-        ])
+          ])
+        } else {
+          const prevController = history[history.length - 1]
+          const prevControlId = prevController.id
+          const prevControlCache = queryClient.getQueryData([
+            'MOVIE',
+            prevControlId,
+          ]) as {
+            details: T_TMDB_MOVIE_DETAILS
+            credits: T_TMDB_MOVIE_CREDITS
+            type: 'MOVIE'
+          }
+
+          const creditInfo =
+            prevControlCache.credits.cast.find((c) => c.id === controller.id) ??
+            prevControlCache.credits.crew.find((c) => c.id === controller.id)
+
+          const isCast = creditInfo && 'character' in creditInfo
+
+          setHistory((prev) => [
+            ...prev,
+            {
+              ...restOfController,
+              type,
+              details: data.details,
+              creditInfo: creditInfo
+                ? {
+                    roleName: isCast ? creditInfo.character : null,
+                    roleType: isCast ? 'Acting' : creditInfo.job,
+                  }
+                : null,
+            },
+          ])
+        }
       }
 
       if (query.data?.credits) {

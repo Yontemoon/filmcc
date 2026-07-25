@@ -13,7 +13,7 @@ import MainBody from '#/components/pages/game/body'
 
 const USE_DEMO = true as boolean
 
-const HISTORY_HEIGHT = '6rem'
+const HISTORY_HEIGHT = '8rem'
 
 export const Route = createFileRoute('/game')({
   component: RouteComponent,

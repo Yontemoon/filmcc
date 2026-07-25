@@ -1,7 +1,7 @@
 import type { TMovieController, TPersonController } from '#/types/client.types'
 import PosterImage from '#/components/poster/poster'
 import ProfileImage from '#/components/profile-image'
-import { ScrollArea } from '@mantine/core'
+import { ScrollArea, Text } from '@mantine/core'
 
 type PropTypes = {
   history: (TMovieController | TPersonController)[]
@@ -46,7 +46,9 @@ const History = ({ history }: PropTypes) => {
                           posterPath={curr.details.poster_path}
                           id={curr.id.toString()}
                         />
-                      </div>
+                      </div>{' '}
+                      <Text size="xs">{curr.label}</Text>
+                      <Text size="xs">{curr.creditInfo?.roleName}</Text>
                     </div>
                   )
                 } else {
@@ -61,6 +63,8 @@ const History = ({ history }: PropTypes) => {
                             id={curr.id.toString()}
                           />
                         </div>
+                        <Text size="xs">{curr.label}</Text>
+                        <Text size="xs">{curr.creditInfo?.roleName}</Text>
                       </div>
                     </div>
                   )
@@ -76,6 +80,8 @@ const History = ({ history }: PropTypes) => {
                           creditId={`${curr.id}-${indx}`}
                         />
                       </div>
+                      <Text size="xs">{curr.label}</Text>
+                      <Text size="xs">{curr.creditInfo?.roleName}</Text>
                     </div>
                   )
                 } else {
@@ -90,6 +96,8 @@ const History = ({ history }: PropTypes) => {
                             creditId={`${curr.id}-${indx}`}
                           />
                         </div>
+                        <Text size="xs">{curr.label}</Text>
+                        <Text size="xs">{curr.creditInfo?.roleName}</Text>
                       </div>
                     </div>
                   )

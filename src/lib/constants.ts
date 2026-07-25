@@ -14,14 +14,14 @@ const DEMO = {
     id: 73,
     type: 'MOVIE',
     label: 'American History X',
-    connection: null,
+    creditInfo: null,
     img_path: '/x2drgoXYZ8484lqyDj7L1CEVR4T.jpg',
   },
   end: {
     id: 5655,
     type: 'PERSON',
     label: 'Wes Anderson',
-    connection: null,
+    creditInfo: null,
     img_path: '/s03CeUeC5yAXyB1acqP0zGNo2SC.jpg',
   },
 } as { start: TController; end: TController }
