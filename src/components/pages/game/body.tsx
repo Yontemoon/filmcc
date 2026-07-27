@@ -18,8 +18,9 @@ import type {
 } from '#/types/client.types'
 import type { TMovieCrewCol, TPersonCrewCol } from './types'
 import PosterImage from '#/components/poster/poster'
-import { Text, Tabs, Grid } from '@mantine/core'
+import { Text, Tabs, Grid, Group } from '@mantine/core'
 import { displayYear } from '#/lib/utils'
+import ColorSwatch from '#/components/ui/color-swatch/color-swatch'
 import classes from './game.module.css'
 
 type PropTypes = {
@@ -133,8 +134,9 @@ const GridLayout = ({
           <Grid>
             {memoData?.type === 'PERSON' &&
               memoData.cast.map((movie) => {
+                const added = movie.already_added
                 return (
-                  <Grid.Col key={movie.id} span={{ base: 4, md: 3, lg: 2 }}>
+                  <Grid.Col key={movie.id} span={{ base: 4, md: 3, lg: 1.5 }}>
                     <div
                       className={classes.imageLift}
                       onClick={() => {
@@ -151,7 +153,21 @@ const GridLayout = ({
                         id={movie.id.toString()}
                         showExpand={false}
                         hd={true}
+                        overlay={added}
                       />
+                      <Group className={classes.posterInfo}>
+                        {added ? (
+                          <ColorSwatch
+                            color="var(--mantine-color-red-5)"
+                            size={20}
+                          />
+                        ) : (
+                          <ColorSwatch
+                            color="var(--mantine-color-teal-5)"
+                            size={20}
+                          />
+                        )}
+                      </Group>
                     </div>
                     <div className={classes.movieInfo}>
                       <Text
@@ -177,8 +193,10 @@ const GridLayout = ({
           <Grid>
             {memoData?.type === 'PERSON' &&
               memoData.crew.map((movie) => {
+                const added = movie.already_added
+
                 return (
-                  <Grid.Col key={movie.id} span={{ base: 4, md: 3, lg: 2 }}>
+                  <Grid.Col key={movie.id} span={{ base: 4, md: 2, lg: 1.5 }}>
                     <div
                       className={classes.imageLift}
                       onClick={() => {
@@ -195,7 +213,22 @@ const GridLayout = ({
                         id={movie.id.toString()}
                         showExpand={false}
                         hd={true}
+                        overlay={added}
                       />
+
+                      <Group className={classes.posterInfo}>
+                        {added ? (
+                          <ColorSwatch
+                            color="var(--mantine-color-red-5)"
+                            size={20}
+                          />
+                        ) : (
+                          <ColorSwatch
+                            color="var(--mantine-color-teal-5)"
+                            size={20}
+                          />
+                        )}
+                      </Group>
                     </div>
 
                     <div className={classes.movieInfo}>

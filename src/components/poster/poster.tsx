@@ -4,7 +4,7 @@ import {
   TMDB_IMAGE_POSTER_URL,
   TMDB_IMAGE_POSTER_URL_EXPAND,
 } from '#/lib/constants'
-import { AspectRatio } from '@mantine/core'
+import { AspectRatio, Overlay } from '@mantine/core'
 import { Image } from '@unpic/react'
 import classes from './poster.module.css'
 
@@ -15,6 +15,7 @@ type PosterImageProps = {
   altText?: string
   className?: string
   hd?: boolean
+  overlay?: boolean
 } & ComponentProps<'div'>
 
 const Poster = ({
@@ -24,6 +25,7 @@ const Poster = ({
   altText = 'Movie poster',
   className = 'w-10 h-15',
   hd = false,
+  overlay = false,
   ...props
 }: PosterImageProps) => {
   const expandedProfileUrl = posterPath
@@ -56,7 +58,7 @@ const Poster = ({
         </div>
       ) : (
         <div
-          className={`w-full h-full hover:cursor-pointer transition-opacity duration-200 ${
+          className={`w-full h-full hover:cursor-pointer transition-opacity duration-200 z-1000 ${
             isLoaded ? 'opacity-100' : 'opacity-0'
           }`}
         >
@@ -75,6 +77,9 @@ const Poster = ({
             onError={() => setHasError(true)}
           />
         </div>
+      )}
+      {overlay && (
+        <Overlay backgroundOpacity={0.7} className={classes.overLay} />
       )}
     </AspectRatio>
   )

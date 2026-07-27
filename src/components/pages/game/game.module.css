@@ -16,6 +16,13 @@
   margin-top: 5px;
 }
 
+.posterInfo {
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+  right: 5px;
+}
+
 .headerSticky {
   position: sticky;
   z-index: 200;

@@ -142,7 +142,7 @@ function RouteComponent() {
           </Link>
         </div>
       </Modal>
-      <div className="mx-auto max-w-300 w-full flex flex-col h-screen px-2 ">
+      <div className="mx-auto max-w-400 w-full flex flex-col h-screen px-2 ">
         {/* Fixed header: journey context, always visible */}
         <div className="shrink-0 pt-1 px-5">
           <Header
@@ -154,7 +154,6 @@ function RouteComponent() {
           />
         </div>
 
-        {/* Main body: the hero — largest zone, scrolls on its own */}
         <ScrollArea className="flex-1 min-h-0 px-5">
           <div className="px-2 pb-4" id="main-body">
             <MainBody
@@ -165,7 +164,6 @@ function RouteComponent() {
           </div>
         </ScrollArea>
 
-        {/* History trail: slim fixed strip at the bottom — resize via HISTORY_HEIGHT */}
         <div className="shrink-0" style={{ height: HISTORY_HEIGHT }}>
           <History history={history} />
         </div>
