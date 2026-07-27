@@ -48,7 +48,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
-      <body className="antialiased wrap-anywhere ">
+      <body className="antialiased  ">
         <QueryProvider>
           <ReactQueryDevtools initialIsOpen={false} buttonPosition="top-left" />
           <MantineProvider>

@@ -1,4 +1,5 @@
 import type {
+  T_TMDB_CREW,
   T_TMDB_MOVIE_CREDITS,
   T_TMDB_MOVIE_DETAILS,
   T_TMDB_PERSON_CREDITS,
@@ -41,47 +42,76 @@ const getSearchTmdbPerson = async (query: string) => {
   return data.results
 }
 
-const getTmdbMovie = async (movieId: number) => {
-  const [movieDetails, movieCredits] = await Promise.all([
-    tmdbFetch<T_TMDB_MOVIE_DETAILS>(`/movie/${movieId}?language=en-US`),
-    tmdbFetch<T_TMDB_MOVIE_CREDITS>(`/movie/${movieId}/credits`),
-  ])
-  return { movieDetails, movieCredits }
+// * FILTERED DIRECTOR, WRITER, CINEMATOGRAPHER, COMPOSER (MUSIC), EDITOR
+const filterCrewCredits = <
+  T extends T_TMDB_CREW | T_TMDB_PERSON_CREDITS['crew'][0],
+>(
+  crew: Array<T>,
+) => {
+  return crew.filter(
+    (movie) =>
+      movie.job === 'Director' ||
+      movie.job === 'Director of Photography' ||
+      movie.job === 'Editor' ||
+      movie.job === 'Original Music Composer' ||
+      movie.job === 'Screenplay' ||
+      movie.job === 'Writer' ||
+      movie.job === 'Author',
+  )
 }
 
-// // TODO WORK ON THIS NEXT
-// * DIRECTOR, WRITER, CINEMATOGRAPHER, COMPOSER (MUSIC), EDITOR
-// const crewJobs = [
-//   'Director',
-//   'Editor',
-//   'Producer',
-//   'Screenplay',
-//   'Casting',
-//   'Writer',
-//   'Costume Design',
-//   'Director of Photography',
-//   'Stunt Coordinator',
-//   'Production Design',
-//   'Author',
-//   'Visual Effects Supervisor',
-//   'Songs',
-//   'Executive Producer',
-//   'Set Decoration',
-//   'Makeup Department Head'
-// ]
-// const getTmtdbMovieWithFilter = async (movieId: number) => {
-//   const data = await getTmdbMovie(movieId)
+const getTmdbMovie = async (
+  movieId: number,
+): Promise<{
+  movieDetails: T_TMDB_MOVIE_DETAILS
+  movieCredits: T_TMDB_MOVIE_CREDITS
+}> => {
+  const [movieDetails, movieCredits] = await Promise.all([
+    tmdbFetch<T_TMDB_MOVIE_DETAILS>(`/movie/${movieId}?language=en-US`),
+    tmdbFetch<T_TMDB_MOVIE_CREDITS>(
+      `/movie/${movieId}/credits?include_adult=false`,
+    ),
+  ])
 
-//   const filteredCrew = data.movieCredits.crew.filter((member) => crewJobs.find(member.known_for_department)
+  const filteredCastCredits = movieCredits.cast.slice(0, 15)
+  const filteredCrewCredits = filterCrewCredits(movieCredits.crew)
 
-// }
+  return {
+    movieDetails,
+    movieCredits: {
+      id: movieCredits.id,
+      cast: filteredCastCredits,
+      crew: filteredCrewCredits,
+    },
+  }
+}
 
 const getTmdbPerson = async (personId: number) => {
   const [personDetails, personCredits] = await Promise.all([
     tmdbFetch<T_TMDB_PERSON_DETAILS>(`/person/${personId}?language=en-US`),
-    tmdbFetch<T_TMDB_PERSON_CREDITS>(`/person/${personId}/movie_credits`),
+    tmdbFetch<T_TMDB_PERSON_CREDITS>(
+      `/person/${personId}/movie_credits?include_adult=false`,
+    ),
   ])
-  return { personDetails, personCredits }
+
+  const today = new Date()
+
+  const filteredPersonCredits = personCredits.cast.filter((movie) => {
+    if (movie.release_date) {
+      return new Date(movie.release_date) < today
+    }
+  })
+
+  const fileredCrewCredits = filterCrewCredits(personCredits.crew)
+
+  return {
+    personDetails,
+    personCredits: {
+      id: personCredits.id,
+      cast: filteredPersonCredits,
+      crew: fileredCrewCredits,
+    },
+  }
 }
 
 const omdbFetch = async <T>(url: string) => {

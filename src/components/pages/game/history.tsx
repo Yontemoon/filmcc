@@ -22,12 +22,21 @@ const Node = ({ item, indx }: { item: HistoryItem; indx: number }) => {
       className="flex w-16 shrink-0 flex-col items-center gap-0.5"
       title={title}
     >
-      <Text size="10px" c="dimmed" fw={700} tt="uppercase" className="leading-none">
+      <Text
+        size="10px"
+        c="dimmed"
+        fw={700}
+        tt="uppercase"
+        className="leading-none"
+      >
         {isStart ? 'Start' : indx}
       </Text>
       {item.type === 'MOVIE' ? (
         <div className="h-12 w-8">
-          <PosterImage posterPath={item.details.poster_path} id={item.id.toString()} />
+          <PosterImage
+            posterPath={item.details.poster_path}
+            id={item.id.toString()}
+          />
         </div>
       ) : (
         <div className="h-10 w-10">
@@ -51,15 +60,17 @@ const Node = ({ item, indx }: { item: HistoryItem; indx: number }) => {
 
 const History = ({ history }: PropTypes) => {
   return (
-    <div id="footer" className="h-full bg-olive-400 sm:px-20 px-5">
+    <div id="footer" className="h-full bg-emerald-200/20 sm:px-20 px-5 ">
       <ScrollArea h="100%" type="hover">
-        <div className="flex h-full items-center gap-0 px-2">
-          {history.map((curr, indx) => (
-            <div key={`${curr.id}-${indx}`} className="flex items-center">
-              {indx > 0 && <Connector />}
-              <Node item={curr} indx={indx} />
-            </div>
-          ))}
+        <div className="flex items-end">
+          <div className="flex h-full items-center gap-0 px-2 flex-row-reverse">
+            {history.map((curr, indx) => (
+              <div key={`${curr.id}-${indx}`} className="flex items-center">
+                <Node item={curr} indx={indx} />
+                {indx > 0 && <Connector />}
+              </div>
+            ))}
+          </div>
         </div>
       </ScrollArea>
     </div>
