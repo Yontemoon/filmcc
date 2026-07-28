@@ -1,8 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { AppShell, Container, Flex } from '@mantine/core'
+import { Flex, Text } from '@mantine/core'
 import Button from '#/components/ui/button'
-
-import { HomeHeader } from '#/components/pages/home/header'
 import { getSession } from '#/lib/auth.functions'
 
 export const Route = createFileRoute('/')({
@@ -14,29 +12,97 @@ export const Route = createFileRoute('/')({
 })
 
 function HomePage() {
-  return (
-    <AppShell header={{ height: 60 }} padding="md">
-      <Container maw={960}>
-        <HomeHeader />
+  const today = new Date()
 
-        <Flex gap={'lg'} direction={'column'} align={'start'} columnGap={'lg'}>
-          <h1 className="text-6xl font-black ">
-            Test your knowledge of chaining movies and people together.
-          </h1>
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: '2-digit',
+    year: 'numeric',
+  })
+
+  const formattedDate = formatter.format(today)
+  const number = 1
+  return (
+    <div
+      style={{
+        height: '100%',
+        width: '100%',
+      }}
+    >
+      <Flex
+        direction={'row'}
+        align={'center'}
+        justify={'center'}
+        style={{
+          height: '100%',
+          padding: '10px',
+          minHeight: '100dvh',
+          overflow: 'hidden',
+        }}
+      >
+        <Flex
+          gap={'lg'}
+          direction={'column'}
+          align={'center'}
+          columnGap={'lg'}
+          style={{
+            margin: '10px',
+            padding: '10px',
+            flexGrow: 1,
+            maxWidth: '375px',
+            textAlign: 'center',
+          }}
+        >
+          <h1 className="text-6xl font-black ">Film CC</h1>
           <div className="text-gray-500 text-2xl">
-            Connect audiences to all of your content with just one link. Claim
-            your unique link and start personalizing your link page. It is
-            totally free.
+            Test your knowledge of connecting movies and the people that created
+            them.
           </div>
-          <div className="flex justify-end w-full">
-            <Link to={'/game'}>
-              <Button radius={'sm'} size="lg">
-                Test your knowledge
+          <Flex direction={{ base: 'column', sm: 'row' }} gap={'md'} w={'100%'}>
+            <Link
+              to="/signin"
+              style={{
+                flex: 1,
+                width: '100%',
+              }}
+            >
+              <Button
+                radius={'lg'}
+                size="lg"
+                variant="outline"
+                style={{
+                  width: '100%',
+                }}
+              >
+                Log in
               </Button>
             </Link>
-          </div>
+            <Link
+              to={'/game'}
+              style={{
+                flex: 1,
+              }}
+            >
+              <Button
+                radius={'lg'}
+                size="lg"
+                variant="filled"
+                style={{
+                  width: '100%',
+                }}
+              >
+                Play
+              </Button>
+            </Link>
+          </Flex>
+          <Flex direction={'column'} gap={'sm'} align={'center'}>
+            <div>
+              <Text>{formattedDate}</Text>
+            </div>
+            <Text>No. {number}</Text>
+          </Flex>
         </Flex>
-      </Container>
-    </AppShell>
+      </Flex>
+    </div>
   )
 }
