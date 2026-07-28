@@ -1,9 +1,10 @@
 import { betterAuth } from 'better-auth/minimal'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
-import { username } from 'better-auth/plugins'
+import { username, anonymous } from 'better-auth/plugins'
 import db from '#/lib/db'
 import * as schema from '#/lib/db/schema'
+import { generateUsername } from 'unique-username-generator'
 
 const auth = betterAuth({
   advanced: {
@@ -19,7 +20,18 @@ const auth = betterAuth({
     provider: 'pg',
     schema: schema,
   }),
-  plugins: [username(), tanstackStartCookies()],
+
+  plugins: [
+    anonymous({
+      emailDomainName: 'guest.com',
+      generateName() {
+        const createdUserName = generateUsername('-', 0, 20)
+        return createdUserName
+      },
+    }),
+    username(),
+    tanstackStartCookies(),
+  ],
 })
 
 export { auth }

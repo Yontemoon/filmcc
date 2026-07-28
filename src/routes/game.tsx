@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import useGame from '#/hooks/use-game'
-import { Modal, ScrollArea } from '@mantine/core'
+import { AppShell, Group, Modal, ScrollArea } from '@mantine/core'
 import Button from '#/components/ui/button'
 import { formatTime } from '#/lib/utils'
 import type { TController } from '#/types/client.types'
@@ -11,12 +11,24 @@ import Header from '#/components/pages/game/header'
 import { DEMO } from '#/lib/constants'
 import MainBody from '#/components/pages/game/body'
 
+import { signInAnon, getSession } from '#/lib/auth.functions'
+import GameHeader from '#/components/game-header'
+
 const USE_DEMO = true as boolean
 
 const HISTORY_HEIGHT = '5.5rem'
 
 export const Route = createFileRoute('/game')({
   component: RouteComponent,
+  beforeLoad: async () => {
+    const session = await getSession()
+    if (!session) {
+      const authSession = await signInAnon()
+      console.log('[Created anon]', authSession)
+      return authSession
+    }
+    return session
+  },
   loader: async () => {
     if (USE_DEMO) {
       return DEMO
@@ -64,7 +76,7 @@ function RouteComponent() {
   } = useGame(controllerInformation)
 
   return (
-    <>
+    <AppShell header={{ height: 60 }}>
       <Modal
         opened={gameState === 'FAILED'}
         onClose={() => {
@@ -142,9 +154,12 @@ function RouteComponent() {
           </Link>
         </div>
       </Modal>
-      <div className="mx-auto max-w-400 w-full flex flex-col h-screen px-2 ">
+      <AppShell.Header>
+        <GameHeader />
+      </AppShell.Header>
+      <div className="mx-auto max-w-400 w-full flex flex-col h-screen px-2 relative pt-15">
         {/* Fixed header: journey context, always visible */}
-        <div className="shrink-0 pt-1 px-5">
+        <div className="shrink-0 pt-1 px-5 ">
           <Header
             start={controllerInformation.start}
             end={controllerInformation.end}
@@ -168,6 +183,6 @@ function RouteComponent() {
           <History history={history} />
         </div>
       </div>
-    </>
+    </AppShell>
   )
 }

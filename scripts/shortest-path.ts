@@ -285,16 +285,16 @@ async function main() {
   const movieSpin = spinner()
   movieSpin.start('Searching movies…')
   const movies = await getSearchTmdbMovie(startingMovieSearch)
-  movieSpin.stop(`Found ${movies.length} movies.`)
+  movieSpin.stop(`Found ${movies.results.length} movies.`)
 
-  if (movies.length === 0) {
+  if (movies.results.length === 0) {
     log.error('No movies matched that search.')
     process.exit(1)
   }
 
   const selectedMovie = await select({
     message: 'Select the movie:',
-    options: movies.map((movie) => ({
+    options: movies.results.map((movie) => ({
       value: movie.id,
       label: `${movie.title} — ${movie.release_date ?? '????'}`,
       hint: movie.overview.slice(0, 80),

@@ -12,6 +12,8 @@ export const Route = createFileRoute('/')({
 })
 
 function HomePage() {
+  const { user } = Route.useRouteContext()
+
   const today = new Date()
 
   const formatter = new Intl.DateTimeFormat('en-US', {
@@ -59,24 +61,26 @@ function HomePage() {
             them.
           </div>
           <Flex direction={{ base: 'column', sm: 'row' }} gap={'md'} w={'100%'}>
-            <Link
-              to="/signin"
-              style={{
-                flex: 1,
-                width: '100%',
-              }}
-            >
-              <Button
-                radius={'lg'}
-                size="lg"
-                variant="outline"
+            {!user && (
+              <Link
+                to="/signin"
                 style={{
+                  flex: 1,
                   width: '100%',
                 }}
               >
-                Log in
-              </Button>
-            </Link>
+                <Button
+                  radius={'lg'}
+                  size="lg"
+                  variant="outline"
+                  style={{
+                    width: '100%',
+                  }}
+                >
+                  Log in
+                </Button>
+              </Link>
+            )}
             <Link
               to={'/game'}
               style={{

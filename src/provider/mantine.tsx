@@ -2,6 +2,7 @@ import {
   createTheme,
   MantineProvider as MantineClientProvider,
 } from '@mantine/core'
+import { ModalsProvider } from '@mantine/modals'
 
 const theme = createTheme({
   primaryColor: 'teal',
@@ -18,7 +19,7 @@ const theme = createTheme({
 const MantineProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <MantineClientProvider theme={theme} defaultColorScheme={'light'}>
-      {children}
+      <ModalsProvider>{children}</ModalsProvider>
     </MantineClientProvider>
   )
 }

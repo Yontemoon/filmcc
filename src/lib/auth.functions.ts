@@ -31,4 +31,16 @@ const signOut = createServerFn({ method: 'POST' }).handler(async () => {
   return auth.api.signOut()
 })
 
-export { getSession, ensureSession, signOut }
+const signInAnon = createServerFn({ method: 'POST' }).handler(async () => {
+  const session = await getSession()
+  if (session) {
+    throw new Error('already authorized')
+  }
+
+  // const headers = getRequestHeaders()
+  const signInRes = await auth.api.signInAnonymous()
+
+  return signInRes
+})
+
+export { getSession, ensureSession, signOut, signInAnon }
