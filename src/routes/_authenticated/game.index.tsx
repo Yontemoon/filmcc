@@ -1,10 +1,15 @@
-import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useRouter,
+} from '@tanstack/react-router'
 import useGame from '#/hooks/use-game'
-import { AppShell, Group, Modal, ScrollArea } from '@mantine/core'
+import { AppShell, Modal, ScrollArea } from '@mantine/core'
 import Button from '#/components/ui/button'
 import { formatTime } from '#/lib/utils'
 import type { TController } from '#/types/client.types'
-import { fetchCreateGame } from '#/lib/server'
+// import { fetchCreateGame } from '#/lib/server'
 import Spinner from '#/components/ui/spinner'
 import History from '#/components/pages/game/history'
 import Header from '#/components/pages/game/header'
@@ -13,39 +18,52 @@ import MainBody from '#/components/pages/game/body'
 
 import { signInAnon, getSession } from '#/lib/auth.functions'
 import GameHeader from '#/components/game-header'
+import { getDailyGameId, getUserGameId } from '#/lib/server/game'
 
-const USE_DEMO = true as boolean
+const USE_DEMO = false as boolean
 
 const HISTORY_HEIGHT = '5.5rem'
 
-export const Route = createFileRoute('/game')({
+export const Route = createFileRoute('/_authenticated/game/')({
   component: RouteComponent,
   beforeLoad: async () => {
     const session = await getSession()
+
+    const gameDetails = await getDailyGameId({ data: { dailyGameId: 1 } })
+
+    if (!gameDetails) {
+      redirect({
+        to: '/',
+      })
+    }
+
     if (!session) {
       const authSession = await signInAnon()
-      console.log('[Created anon]', authSession)
-      return authSession
+      return { session: authSession, game: gameDetails }
     }
-    return session
+    return { session: session.user, game: gameDetails }
   },
-  loader: async () => {
+  loader: async ({ context }) => {
     if (USE_DEMO) {
       return DEMO
     } else {
-      const data = await fetchCreateGame()
+      const { game } = context
+
+      const data = await getUserGameId({ data: { gameId: 1 } })
+      console.log('[USER GAME DATA]', data)
+
       const controllerInformation = {
         start: {
-          id: data?.start.id,
-          label: data?.start.title,
-          type: 'MOVIE',
-          img_path: data?.start.poster_path,
+          id: game?.start.id,
+          label: game?.start.label,
+          type: game?.start.type,
+          img_path: game?.start.img_path,
         },
         end: {
-          id: data?.end.id,
-          label: data?.end.name,
-          type: 'PERSON',
-          img_path: data?.end.profile_path,
+          id: game?.end.id,
+          label: game?.end.label,
+          type: game?.end.img_path,
+          img_path: game?.end.img_path,
         },
       } as { start: TController; end: TController }
       return controllerInformation

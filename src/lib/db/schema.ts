@@ -1,4 +1,4 @@
-import { relations, sql } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import {
   pgTable,
   text,
@@ -23,7 +23,7 @@ export const enumGameStatus = pgEnum('gameStatus', [
 ])
 
 export const dailyGames = pgTable('daily_games', {
-  id: uuid('id').primaryKey(),
+  id: integer('id').unique().primaryKey(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
@@ -32,7 +32,6 @@ export const dailyGames = pgTable('daily_games', {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
   displayDate: date('display_date').notNull().unique(),
-  dailyNumber: integer('daily_number').notNull().unique(),
   start: jsonb('start').$type<TController>().notNull(),
   end: jsonb('end').$type<TController>().notNull(),
   startId: integer('start_id').notNull(),
@@ -47,13 +46,10 @@ export const gameAttempts = pgTable(
     id: uuid('id')
       .default(sql`pg_catalog.gen_random_uuid()`)
       .primaryKey(),
-    gameId: uuid('game_id')
+    gameId: integer('game_id')
       .notNull()
       .references(() => dailyGames.id, { onDelete: 'cascade' }),
     userId: uuid('user_id').references(() => user.id, { onDelete: 'cascade' }),
-    guestId: text('guest_id'),
-    attemptNumber: integer('attempt_number').notNull(),
-    isRanked: boolean('is_ranked').notNull(), // true only on attempt 1
     status: enumGameStatus('status').default('started').notNull(),
     moves: integer('moves').default(0).notNull(),
     elapsedMs: integer('elapsed_ms'),
@@ -71,31 +67,9 @@ export const gameAttempts = pgTable(
       .notNull(),
   },
   (t) => [
-    // a player is either signed in or a guest, never both and never neither
-    check(
-      'attempt_player_identity',
-      sql`(${t.userId} is null) <> (${t.guestId} is null)`,
-    ),
-
-    // exactly one ranked attempt per player per puzzle
-    uniqueIndex('attempt_ranked_user_uq')
-      .on(t.gameId, t.userId)
-      .where(sql`${t.isRanked} and ${t.userId} is not null`),
-    uniqueIndex('attempt_ranked_guest_uq')
-      .on(t.gameId, t.guestId)
-      .where(sql`${t.isRanked} and ${t.guestId} is not null`),
-
-    // at most one in-progress attempt per player per puzzle
     uniqueIndex('attempt_active_user_uq')
       .on(t.gameId, t.userId)
       .where(sql`${t.status} = 'started' and ${t.userId} is not null`),
-    uniqueIndex('attempt_active_guest_uq')
-      .on(t.gameId, t.guestId)
-      .where(sql`${t.status} = 'started' and ${t.guestId} is not null`),
-
-    index('attempt_game_ranked_idx')
-      .on(t.gameId)
-      .where(sql`${t.isRanked}`),
     index('attempt_user_created_idx').on(t.userId, t.createdAt),
   ],
 )
@@ -182,33 +156,3 @@ export const verification = pgTable(
   },
   (table) => [index('verification_identifier_idx').on(table.identifier)],
 )
-
-export const userRelations = relations(user, ({ many }) => ({
-  sessions: many(session),
-  accounts: many(account),
-}))
-
-export const sessionRelations = relations(session, ({ one }) => ({
-  user: one(user, {
-    fields: [session.userId],
-    references: [user.id],
-  }),
-}))
-
-export const accountRelations = relations(account, ({ one }) => ({
-  user: one(user, {
-    fields: [account.userId],
-    references: [user.id],
-  }),
-}))
-
-export const gamesPlayedRelations = relations(gameAttempts, ({ one }) => ({
-  user: one(user, {
-    fields: [gameAttempts.userId],
-    references: [user.id],
-  }),
-  game: one(dailyGames, {
-    fields: [gameAttempts.gameId],
-    references: [dailyGames.id],
-  }),
-}))

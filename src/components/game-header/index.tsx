@@ -1,4 +1,4 @@
-import { Route } from '#/routes/game'
+import { Route } from '#/routes/_authenticated/game.index'
 import {
   ActionIcon,
   Burger,

@@ -4,8 +4,8 @@ import {
   TMDB_IMAGE_POSTER_URL,
   TMDB_IMAGE_POSTER_URL_EXPAND,
 } from '#/lib/constants'
-import { AspectRatio, Overlay } from '@mantine/core'
-import { Image } from '@unpic/react'
+import { AspectRatio, Overlay, Image } from '@mantine/core'
+
 import classes from './poster.module.css'
 
 type PosterImageProps = {
@@ -63,10 +63,7 @@ const Poster = ({
           }`}
         >
           <Image
-            layout="constrained"
-            aspectRatio={2 / 3}
             className={classes.posterImage}
-            height={100}
             alt={`${altText}-${id}`}
             onLoad={() => setIsLoaded(true)}
             src={

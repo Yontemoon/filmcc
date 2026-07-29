@@ -32,15 +32,15 @@ const signOut = createServerFn({ method: 'POST' }).handler(async () => {
 })
 
 const signInAnon = createServerFn({ method: 'POST' }).handler(async () => {
-  const session = await getSession()
-  if (session) {
-    throw new Error('already authorized')
-  }
+  // √
 
   // const headers = getRequestHeaders()
   const signInRes = await auth.api.signInAnonymous()
+  if (!signInRes.token) {
+    throw new Error('Something wrong happened')
+  }
 
-  return signInRes
+  return signInRes.user
 })
 
 export { getSession, ensureSession, signOut, signInAnon }
