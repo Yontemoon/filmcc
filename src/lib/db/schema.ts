@@ -4,7 +4,6 @@ import {
   text,
   timestamp,
   boolean,
-  check,
   index,
   jsonb,
   pgEnum,
@@ -17,6 +16,7 @@ import type { TController } from '#/types/client.types'
 
 export const enumGameStatus = pgEnum('gameStatus', [
   'started',
+  'in_progress',
   'completed',
   'failed',
   'gave_up',

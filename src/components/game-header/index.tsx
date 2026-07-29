@@ -1,19 +1,12 @@
 import { Route } from '#/routes/_authenticated/game.index'
-import {
-  ActionIcon,
-  Burger,
-  Divider,
-  Drawer,
-  Group,
-  ScrollArea,
-  Text,
-} from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
+import { ActionIcon, Group, Text } from '@mantine/core'
+
 import { ChartBarBig, Settings, CircleQuestionMark } from 'lucide-react'
 import { modals } from '@mantine/modals'
 import classes from './game-header.module.css'
 import Button from '../ui/button'
 import { Link } from '@tanstack/react-router'
+import ModalSetting from '../modals/settings'
 
 const openDeleteModal = () =>
   modals.openConfirmModal({
@@ -30,22 +23,21 @@ const openDeleteModal = () =>
     onCancel: () => console.log('Cancel'),
     onConfirm: () => console.log('Confirmed'),
   })
+
 const links = [
   { modalOpen: openDeleteModal, icon: <ChartBarBig /> },
   { modalOpen: openDeleteModal, icon: <CircleQuestionMark /> },
-  { modalOpen: openDeleteModal, icon: <Settings /> },
+  { modalOpen: ModalSetting, icon: <Settings /> },
 ]
 
 const GameHeader = () => {
   const { user } = Route.useRouteContext()
   const isGuest = user.isAnonymous === true
 
-  const [opened, { toggle, close }] = useDisclosure(false)
-
   const items = links.map((link, i) => (
     <ActionIcon
       variant="transparent"
-      size="xl"
+      size="lg"
       key={i}
       onClick={() => {
         link.modalOpen()
@@ -60,37 +52,14 @@ const GameHeader = () => {
       <div className={classes.inner}>
         <div>Film CC</div>
         <div className={classes.rightInner}>
-          <Group visibleFrom="xs">{items}</Group>
+          <Group gap={'sm'}>{items}</Group>
           {isGuest && (
             <Button variant="outline">
               <Link to="/signup">Sign Up</Link>
             </Button>
           )}
         </div>
-
-        <Burger
-          opened={opened}
-          onClick={toggle}
-          hiddenFrom="xs"
-          size="sm"
-          aria-label="Toggle navigation"
-        />
       </div>
-
-      <Drawer
-        opened={opened}
-        onClose={close}
-        size="100%"
-        padding="md"
-        title="Navigation"
-        hiddenFrom="xs"
-        zIndex={1000000}
-      >
-        <ScrollArea h="calc(100vh - 80px" mx="-md">
-          <Divider my="sm" />
-          {items}
-        </ScrollArea>
-      </Drawer>
     </header>
   )
 }
