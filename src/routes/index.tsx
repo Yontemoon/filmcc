@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useRouterState } from '@tanstack/react-router'
 import { Flex, Text } from '@mantine/core'
 import Button from '#/components/ui/button'
 import { getSession } from '#/lib/auth.functions'
@@ -13,6 +13,7 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   const { user } = Route.useRouteContext()
+  const isRouterLoading = useRouterState({ select: (s) => s.isLoading })
 
   const today = new Date()
 
@@ -95,7 +96,7 @@ function HomePage() {
                   width: '100%',
                 }}
               >
-                Play
+                {isRouterLoading ? 'Loading...' : '  Play'}
               </Button>
             </Link>
           </Flex>

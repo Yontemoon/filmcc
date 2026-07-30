@@ -1,9 +1,11 @@
 import { createServerFn } from '@tanstack/react-start'
 import db from '#/lib/db'
 import { guardAuthMiddlware } from './middleware/auth'
-import { gameAttempts } from '../db/schema'
+import { entities, gameAttempts, gameMoves } from '../db/schema'
 import { setResponseStatus } from '@tanstack/react-start/server'
+import type { TType } from '#/types/client.types'
 
+// Display for home page
 const getLatestDailyGame = createServerFn({ method: 'GET' }).handler(
   async () => {
     const today = new Date().toDateString()
@@ -18,6 +20,7 @@ const getLatestDailyGame = createServerFn({ method: 'GET' }).handler(
   },
 )
 
+// Display all daily games not played
 const getDailyGames = createServerFn({ method: 'GET' }).handler(async () => {
   try {
     const games = await db.query.dailyGames.findMany()
@@ -47,6 +50,7 @@ const getDailyGameId = createServerFn({ method: 'GET' })
     }
   })
 
+// get info for specific game
 const getUserGameId = createServerFn({ method: 'GET' })
   .middleware([guardAuthMiddlware])
   .validator((data: { gameId: number }) => data)
@@ -116,8 +120,63 @@ const getUserGames = createServerFn({ method: 'GET' })
 
 const updateUserStatusGameId = createServerFn({ method: 'POST' })
   .middleware([guardAuthMiddlware])
-  .validator((data: { gameId: number }) => data)
-  .handler(async () => {})
+  .validator(
+    (data: {
+      entityId: number
+      entityType: TType
+      label: string
+      imgPath: string
+      roleType: string
+      roleName: string | null
+      attemptId: string
+    }) => data,
+  )
+  .handler(async ({ data, context }) => {
+    const { userDetails } = context
+    const userId = userDetails.id
+    const {
+      entityId,
+      entityType,
+      imgPath,
+      label,
+      roleName,
+      roleType,
+      attemptId,
+    } = data
+
+    const currentMovesDetails = await db.query.gameMoves.findMany({
+      where: {
+        attemptId: attemptId,
+      },
+    })
+
+    const attemptLength = currentMovesDetails.length - 1
+
+    await db
+      .insert(entities)
+      .values({
+        entityId,
+        entityType,
+        label,
+        imgPath,
+      })
+      .onConflictDoNothing()
+
+    await db.insert(gameMoves).values({
+      attemptId,
+      entityId,
+      entityType,
+      userId,
+      roleName,
+      roleType,
+      moveIndex: attemptLength,
+    })
+
+    try {
+    } catch (error) {
+      console.error(error)
+    }
+  })
 
 const addUserGameId = createServerFn({ method: 'POST' })
   .middleware([guardAuthMiddlware])
