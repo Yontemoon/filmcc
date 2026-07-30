@@ -11,16 +11,22 @@ import {
   date,
   integer,
   uniqueIndex,
+  foreignKey,
+  primaryKey,
+  check,
+  real,
 } from 'drizzle-orm/pg-core'
 import type { TController } from '#/types/client.types'
 
-export const enumGameStatus = pgEnum('gameStatus', [
+export const enumGameStatus = pgEnum('game_status', [
   'started',
   'in_progress',
   'completed',
   'failed',
   'gave_up',
 ])
+
+export const enumEntityType = pgEnum('entity_type', ['MOVIE', 'PERSON'])
 
 export const dailyGames = pgTable('daily_games', {
   id: integer('id').unique().primaryKey(),
@@ -65,12 +71,65 @@ export const gameAttempts = pgTable(
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
+
+    startedAt: timestamp('started_at', { withTimezone: true }),
   },
   (t) => [
-    uniqueIndex('attempt_active_user_uq')
-      .on(t.gameId, t.userId)
-      .where(sql`${t.status} = 'started' and ${t.userId} is not null`),
+    uniqueIndex('one_attempt_per_user_game').on(t.gameId, t.userId),
     index('attempt_user_created_idx').on(t.userId, t.createdAt),
+  ],
+)
+
+export const entities = pgTable(
+  'entities',
+  {
+    entityType: enumEntityType('entity_type').notNull(),
+    entityId: integer('entity_id').notNull(),
+    label: text('label').notNull(),
+    imgPath: text('img_path'),
+    popularity: real('popularity'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+
+    metadata: jsonb('metadata'),
+  },
+  (t) => [primaryKey({ columns: [t.entityType, t.entityId] })],
+)
+
+export const gameMoves = pgTable(
+  'game_moves',
+  {
+    attemptId: uuid('attempt_id')
+      .notNull()
+      .references(() => gameAttempts.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    moveIndex: integer('move_index').notNull(),
+    entityType: enumEntityType('entity_type').notNull(),
+    entityId: integer('entity_id').notNull(),
+    roleName: text('role_name'), // Ex. 'Batman' if 'Acting' roleType
+    roleType: text('role_type'), // 'Acting' | crew job
+    isGoal: boolean('is_goal').default(false).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.attemptId, t.moveIndex] }),
+    foreignKey({
+      columns: [t.entityType, t.entityId],
+      foreignColumns: [entities.entityType, entities.entityId],
+    }).onDelete('restrict'),
+    index('game_moves_user_entity_idx')
+      .on(t.userId, t.entityType, t.entityId)
+      .where(sql`move_index > 0`),
+    check('game_moves_index_nonneg', sql`${t.moveIndex} >= 0`),
   ],
 )
 

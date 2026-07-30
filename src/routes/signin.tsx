@@ -6,7 +6,7 @@ export const Route = createFileRoute('/signin')({
   beforeLoad: async ({ location }) => {
     const session = await getSession()
 
-    if (session) {
+    if (!session?.user.isAnonymous) {
       throw redirect({
         to: '/',
         search: { redirect: location.href },

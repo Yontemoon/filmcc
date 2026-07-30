@@ -1,11 +1,26 @@
 import { modals } from '@mantine/modals'
 import { Route } from '#/routes/_authenticated/game.index'
+import { Anchor, Flex, Text, Title } from '@mantine/core'
+import Button from '../ui/button'
 
 const StatsBody = () => {
   const { session } = Route.useRouteContext()
   const isGuest = session.isAnonymous
+  const username = session.username
 
-  return isGuest ? <div>You are a guest</div> : <div>Hello person</div>
+  return isGuest ? (
+    <Flex direction="column" align={'center'} gap={'lg'}>
+      <Title size={'xl'}>Track your stats and view badges</Title>
+      <Text size="lg">
+        Access your Film CC badges, win percentage and more with a free account.
+      </Text>
+      <Anchor href="/signup">
+        <Button>Create a free account</Button>
+      </Anchor>
+    </Flex>
+  ) : (
+    <div>Hi, {username}</div>
+  )
 }
 
 const ModalStatistics = () => {
@@ -13,6 +28,7 @@ const ModalStatistics = () => {
     title: 'Statistics',
     centered: true,
     children: <StatsBody />,
+    onClose() {},
   })
 }
 
