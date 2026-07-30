@@ -9,7 +9,6 @@ import { AppShell, Modal, ScrollArea } from '@mantine/core'
 import Button from '#/components/ui/button'
 import { formatTime } from '#/lib/utils'
 import type { TController } from '#/types/client.types'
-// import { fetchCreateGame } from '#/lib/server'
 import Spinner from '#/components/ui/spinner'
 import History from '#/components/pages/game/history'
 import Header from '#/components/pages/game/header'
@@ -62,7 +61,7 @@ export const Route = createFileRoute('/_authenticated/game/')({
         end: {
           id: game?.end.id,
           label: game?.end.label,
-          type: game?.end.img_path,
+          type: game?.end.type,
           img_path: game?.end.img_path,
         },
       } as { start: TController; end: TController }

@@ -53,12 +53,12 @@ const getUserGameId = createServerFn({ method: 'GET' })
   .handler(async ({ data, context }) => {
     try {
       const { gameId } = data
-      const { user } = context
+      const { userDetails } = context
 
       const gameInfo = await db.query.gameAttempts.findFirst({
         where: {
           gameId: gameId,
-          userId: user.id,
+          userId: userDetails.id,
         },
       })
 
@@ -87,7 +87,7 @@ const getUserGameId = createServerFn({ method: 'GET' })
           .insert(gameAttempts)
           .values({
             gameId: gameId,
-            userId: user.id,
+            userId: userDetails.id,
             path: [dailyGame.start],
           })
           .returning()
@@ -105,10 +105,10 @@ const getUserGameId = createServerFn({ method: 'GET' })
 const getUserGames = createServerFn({ method: 'GET' })
   .middleware([guardAuthMiddlware])
   .handler(async ({ context }) => {
-    const { user } = context
+    const { userDetails } = context
     const games = await db.query.gameAttempts.findMany({
       where: {
-        userId: user.id,
+        userId: userDetails.id,
       },
     })
     return games

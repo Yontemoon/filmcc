@@ -8,8 +8,10 @@ import {
   Divider,
 } from '@mantine/core'
 
-const ModalsSettings = () => {
-  const { setColorScheme, colorScheme } = useMantineColorScheme()
+const SettingsChild = () => {
+  const { setColorScheme, colorScheme } = useMantineColorScheme({
+    keepTransitions: true,
+  })
 
   return (
     <Group>
@@ -35,7 +37,7 @@ const ModalSetting = () => {
   return modals.open({
     title: 'Settings',
     centered: true,
-    children: <ModalsSettings />,
+    children: <SettingsChild />,
   })
 }
 

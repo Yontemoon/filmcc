@@ -1,32 +1,17 @@
 import { Route } from '#/routes/_authenticated/game.index'
-import { ActionIcon, Group, Text } from '@mantine/core'
+import { ActionIcon, Group } from '@mantine/core'
 
 import { ChartBarBig, Settings, CircleQuestionMark } from 'lucide-react'
-import { modals } from '@mantine/modals'
 import classes from './game-header.module.css'
 import Button from '../ui/button'
 import { Link } from '@tanstack/react-router'
 import ModalSetting from '../modals/settings'
-
-const openDeleteModal = () =>
-  modals.openConfirmModal({
-    title: 'Delete your profile',
-    centered: true,
-    children: (
-      <Text size="sm">
-        Are you sure you want to delete your profile? This action is destructive
-        and you will have to contact support to restore your data.
-      </Text>
-    ),
-    labels: { confirm: 'Delete account', cancel: "No don't delete it" },
-    confirmProps: { color: 'red' },
-    onCancel: () => console.log('Cancel'),
-    onConfirm: () => console.log('Confirmed'),
-  })
+import ModalStatistics from '../modals/statistics'
+import ModalHowTo from '../modals/how-to'
 
 const links = [
-  { modalOpen: openDeleteModal, icon: <ChartBarBig /> },
-  { modalOpen: openDeleteModal, icon: <CircleQuestionMark /> },
+  { modalOpen: ModalStatistics, icon: <ChartBarBig /> },
+  { modalOpen: ModalHowTo, icon: <CircleQuestionMark /> },
   { modalOpen: ModalSetting, icon: <Settings /> },
 ]
 

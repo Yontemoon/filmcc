@@ -12,7 +12,7 @@ const guardAuthMiddlware = createMiddleware().server(async ({ next }) => {
   return next({
     context: {
       session: userData.session,
-      user: userData.user,
+      userDetails: userData.user,
     },
   })
 })
