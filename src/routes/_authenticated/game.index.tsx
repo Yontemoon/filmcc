@@ -8,7 +8,6 @@ import {
 import useGame from '#/hooks/use-game'
 import { AppShell, Modal, ScrollArea, Title, Text, Flex } from '@mantine/core'
 import Button from '#/components/ui/button'
-// import { formatTime } from '#/lib/utils'
 import type { TController } from '#/types/client.types'
 import Spinner from '#/components/ui/spinner'
 import History from '#/components/pages/game/history'
@@ -18,7 +17,6 @@ import MainBody from '#/components/pages/game/body'
 import { signInAnon, getSession } from '#/lib/auth.functions'
 import GameHeader from '#/components/game-header'
 import { gameAttemptOption, dailyGameOption } from '#/lib/options'
-// import { updateUserStatusGameId } from '#/lib/server/game'
 
 const USE_DEMO = false as boolean
 
@@ -78,16 +76,11 @@ export const Route = createFileRoute('/_authenticated/game/')({
 })
 
 function RouteComponent() {
-  // const isRouterLoading = useRouterState({ select: (s) => s.isLoading })
-
   const controllerInformation = Route.useLoaderData()
-
   const router = useRouter()
-
   const {
     startGame,
     changeController,
-
     query,
     gameState,
     stats,
@@ -150,31 +143,7 @@ function RouteComponent() {
             </Link>
           </div>
         </Modal>
-        {/* <Modal
-          opened={gameState === 'completed'}
-          onClose={() => {
-            stayInGame()
-          }}
-          centered
-          title={'You finished!'}
-        >
-          <h2>Stats</h2>
-          <p>count: {stats.count}</p>
-          <p>time: {formatTime(stats.time)}</p>
-          <div className="w-full grid grid-cols-2 gap-2">
-            <Button
-              className="w-full"
-              onClick={() => {
-                stayInGame()
-              }}
-            >
-              Stay & Explore
-            </Button>
-            <Link to={'/'} className="w-full">
-              <Button>Go back</Button>
-            </Link>
-          </div>
-        </Modal> */}
+
         <AppShell.Header>
           <GameHeader />
         </AppShell.Header>
@@ -195,8 +164,8 @@ function RouteComponent() {
                 />
               </div>
 
-              <ScrollArea className="flex-1 min-h-0 px-5">
-                <div className="px-2 pb-4" id="main-body">
+              <ScrollArea className="flex-1 min-h-0 px-5 ">
+                <div className="px-2 pb-4 max-w-[800px] mx-auto" id="main-body">
                   <MainBody
                     changeController={changeController}
                     history={gameMoves}
@@ -221,17 +190,24 @@ const CompletedGame = () => {
   const { session } = context
   const guest = session.isAnonymous
   return (
-    <Flex
-      w={'100%'}
-      direction={'column'}
-      m={'sm'}
-      align={'center'}
-      justify={'center'}
-      h={'100%'}
-    >
-      <Title>You have completed the game</Title>
-      <Text size="lg">Display stats</Text>
-      <Text>{guest ? 'Guest' : 'Not guest'}</Text>
-    </Flex>
+    guest && (
+      <Flex
+        w={'100%'}
+        direction={'column'}
+        m={'sm'}
+        align={'center'}
+        justify={'center'}
+        h={'100%'}
+        gap={'md'}
+      >
+        <Title>You have completed the game</Title>
+        <Text size="lg">Display stats</Text>
+        <Text size="md">Looks like you played your one game as a guest</Text>
+        <Text>Sign up to keep playing!</Text>
+        <Link to={'/signup'}>
+          <Button>Sign Up</Button>
+        </Link>
+      </Flex>
+    )
   )
 }

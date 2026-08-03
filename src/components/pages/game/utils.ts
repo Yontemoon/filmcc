@@ -1,7 +1,11 @@
 import type { TUseCreditsResults } from '#/hooks/hooks.types'
 import type { ReturnGetUserGameId } from '#/lib/server/game'
-// import type { TMovieController, TPersonController } from '#/types/client.types'
-import type { TMovieCrewCol, TPersonCrewCol } from './types'
+import type {
+  TMovieCastCol,
+  TMovieCrewCol,
+  TPersonCastCol,
+  TPersonCrewCol,
+} from './types'
 
 const reformatForTable = (
   data: TUseCreditsResults['data'],
@@ -32,6 +36,7 @@ const reformatForTable = (
             profile_url: curr.profile_path,
             jobs: Array(curr.job),
             already_added: isDuplicate >= 0 ? true : false,
+            person_type: 'crew' as const,
           }
 
           acc.push(newReduce)
@@ -51,13 +56,13 @@ const reformatForTable = (
         role: cast.character,
         profile_url: cast.profile_path,
         already_added: isDuplicate >= 0 ? true : false,
+        person_type: 'cast' as const,
       }
-    })
+    }) as TMovieCastCol[]
 
     return {
       type: 'MOVIE' as const,
-      crew: crewCredits,
-      cast: castCredits,
+      combined: [...crewCredits, ...castCredits],
     }
   } else {
     const castCredits = data.credits.cast.map((credit) => {
@@ -71,8 +76,9 @@ const reformatForTable = (
         poster_url: credit.poster_path,
         id: credit.id,
         already_added: isDuplicate >= 0 ? true : false,
+        person_type: 'cast' as const,
       }
-    })
+    }) as TPersonCastCol[]
 
     const crewCredits = data.credits.crew.reduce(
       (acc: TPersonCrewCol[], curr) => {
@@ -94,6 +100,7 @@ const reformatForTable = (
             poster_url: curr.poster_path,
             jobs: Array(curr.job),
             already_added: isDuplicate >= 0 ? true : false,
+            person_type: 'crew' as const,
           }
 
           acc.push(newReduce)
@@ -106,6 +113,7 @@ const reformatForTable = (
       type: 'PERSON' as const,
       crew: crewCredits.filter((movie) => movie.poster_url),
       cast: castCredits.filter((movie) => movie.poster_url),
+      combined: [...crewCredits, ...castCredits],
     }
   }
 }

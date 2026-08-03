@@ -3,7 +3,7 @@ import React from 'react'
 import Spinner from '#/components/ui/spinner'
 import DataTable from '#/components/ui/table/headless-table'
 import type { UseQueryResult } from '@tanstack/react-query'
-import { movieCastCol, movieCrewCol } from './columns'
+import { movieCombineCol } from './columns'
 import type {
   T_TMDB_MOVIE_CREDITS,
   T_TMDB_MOVIE_DETAILS,
@@ -12,7 +12,7 @@ import type {
 } from '#/types/tmdb.types'
 import { reformatForTable } from './utils'
 import type { TController } from '#/types/client.types'
-import type { TMovieCrewCol, TPersonCrewCol } from './types'
+import type { TMovieCastCol, TMovieCrewCol, TPersonCrewCol } from './types'
 import PosterImage from '#/components/poster/poster'
 import { Text, Tabs, Grid, Group } from '@mantine/core'
 import { displayYear } from '#/lib/utils'
@@ -47,6 +47,7 @@ const MainBody = ({ history, query, changeController }: PropTypes) => {
   const memoTableData = React.useMemo(() => {
     return reformatForTable(data, history)
   }, [data, history])
+  console.log(memoTableData)
   return (
     <div className="">
       {isLoading && (
@@ -269,14 +270,8 @@ type TableLayoutProps = {
   memoData:
     | {
         type: 'MOVIE'
-        crew: TMovieCrewCol[]
-        cast: {
-          id: number
-          name: string
-          role: string
-          profile_url: string
-          already_added: boolean
-        }[]
+
+        combined: (TMovieCastCol | TMovieCrewCol)[]
       }
     | undefined
   changeController: (data: TController) => void
@@ -286,23 +281,10 @@ const TableLayout = ({ memoData, changeController }: TableLayoutProps) => {
   return (
     <>
       {memoData?.type === 'MOVIE' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2">
           <DataTable
-            data={memoData.cast}
-            columns={movieCastCol}
-            highlightOnHover={false}
-            onClickName={(rowData) => {
-              changeController({
-                id: rowData.id,
-                type: 'PERSON',
-                label: rowData.name,
-                img_path: rowData.profile_url,
-              })
-            }}
-          />
-          <DataTable
-            data={memoData.crew}
-            columns={movieCrewCol}
+            data={memoData.combined}
+            columns={movieCombineCol}
             highlightOnHover={false}
             onClickName={(rowData) => {
               changeController({
