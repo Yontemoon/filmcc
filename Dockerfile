@@ -1,9 +1,9 @@
 FROM node:lts-alpine AS build
 WORKDIR /src
 COPY package*.json ./
-RUN npm install
+RUN pnpm install
 COPY . ./   
-RUN npm run build
+RUN pnpm build
 
 FROM node:lts-alpine
 WORKDIR /src
