@@ -11,20 +11,17 @@ import type {
   T_TMDB_PERSON_DETAILS,
 } from '#/types/tmdb.types'
 import { reformatForTable } from './utils'
-import type {
-  TController,
-  TMovieController,
-  TPersonController,
-} from '#/types/client.types'
+import type { TController } from '#/types/client.types'
 import type { TMovieCrewCol, TPersonCrewCol } from './types'
 import PosterImage from '#/components/poster/poster'
 import { Text, Tabs, Grid, Group } from '@mantine/core'
 import { displayYear } from '#/lib/utils'
 import ColorSwatch from '#/components/ui/color-swatch/color-swatch'
 import classes from './game.module.css'
+import type { ReturnGetUserGameId } from '#/lib/server/game'
 
 type PropTypes = {
-  history: (TMovieController | TPersonController)[]
+  history: ReturnGetUserGameId['gameMovesLog']
   query: UseQueryResult<
     NoInfer<
       | {

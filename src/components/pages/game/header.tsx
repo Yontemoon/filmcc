@@ -1,8 +1,4 @@
-import type {
-  TController,
-  TMovieController,
-  TPersonController,
-} from '#/types/client.types'
+import type { TController } from '#/types/client.types'
 import { Group, Stack, Text, Badge, ThemeIcon, Divider } from '@mantine/core'
 import PosterImage from '#/components/poster/poster'
 import ProfileImage from '#/components/profile-image'
@@ -10,13 +6,16 @@ import Timer from '#/components/timer'
 import Paper from '#/components/ui/paper/paper'
 import { ArrowRight } from 'lucide-react'
 import classes from './game.module.css'
+import type { ReturnGetUserGameId } from '#/lib/server/game'
 
-type HistoryItem = TMovieController | TPersonController
+// type HistoryItem = TMovieController | TPersonController
+type HistoryItem = ReturnGetUserGameId['gameMovesLog'][0]
 
 type PropTypes = {
   start: TController
   end: TController
-  history: HistoryItem[]
+  // history: HistoryItem[]
+  history: ReturnGetUserGameId['gameMovesLog']
   moves: number
   time: {
     isTimerRunning: boolean
@@ -76,13 +75,13 @@ const Endpoint = ({
 }
 
 const CurrentImage = ({ current }: { current: HistoryItem }) => {
-  if (current.type === 'MOVIE') {
+  if (current.entityType === 'MOVIE') {
     return (
       <div className="h-10 w-7">
         <PosterImage
-          posterPath={current.details.poster_path}
-          id={current.id.toString()}
-          altText={`${current.img_path}-${current.id}`}
+          posterPath={current.entity?.imgPath}
+          id={current.entityId.toString()}
+          altText={`${current.entity?.imgPath}-${current.entityId}`}
         />
       </div>
     )
@@ -90,8 +89,8 @@ const CurrentImage = ({ current }: { current: HistoryItem }) => {
   return (
     <div className="h-9 w-9">
       <ProfileImage
-        profilePath={current.details.profile_path}
-        creditId={current.id}
+        profilePath={current.entity?.imgPath}
+        creditId={current.entityId}
       />
     </div>
   )
@@ -140,8 +139,8 @@ const Header = ({ start, end, history, moves, time }: PropTypes) => {
             {current ? (
               <Group gap={8} wrap="nowrap" style={{ minWidth: 0 }}>
                 <CurrentImage current={current} />
-                <Text fw={700} size="sm" truncate title={current.label}>
-                  {current.label}
+                <Text fw={700} size="sm" truncate title={current.entity?.label}>
+                  {current.entity?.label}
                 </Text>
               </Group>
             ) : (

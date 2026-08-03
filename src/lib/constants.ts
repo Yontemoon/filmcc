@@ -10,6 +10,7 @@ const OMDB_URL = `https://api.balloonerismm.workers.dev`
 const POPULARITY_LIMIT = 10
 
 const DEMO = {
+  dailyGameId: 1,
   start: {
     id: 73,
     type: 'MOVIE',
@@ -24,7 +25,7 @@ const DEMO = {
     creditInfo: null,
     img_path: '/s03CeUeC5yAXyB1acqP0zGNo2SC.jpg',
   },
-} as { start: TController; end: TController }
+} as { dailyGameId: number; start: TController; end: TController }
 
 export {
   TMDB_URL,

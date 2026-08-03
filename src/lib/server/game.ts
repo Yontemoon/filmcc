@@ -4,6 +4,9 @@ import { guardAuthMiddlware } from './middleware/auth'
 import { entities, gameAttempts, gameMoves } from '../db/schema'
 import { setResponseStatus } from '@tanstack/react-start/server'
 import type { TType } from '#/types/client.types'
+import type { TGameStatuses } from '#/types/server.types'
+
+import { eq, sql } from 'drizzle-orm'
 
 // Display for home page
 const getLatestDailyGame = createServerFn({ method: 'GET' }).handler(
@@ -59,19 +62,27 @@ const getUserGameId = createServerFn({ method: 'GET' })
       const { gameId } = data
       const { userDetails } = context
 
-      const gameInfo = await db.query.gameAttempts.findFirst({
+      const currentGameAttempt = await db.query.gameAttempts.findFirst({
         where: {
           gameId: gameId,
           userId: userDetails.id,
         },
+        with: {
+          gameMovesLog: {
+            with: {
+              entity: true,
+            },
+          },
+        },
       })
 
-      if (!gameInfo) {
+      if (!currentGameAttempt) {
         const dailyGame = await db.query.dailyGames
           .findFirst({
             where: {
               id: gameId,
             },
+            with: {},
           })
           .then((val) => {
             if (!val) {
@@ -87,24 +98,55 @@ const getUserGameId = createServerFn({ method: 'GET' })
             throw new Error('No daily game found')
           })
 
-        const [newGame] = await db
-          .insert(gameAttempts)
-          .values({
-            gameId: gameId,
-            userId: userDetails.id,
-            path: [dailyGame.start],
-          })
-          .returning()
+        const newGame = await db.transaction(async (tx) => {
+          const [result] = await tx
+            .insert(gameAttempts)
+            .values({
+              gameId: gameId,
+              userId: userDetails.id,
+              path: [dailyGame.start],
+            })
+            .returning({
+              id: gameAttempts.id,
+            })
 
-        return newGame
+          await tx.insert(gameMoves).values({
+            attemptId: result.id,
+            entityId: dailyGame.start.id,
+            entityType: dailyGame.start.type,
+            userId: userDetails.id,
+            moveIndex: 0,
+          })
+
+          const newGameAttempt = tx.query.gameAttempts.findFirst({
+            where: {
+              gameId: gameId,
+            },
+            with: {
+              gameMovesLog: {
+                with: {
+                  entity: true,
+                },
+              },
+            },
+          })
+
+          return newGameAttempt
+        })
+
+        return newGame ?? null
       }
 
-      return gameInfo
+      return currentGameAttempt
     } catch (error) {
       console.error('[getUserGameId] caught error', error)
       return null
     }
   })
+
+type ReturnGetUserGameId = NonNullable<
+  Awaited<ReturnType<typeof getUserGameId>>
+>
 
 const getUserGames = createServerFn({ method: 'GET' })
   .middleware([guardAuthMiddlware])
@@ -118,70 +160,120 @@ const getUserGames = createServerFn({ method: 'GET' })
     return games
   })
 
-const updateUserStatusGameId = createServerFn({ method: 'POST' })
+const addUserGameId = createServerFn({ method: 'POST' })
   .middleware([guardAuthMiddlware])
   .validator(
     (data: {
       entityId: number
       entityType: TType
       label: string
-      imgPath: string
+      imgPath: string | null
       roleType: string
       roleName: string | null
       attemptId: string
     }) => data,
   )
   .handler(async ({ data, context }) => {
-    const { userDetails } = context
-    const userId = userDetails.id
-    const {
-      entityId,
-      entityType,
-      imgPath,
-      label,
-      roleName,
-      roleType,
-      attemptId,
-    } = data
-
-    const currentMovesDetails = await db.query.gameMoves.findMany({
-      where: {
-        attemptId: attemptId,
-      },
-    })
-
-    const attemptLength = currentMovesDetails.length - 1
-
-    await db
-      .insert(entities)
-      .values({
+    try {
+      console.log('[passing handler POST funcs.]')
+      const { userDetails } = context
+      const userId = userDetails.id
+      const {
         entityId,
         entityType,
-        label,
         imgPath,
+        label,
+        roleName,
+        roleType,
+        attemptId,
+      } = data
+
+      const currentMovesDetails = await db.query.gameMoves.findMany({
+        where: {
+          attemptId: attemptId,
+        },
       })
-      .onConflictDoNothing()
 
-    await db.insert(gameMoves).values({
-      attemptId,
-      entityId,
-      entityType,
-      userId,
-      roleName,
-      roleType,
-      moveIndex: attemptLength,
-    })
+      const attemptLength = currentMovesDetails.length
 
-    try {
+      await db
+        .insert(entities)
+        .values({
+          entityId,
+          entityType,
+          label,
+          imgPath,
+        })
+        .onConflictDoNothing()
+
+      await db.insert(gameMoves).values({
+        attemptId,
+        entityId,
+        entityType,
+        userId,
+        roleName,
+        roleType,
+        moveIndex: attemptLength,
+      })
     } catch (error) {
       console.error(error)
     }
   })
 
-const addUserGameId = createServerFn({ method: 'POST' })
+const updateUserStatusGameId = createServerFn({ method: 'POST' })
   .middleware([guardAuthMiddlware])
-  .validator((data: { gameId: number }) => data)
-  .handler(async () => {})
+  .validator((data: { gameId: string; status: TGameStatuses }) => data)
+  .handler(async ({ data }) => {
+    const { status, gameId } = data
+    switch (status) {
+      case 'started':
+        await db
+          .update(gameAttempts)
+          .set({
+            status: status,
+            startedAt: sql`NOW()`,
+          })
+          .where(eq(gameAttempts.id, gameId))
+        break
+      case 'completed':
+        await db
+          .update(gameAttempts)
+          .set({
+            status: status,
+            completedAt: sql`NOW()`,
+          })
+          .where(eq(gameAttempts.id, gameId))
+        break
+
+      case 'failed':
+        await db
+          .update(gameAttempts)
+          .set({
+            status: status,
+            completedAt: sql`NOW()`,
+          })
+          .where(eq(gameAttempts.id, gameId))
+
+        break
+      case 'gave_up':
+        await db
+          .update(gameAttempts)
+          .set({
+            status: status,
+            completedAt: sql`NOW()`,
+          })
+          .where(eq(gameAttempts.id, gameId))
+        break
+      default:
+        await db
+          .update(gameAttempts)
+          .set({
+            status: status,
+          })
+          .where(eq(gameAttempts.id, gameId))
+        break
+    }
+  })
 
 export {
   getLatestDailyGame,
@@ -192,3 +284,5 @@ export {
   updateUserStatusGameId,
   addUserGameId,
 }
+
+export type { ReturnGetUserGameId }

@@ -9,19 +9,23 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as SigninRouteImport } from './routes/signin'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as SigninRouteImport } from './routes/signin'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as AuthenticatedGameIndexRouteImport } from './routes/_authenticated/game.index'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AuthenticatedGameGame_idRouteImport } from './routes/_authenticated/game.$game_id'
-import { Route as ApiCreditsPersonPerson_idRouteImport } from './routes/api/credits.person.$person_id'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ApiCreditsMovieMovie_idRouteImport } from './routes/api/credits.movie.$movie_id'
+import { Route as ApiCreditsPersonPerson_idRouteImport } from './routes/api/credits.person.$person_id'
 
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SigninRoute = SigninRouteImport.update({
@@ -29,13 +33,9 @@ const SigninRoute = SigninRouteImport.update({
   path: '/signin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedGameIndexRoute = AuthenticatedGameIndexRouteImport.update({
@@ -43,28 +43,28 @@ const AuthenticatedGameIndexRoute = AuthenticatedGameIndexRouteImport.update({
   path: '/game/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedGameGame_idRoute =
   AuthenticatedGameGame_idRouteImport.update({
     id: '/game/$game_id',
     path: '/game/$game_id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCreditsMovieMovie_idRoute = ApiCreditsMovieMovie_idRouteImport.update({
+  id: '/api/credits/movie/$movie_id',
+  path: '/api/credits/movie/$movie_id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCreditsPersonPerson_idRoute =
   ApiCreditsPersonPerson_idRouteImport.update({
     id: '/api/credits/person/$person_id',
     path: '/api/credits/person/$person_id',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiCreditsMovieMovie_idRoute = ApiCreditsMovieMovie_idRouteImport.update({
-  id: '/api/credits/movie/$movie_id',
-  path: '/api/credits/movie/$movie_id',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -144,18 +144,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signin': {
-      id: '/signin'
-      path: '/signin'
-      fullPath: '/signin'
-      preLoaderRoute: typeof SigninRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -165,11 +158,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/signin': {
+      id: '/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof SigninRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/game/': {
@@ -179,13 +179,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGameIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/game/$game_id': {
       id: '/_authenticated/game/$game_id'
       path: '/game/$game_id'
@@ -193,11 +186,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGameGame_idRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/api/credits/person/$person_id': {
-      id: '/api/credits/person/$person_id'
-      path: '/api/credits/person/$person_id'
-      fullPath: '/api/credits/person/$person_id'
-      preLoaderRoute: typeof ApiCreditsPersonPerson_idRouteImport
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/credits/movie/$movie_id': {
@@ -205,6 +198,13 @@ declare module '@tanstack/react-router' {
       path: '/api/credits/movie/$movie_id'
       fullPath: '/api/credits/movie/$movie_id'
       preLoaderRoute: typeof ApiCreditsMovieMovie_idRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/credits/person/$person_id': {
+      id: '/api/credits/person/$person_id'
+      path: '/api/credits/person/$person_id'
+      fullPath: '/api/credits/person/$person_id'
+      preLoaderRoute: typeof ApiCreditsPersonPerson_idRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

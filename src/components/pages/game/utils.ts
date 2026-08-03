@@ -1,10 +1,11 @@
 import type { TUseCreditsResults } from '#/hooks/hooks.types'
-import type { TMovieController, TPersonController } from '#/types/client.types'
+import type { ReturnGetUserGameId } from '#/lib/server/game'
+// import type { TMovieController, TPersonController } from '#/types/client.types'
 import type { TMovieCrewCol, TPersonCrewCol } from './types'
 
 const reformatForTable = (
   data: TUseCreditsResults['data'],
-  history: (TMovieController | TPersonController)[],
+  history: ReturnGetUserGameId['gameMovesLog'],
 ) => {
   if (!data) {
     return
@@ -20,7 +21,7 @@ const reformatForTable = (
           return acc
         } else {
           const isDuplicate = history.findIndex((val) => {
-            return val.id === curr.id && val.type === 'PERSON'
+            return val.entityId === curr.id && val.entityType === 'PERSON'
           })
 
           const newReduce = {
@@ -42,7 +43,7 @@ const reformatForTable = (
 
     const castCredits = data.credits.cast.map((cast) => {
       const isDuplicate = history.findIndex(
-        (val) => val.id === cast.id && val.type === 'PERSON',
+        (val) => val.entityId === cast.id && val.entityType === 'PERSON',
       )
       return {
         id: cast.id,
@@ -61,7 +62,7 @@ const reformatForTable = (
   } else {
     const castCredits = data.credits.cast.map((credit) => {
       const isDuplicate = history.findIndex(
-        (val) => val.id === credit.id && val.type === 'MOVIE',
+        (val) => val.entityId === credit.id && val.entityType === 'MOVIE',
       )
       return {
         date: credit.release_date,
@@ -77,7 +78,7 @@ const reformatForTable = (
       (acc: TPersonCrewCol[], curr) => {
         const foundIndx = acc.findIndex((val) => val.id === curr.id)
         const isDuplicate = history.findIndex(
-          (val) => val.id === curr.id && val.type === 'MOVIE',
+          (val) => val.entityId === curr.id && val.entityType === 'MOVIE',
         )
 
         if (foundIndx >= 0) {
