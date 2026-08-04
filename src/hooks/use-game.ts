@@ -22,15 +22,15 @@ import type { TGameStatuses } from '#/types/server.types'
 
 interface PropTypes {
   dailyGameId: number
-  start: TController
   end: TController
 }
 
 type TGameState = TGameStatuses
 
-const useGame = ({ dailyGameId, start, end }: PropTypes) => {
+const useGame = ({ dailyGameId, end }: PropTypes) => {
   const [initRender, setInitRender] = React.useState<boolean>(true)
   const gameAttemptQuery = useSuspenseQuery(gameAttemptOption(dailyGameId))
+
   const gameMoves = gameAttemptQuery.data?.gameMovesLog ?? []
 
   const { startTimer, stopTimer, isTimerRunning, getElapsedMs } = useTimerRef()
@@ -47,7 +47,7 @@ const useGame = ({ dailyGameId, start, end }: PropTypes) => {
       ]
 
     if (!last) {
-      throw new Error('Something wrong happened')
+      throw new Error('No last')
     }
 
     if (!last.entity) {

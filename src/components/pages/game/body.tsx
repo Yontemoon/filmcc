@@ -54,7 +54,7 @@ const MainBody = ({ history, query, changeController }: PropTypes) => {
   }, [data, history])
 
   return (
-    <div className="">
+    <div className="mx-1">
       {isLoading && (
         <div className="flex justify-center">
           <Spinner />
@@ -116,7 +116,7 @@ const GridLayout = ({
   const combinedLength = memoData?.combined.length
 
   return (
-    <div className="py-3 space-y-2">
+    <div className="py-3">
       <Title mb={'md'}>
         {details?.details.name} ({combinedLength})
       </Title>

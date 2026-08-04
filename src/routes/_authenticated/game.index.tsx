@@ -159,7 +159,10 @@ function RouteComponent() {
             </div>
 
             {/* The only scrolling region: header and history stay pinned. */}
-            <div className="flex-1 min-h-0 overflow-y-auto pb-4" id="main-body">
+            <div
+              className="flex-1 min-h-0 overflow-y-auto pb-4 scrollbar-none"
+              id="main-body"
+            >
               <MainBody
                 changeController={changeController}
                 history={gameMoves}
