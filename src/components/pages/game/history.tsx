@@ -72,7 +72,7 @@ const Node = ({ item, indx }: { item: HistoryItem; indx: number }) => {
 
 const History = ({ gameMoves }: PropTypes) => {
   return (
-    <div id="footer" className="h-full bg-emerald-200/20 sm:px-20 px-5 ">
+    <div id="footer" className="h-full bg-emerald-200/20 sm:px-5 px-2">
       <ScrollArea h="100%" type="hover">
         <div className="flex items-end">
           <div className="flex h-full items-center gap-0 px-2 flex-row-reverse">

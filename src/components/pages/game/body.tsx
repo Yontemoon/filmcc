@@ -12,9 +12,14 @@ import type {
 } from '#/types/tmdb.types'
 import { reformatForTable } from './utils'
 import type { TController } from '#/types/client.types'
-import type { TMovieCastCol, TMovieCrewCol, TPersonCrewCol } from './types'
+import type {
+  TMovieCastCol,
+  TMovieCrewCol,
+  TPersonCastCol,
+  TPersonCrewCol,
+} from './types'
 import PosterImage from '#/components/poster/poster'
-import { Text, Tabs, Grid, Group } from '@mantine/core'
+import { Text, Title, Grid, Group } from '@mantine/core'
 import { displayYear } from '#/lib/utils'
 import ColorSwatch from '#/components/ui/color-swatch/color-swatch'
 import classes from './game.module.css'
@@ -95,6 +100,10 @@ type GridLayoutProps = {
           id: number
           already_added: boolean
         }[]
+        combined: {
+          cast: TPersonCastCol | null
+          crew: TPersonCrewCol | null
+        }[]
       }
     | undefined
   changeController: (data: TController) => void
@@ -104,152 +113,101 @@ const GridLayout = ({
   changeController,
   details,
 }: GridLayoutProps) => {
-  const [activeTab, setActiveTab] = React.useState<string | null>('CREW')
-  React.useEffect(() => {
-    if (details)
-      setActiveTab(() => {
-        return details.details.known_for_department === 'Acting'
-          ? 'CAST'
-          : 'CREW'
-      })
-  }, [details])
-
-  const castCreditLength = details?.credits.cast.length
-  const crewCreditLength = details?.credits.crew.length
+  const combinedLength = memoData?.combined.length
 
   return (
-    <Tabs value={activeTab} onChange={setActiveTab}>
-      <Tabs.List>
-        <Tabs.Tab value="CAST" disabled={castCreditLength === 0}>
-          Cast ({castCreditLength})
-        </Tabs.Tab>
-        <Tabs.Tab value="CREW" disabled={crewCreditLength === 0}>
-          Crew ({crewCreditLength})
-        </Tabs.Tab>
-      </Tabs.List>
-      <div className="py-7">
-        <Tabs.Panel value="CAST">
-          <Grid>
-            {memoData?.type === 'PERSON' &&
-              memoData.cast.map((movie) => {
-                const added = movie.already_added
-                return (
-                  <Grid.Col key={movie.id} span={{ base: 4, md: 3, lg: 1.5 }}>
-                    <div
-                      className={classes.imageLift}
-                      onClick={() => {
-                        changeController({
-                          id: movie.id,
-                          type: 'MOVIE',
-                          label: movie.title,
-                          img_path: movie.poster_url,
-                        })
-                      }}
-                    >
-                      <PosterImage
-                        posterPath={movie.poster_url}
-                        id={movie.id.toString()}
-                        showExpand={false}
-                        hd={true}
-                        overlay={added}
+    <div className="py-3 space-y-2">
+      <Title mb={'md'}>
+        {details?.details.name} ({combinedLength})
+      </Title>
+      <Grid>
+        {memoData?.type === 'PERSON' &&
+          memoData.combined.map(({ cast, crew }) => {
+            const credit = cast ?? crew
+            if (!credit) return null
+
+            const id = credit.id
+            const title = credit.title
+            const posterUrl = credit.poster_url
+
+            const date = cast?.date ?? crew?.release_date
+            const added = credit.already_added
+            const jobs = crew ? [...new Set(crew.jobs)] : []
+
+            return (
+              <Grid.Col key={id} span={{ base: 4, md: 3, lg: 2 }}>
+                <div
+                  className={classes.imageLift}
+                  onClick={() => {
+                    changeController({
+                      id,
+                      type: 'MOVIE',
+                      label: title,
+                      img_path: posterUrl,
+                    })
+                  }}
+                >
+                  <PosterImage
+                    posterPath={posterUrl}
+                    id={id.toString()}
+                    showExpand={false}
+                    hd={true}
+                    overlay={added}
+                  />
+                  <Group className={classes.posterInfo}>
+                    {added ? (
+                      <ColorSwatch
+                        color="var(--mantine-color-red-5)"
+                        size={20}
                       />
-                      <Group className={classes.posterInfo}>
-                        {added ? (
-                          <ColorSwatch
-                            color="var(--mantine-color-red-5)"
-                            size={20}
-                          />
-                        ) : (
-                          <ColorSwatch
-                            color="var(--mantine-color-teal-5)"
-                            size={20}
-                          />
-                        )}
-                      </Group>
-                    </div>
-                    <div className={classes.movieInfo}>
-                      <Text
-                        classNames={{
-                          root: classes.movieInfo,
-                        }}
-                        size="sm"
-                      >
-                        {movie.title}
-                      </Text>
-                      <Text c="dimmed" className={classes.movieInfo} size="xs">
-                        {movie.date && displayYear(movie.date)}
-                        {movie.date && ' ·'} {movie.role}
-                      </Text>
-                    </div>
-                  </Grid.Col>
-                )
-              })}
-          </Grid>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="CREW">
-          <Grid>
-            {memoData?.type === 'PERSON' &&
-              memoData.crew.map((movie) => {
-                const added = movie.already_added
-
-                return (
-                  <Grid.Col key={movie.id} span={{ base: 4, md: 2, lg: 1.5 }}>
-                    <div
-                      className={classes.imageLift}
-                      onClick={() => {
-                        changeController({
-                          id: movie.id,
-                          type: 'MOVIE',
-                          label: movie.title,
-                          img_path: movie.poster_url,
-                        })
-                      }}
-                    >
-                      <PosterImage
-                        posterPath={movie.poster_url}
-                        id={movie.id.toString()}
-                        showExpand={false}
-                        hd={true}
-                        overlay={added}
+                    ) : (
+                      <ColorSwatch
+                        color="var(--mantine-color-teal-5)"
+                        size={20}
                       />
-
-                      <Group className={classes.posterInfo}>
-                        {added ? (
-                          <ColorSwatch
-                            color="var(--mantine-color-red-5)"
-                            size={20}
-                          />
-                        ) : (
-                          <ColorSwatch
-                            color="var(--mantine-color-teal-5)"
-                            size={20}
-                          />
-                        )}
-                      </Group>
-                    </div>
-
-                    <div className={classes.movieInfo}>
-                      <Text
-                        classNames={{
-                          root: classes.movieInfo,
-                        }}
-                        size="sm"
-                      >
-                        {movie.title}
-                      </Text>
-                      <Text c="dimmed" className={classes.movieInfo} size="xs">
-                        {movie.release_date && displayYear(movie.release_date)}
-                        {movie.release_date && ' ·'} {movie.job}
-                      </Text>
-                    </div>
-                  </Grid.Col>
-                )
-              })}
-          </Grid>
-        </Tabs.Panel>
-      </div>
-    </Tabs>
+                    )}
+                  </Group>
+                </div>
+                <div className={classes.movieInfo}>
+                  <Text
+                    classNames={{
+                      root: classes.movieInfo,
+                    }}
+                    size="sm"
+                  >
+                    {title}
+                  </Text>
+                  {date && (
+                    <Text c="dimmed" className={classes.movieInfo} size="xs">
+                      {displayYear(date)}
+                    </Text>
+                  )}
+                  {cast?.role && (
+                    <Text
+                      c="dimmed"
+                      className={classes.movieInfo}
+                      size="xs"
+                      title={cast.role}
+                    >
+                      as {cast.role}
+                    </Text>
+                  )}
+                  {jobs.length > 0 && (
+                    <Text
+                      c="dimmed"
+                      className={classes.movieInfo}
+                      size="xs"
+                      title={jobs.join(', ')}
+                    >
+                      {jobs.join(', ')}
+                    </Text>
+                  )}
+                </div>
+              </Grid.Col>
+            )
+          })}
+      </Grid>
+    </div>
   )
 }
 

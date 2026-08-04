@@ -103,14 +103,12 @@ const getTmdbPerson = async (personId: number) => {
   })
 
   const fileredCrewCredits = filterCrewCredits(personCredits.crew)
+  personCredits.cast = filteredPersonCredits
+  personCredits.crew = fileredCrewCredits
 
   return {
     personDetails,
-    personCredits: {
-      id: personCredits.id,
-      cast: filteredPersonCredits,
-      crew: fileredCrewCredits,
-    },
+    personCredits,
   }
 }
 

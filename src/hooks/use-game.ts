@@ -389,7 +389,6 @@ const useGame = ({ dailyGameId, start, end }: PropTypes) => {
       getElapsedMs,
       finalTime: stats.time,
     },
-
     gameState,
     gameMoves,
   }
