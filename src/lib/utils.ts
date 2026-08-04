@@ -25,4 +25,31 @@ const getRandomNumber = (maxNumber: number) => {
   return Math.floor(Math.random() * maxNumber)
 }
 
-export { formatTime, getRandomNumber, displayYear }
+// `display_date` is a postgres `date` column, so it arrives as 'YYYY-MM-DD'.
+// Parsing it directly would land on UTC midnight and shift the day backwards
+// for anyone west of GMT, so anchor it to local midnight instead.
+const parseDisplayDate = (displayDate: string) => {
+  const isoDay = /^\d{4}-\d{2}-\d{2}$/.exec(displayDate.slice(0, 10))
+  return isoDay ? new Date(`${isoDay[0]}T00:00:00`) : new Date(displayDate)
+}
+
+const displayDateFormatter = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: '2-digit',
+  year: 'numeric',
+})
+
+const formatDisplayDate = (displayDate: string) => {
+  const date = parseDisplayDate(displayDate)
+  return Number.isNaN(date.getTime())
+    ? displayDate
+    : displayDateFormatter.format(date)
+}
+
+export {
+  formatTime,
+  getRandomNumber,
+  displayYear,
+  parseDisplayDate,
+  formatDisplayDate,
+}

@@ -23,10 +23,11 @@
   right: 5px;
 }
 
+/* The header is pinned by the route's flex layout, not by sticky positioning —
+   it sits above the scrolling body, so it only needs to stack over it. */
 .headerSticky {
-  position: sticky;
+  position: relative;
   z-index: 200;
-  top: 0;
   padding-top: 0.25rem;
   margin-left: 0.5rem;
   margin-right: 0.5rem;

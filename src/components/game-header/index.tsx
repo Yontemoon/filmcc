@@ -1,7 +1,12 @@
-import { Route } from '#/routes/_authenticated/game.index'
+import { Route } from '#/routes/_authenticated'
 import { ActionIcon, Group } from '@mantine/core'
 
-import { ChartBarBig, Settings, CircleQuestionMark } from 'lucide-react'
+import {
+  ChartBarBig,
+  Settings,
+  CircleQuestionMark,
+  Archive,
+} from 'lucide-react'
 import classes from './game-header.module.css'
 import Button from '../ui/button'
 import { Link } from '@tanstack/react-router'
@@ -33,10 +38,13 @@ const GameHeader = () => {
   ))
 
   return (
-    <header className={classes.header}>
+    <div className={classes.header}>
       <div className={classes.inner}>
         <div>Film CC</div>
         <div className={classes.rightInner}>
+          <Link to="/archive">
+            <Archive />
+          </Link>
           <Group gap={'sm'}>{items}</Group>
           {isGuest && (
             <Button variant="outline">
@@ -45,7 +53,7 @@ const GameHeader = () => {
           )}
         </div>
       </div>
-    </header>
+    </div>
   )
 }
 

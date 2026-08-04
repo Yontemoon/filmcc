@@ -37,7 +37,11 @@ const Poster = ({
   const showFallback = !posterPath || hasError
 
   return (
-    <AspectRatio ratio={2 / 3} opacity={isLoaded ? '100' : '0'} {...props}>
+    <AspectRatio
+      ratio={2 / 3}
+      opacity={isLoaded || showFallback ? 1 : 0}
+      {...props}
+    >
       {showFallback ? (
         <div className="flex h-full w-full items-center justify-center bg-slate-800">
           <svg

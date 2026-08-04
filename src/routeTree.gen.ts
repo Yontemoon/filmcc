@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as AuthenticatedArchiveRouteImport } from './routes/_authenticated/archive'
 import { Route as AuthenticatedGameIndexRouteImport } from './routes/_authenticated/game.index'
 import { Route as AuthenticatedGameGame_idRouteImport } from './routes/_authenticated/game.$game_id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -37,6 +38,11 @@ const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedArchiveRoute = AuthenticatedArchiveRouteImport.update({
+  id: '/archive',
+  path: '/archive',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedGameIndexRoute = AuthenticatedGameIndexRouteImport.update({
   id: '/game/',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/archive': typeof AuthenticatedArchiveRoute
   '/game/$game_id': typeof AuthenticatedGameGame_idRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/game/': typeof AuthenticatedGameIndexRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/archive': typeof AuthenticatedArchiveRoute
   '/game/$game_id': typeof AuthenticatedGameGame_idRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/game': typeof AuthenticatedGameIndexRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/signin': typeof SigninRoute
   '/signup': typeof SignupRoute
+  '/_authenticated/archive': typeof AuthenticatedArchiveRoute
   '/_authenticated/game/$game_id': typeof AuthenticatedGameGame_idRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/_authenticated/game/': typeof AuthenticatedGameIndexRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
     | '/'
     | '/signin'
     | '/signup'
+    | '/archive'
     | '/game/$game_id'
     | '/api/auth/$'
     | '/game/'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
     | '/'
     | '/signin'
     | '/signup'
+    | '/archive'
     | '/game/$game_id'
     | '/api/auth/$'
     | '/game'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/signin'
     | '/signup'
+    | '/_authenticated/archive'
     | '/_authenticated/game/$game_id'
     | '/api/auth/$'
     | '/_authenticated/game/'
@@ -172,6 +184,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/archive': {
+      id: '/_authenticated/archive'
+      path: '/archive'
+      fullPath: '/archive'
+      preLoaderRoute: typeof AuthenticatedArchiveRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/game/': {
       id: '/_authenticated/game/'
       path: '/game'
@@ -211,11 +230,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedArchiveRoute: typeof AuthenticatedArchiveRoute
   AuthenticatedGameGame_idRoute: typeof AuthenticatedGameGame_idRoute
   AuthenticatedGameIndexRoute: typeof AuthenticatedGameIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedArchiveRoute: AuthenticatedArchiveRoute,
   AuthenticatedGameGame_idRoute: AuthenticatedGameGame_idRoute,
   AuthenticatedGameIndexRoute: AuthenticatedGameIndexRoute,
 }

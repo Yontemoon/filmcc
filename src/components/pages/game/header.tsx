@@ -7,14 +7,14 @@ import Paper from '#/components/ui/paper/paper'
 import { ArrowRight } from 'lucide-react'
 import classes from './game.module.css'
 import type { ReturnGetUserGameId } from '#/lib/server/game'
+import OpenPersonImageExpand from '#/components/modals/image-expand'
+import { TMDB_IMAGE_POSTER_URL_EXPAND } from '#/lib/constants'
 
-// type HistoryItem = TMovieController | TPersonController
 type HistoryItem = ReturnGetUserGameId['gameMovesLog'][0]
 
 type PropTypes = {
   start: TController
   end: TController
-  // history: HistoryItem[]
   history: ReturnGetUserGameId['gameMovesLog']
   moves: number
   time: {
@@ -36,6 +36,10 @@ const Endpoint = ({
   align: 'start' | 'end'
 }) => {
   const reversed = align === 'end'
+  const expandedProfileUrl = controller.img_path
+    ? `${TMDB_IMAGE_POSTER_URL_EXPAND}${controller.img_path}`
+    : ''
+
   return (
     <Group
       gap="sm"
@@ -48,13 +52,17 @@ const Endpoint = ({
       {controller.type === 'MOVIE' ? (
         <div className="h-12 w-9">
           <PosterImage
+            onClick={(e) => {
+              e.stopPropagation()
+              OpenPersonImageExpand(true, expandedProfileUrl)
+            }}
             posterPath={controller.img_path}
             id={controller.id.toString()}
             altText={`${controller.img_path}-${controller.id}`}
           />
         </div>
       ) : (
-        <div className="h-10 w-10">
+        <div className="h-12 w-9">
           <ProfileImage
             profilePath={controller.img_path}
             creditId={controller.id}
@@ -76,24 +84,33 @@ const Endpoint = ({
 
 const CurrentImage = ({ current }: { current: HistoryItem }) => {
   if (current.entityType === 'MOVIE') {
+    const expandedProfileUrl = current.entity?.imgPath
+      ? `${TMDB_IMAGE_POSTER_URL_EXPAND}${current.entity.imgPath}`
+      : ''
+
     return (
-      <div className="h-10 w-7">
+      <div className="h-12 w-9">
         <PosterImage
+          onClick={(e) => {
+            e.stopPropagation()
+            OpenPersonImageExpand(true, expandedProfileUrl)
+          }}
           posterPath={current.entity?.imgPath}
           id={current.entityId.toString()}
           altText={`${current.entity?.imgPath}-${current.entityId}`}
         />
       </div>
     )
+  } else {
+    return (
+      <div className="h-12 w-9">
+        <ProfileImage
+          profilePath={current.entity?.imgPath}
+          creditId={current.entityId}
+        />
+      </div>
+    )
   }
-  return (
-    <div className="h-9 w-9">
-      <ProfileImage
-        profilePath={current.entity?.imgPath}
-        creditId={current.entityId}
-      />
-    </div>
-  )
 }
 
 const Header = ({ start, end, history, moves, time }: PropTypes) => {

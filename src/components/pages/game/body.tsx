@@ -47,7 +47,7 @@ const MainBody = ({ history, query, changeController }: PropTypes) => {
   const memoTableData = React.useMemo(() => {
     return reformatForTable(data, history)
   }, [data, history])
-  console.log(memoTableData)
+
   return (
     <div className="">
       {isLoading && (

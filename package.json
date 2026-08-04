@@ -33,7 +33,6 @@
     "@tanstack/react-start": "latest",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/router-plugin": "^1.132.0",
-    "@unpic/react": "^1.0.2",
     "better-auth": "^1.6.24",
     "drizzle-orm": "1.0.0-rc.4",
     "lucide-react": "^0.545.0",

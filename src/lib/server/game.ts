@@ -23,16 +23,35 @@ const getLatestDailyGame = createServerFn({ method: 'GET' }).handler(
   },
 )
 
-// Display all daily games not played
-const getDailyGames = createServerFn({ method: 'GET' }).handler(async () => {
-  try {
-    const games = await db.query.dailyGames.findMany()
-    return games
-  } catch (error) {
-    console.error('[getDailyGames] error', error)
-    return null
-  }
-})
+// Display all daily games with the current user's attempt (if any)
+const getDailyGames = createServerFn({ method: 'GET' })
+  .middleware([guardAuthMiddlware])
+  .handler(async ({ context }) => {
+    try {
+      const { userDetails } = context
+      const games = await db.query.dailyGames.findMany({
+        orderBy: {
+          displayDate: 'desc',
+        },
+        with: {
+          gameAttempts: {
+            where: {
+              userId: userDetails.id,
+            },
+          },
+        },
+      })
+      return games
+    } catch (error) {
+      console.error('[getDailyGames] error', error)
+      return null
+    }
+  })
+
+type ReturnGetDailyGames = NonNullable<
+  Awaited<ReturnType<typeof getDailyGames>>
+>
+type TArchivedGame = ReturnGetDailyGames[number]
 
 const getDailyGameId = createServerFn({ method: 'GET' })
   .middleware([guardAuthMiddlware])
@@ -285,4 +304,4 @@ export {
   addUserGameId,
 }
 
-export type { ReturnGetUserGameId }
+export type { ReturnGetUserGameId, ReturnGetDailyGames, TArchivedGame }

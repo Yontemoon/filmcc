@@ -1,12 +1,12 @@
 import { modals } from '@mantine/modals'
-import { Route } from '#/routes/_authenticated/game.index'
+import { Route } from '#/routes/_authenticated'
 import { Anchor, Flex, Text, Title } from '@mantine/core'
 import Button from '../ui/button'
 
 const StatsBody = () => {
-  const { session } = Route.useRouteContext()
-  const isGuest = session.isAnonymous
-  const username = session.username
+  const { user } = Route.useRouteContext()
+  const isGuest = user?.isAnonymous
+  const username = user?.username
 
   return isGuest ? (
     <Flex direction="column" align={'center'} gap={'lg'}>
