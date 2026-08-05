@@ -6,9 +6,10 @@ import Timer from '#/components/timer'
 import Paper from '#/components/ui/paper/paper'
 import { ArrowRight } from 'lucide-react'
 import classes from './game.module.css'
-import type { ReturnGetUserGameId } from '#/lib/server/game'
+import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import OpenPersonImageExpand from '#/components/modals/image-expand'
 import { TMDB_IMAGE_POSTER_URL_EXPAND } from '#/lib/constants'
+import History from './history'
 
 type HistoryItem = ReturnGetUserGameId['gameMovesLog'][0]
 
@@ -114,8 +115,6 @@ const CurrentImage = ({ current }: { current: HistoryItem }) => {
 }
 
 const Header = ({ start, end, history, moves, time }: PropTypes) => {
-  const current = history.length > 0 ? history[history.length - 1] : null
-
   return (
     <div className={classes.headerSticky} id="header">
       <Paper withBorder radius="lg" p="sm" mb="xs" shadow="xs">
@@ -147,28 +146,10 @@ const Header = ({ start, end, history, moves, time }: PropTypes) => {
 
         <Divider my={6} />
 
-        {/* Now + stats */}
+        {/* History + stats */}
         <Group justify="space-between" wrap="wrap" gap="sm">
-          <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
-            <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-              Now
-            </Text>
-            {current ? (
-              <Group gap={8} wrap="nowrap" style={{ minWidth: 0 }}>
-                <CurrentImage current={current} />
-                <Text fw={700} size="sm" truncate title={current.entity?.label}>
-                  {current.entity?.label}
-                </Text>
-              </Group>
-            ) : (
-              <Text size="sm" c="dimmed" truncate>
-                {start.label}
-              </Text>
-            )}
-          </Group>
-
           <Group gap="xs" wrap="nowrap">
-            <Badge
+            {/* <Badge
               className="w-42"
               variant="light"
               color="cyan"
@@ -182,10 +163,13 @@ const Header = ({ start, end, history, moves, time }: PropTypes) => {
                 getElapsedMs={time.getElapsedMs}
                 finalElapsedMs={time.finalTime}
               />
-            </Badge>
+            </Badge> */}
             <Badge variant="light" color="gray" size="lg" radius="sm">
               {moves} moves
             </Badge>
+          </Group>
+          <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
+            <History gameMoves={history} />
           </Group>
         </Group>
       </Paper>

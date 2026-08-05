@@ -34,7 +34,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
   const gameMoves = gameAttemptQuery.data?.gameMovesLog ?? []
 
   const { startTimer, stopTimer, isTimerRunning, getElapsedMs } = useTimerRef()
-  const [count, { increment }] = useCounter(0, { min: 0 })
+  const [count, { increment }] = useCounter(gameMoves.length - 1, { min: 0 })
   const [stats, setStats] = React.useState({
     count: count,
     time: 0,

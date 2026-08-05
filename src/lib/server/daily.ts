@@ -1,6 +1,17 @@
 import { createServerFn } from '@tanstack/react-start'
 import db from '#/lib/db'
 import { guardAuthMiddlware } from './middleware/auth'
+import { createRandomDaily } from '../server'
+
+const postCreateRandomDaily = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    try {
+      return createRandomDaily()
+    } catch (error) {
+      console.error(error)
+    }
+  },
+)
 
 const getLatestDailyGame = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -65,5 +76,10 @@ const getDailyGameId = createServerFn({ method: 'GET' })
     }
   })
 
-export { getLatestDailyGame, getDailyGames, getDailyGameId }
+export {
+  getLatestDailyGame,
+  getDailyGames,
+  getDailyGameId,
+  postCreateRandomDaily,
+}
 export type { TArchivedGame }

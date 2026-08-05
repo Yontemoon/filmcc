@@ -1,4 +1,3 @@
-import { createServerFn } from '@tanstack/react-start'
 import type {
   T_TMDB_MOVIE_DETAILS,
   T_TMDB_PERSON_DETAILS,
@@ -7,16 +6,6 @@ import { getTmdbPerson, tmdbFetch } from './fetch'
 import { POPULARITY_LIMIT, MOVIE_COUNT_LIMIT } from './constants'
 
 import { getRandomNumber } from './utils'
-
-const postCreateRandomDaily = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    try {
-      return createRandomDaily()
-    } catch (error) {
-      console.error(error)
-    }
-  },
-)
 
 const createRandomDaily = async () => {
   try {
@@ -133,7 +122,6 @@ const validateRandomPerson = async (personDetails: T_TMDB_PERSON_DETAILS) => {
 }
 
 export {
-  postCreateRandomDaily,
   createRandomDaily,
   validateRandomPerson,
   getRandomNumber,

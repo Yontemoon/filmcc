@@ -1,5 +1,5 @@
 import type { TUseCreditsResults } from '#/hooks/hooks.types'
-import type { ReturnGetUserGameId } from '#/lib/server/game'
+import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import type {
   TMovieCastCol,
   TMovieCrewCol,

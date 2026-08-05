@@ -10,7 +10,6 @@ import { Modal, Title, Text, Flex } from '@mantine/core'
 import Button from '#/components/ui/button'
 import type { TController } from '#/types/client.types'
 import Spinner from '#/components/ui/spinner'
-import History from '#/components/pages/game/history'
 import Header from '#/components/pages/game/header'
 import { DEMO } from '#/lib/constants'
 import MainBody from '#/components/pages/game/body'
@@ -18,8 +17,6 @@ import { signInAnon, getSession } from '#/lib/auth.functions'
 import { gameAttemptOption, dailyGameOption } from '#/lib/options'
 
 const USE_DEMO = false as boolean
-
-const HISTORY_HEIGHT = '5.5rem'
 
 export const Route = createFileRoute('/_authenticated/game/')({
   component: RouteComponent,
@@ -168,10 +165,6 @@ function RouteComponent() {
                 history={gameMoves}
                 query={query}
               />
-            </div>
-
-            <div className="shrink-0" style={{ height: HISTORY_HEIGHT }}>
-              <History gameMoves={gameMoves} />
             </div>
           </>
         )}

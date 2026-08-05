@@ -23,7 +23,7 @@ import { Text, Title, Grid, Group } from '@mantine/core'
 import { displayYear } from '#/lib/utils'
 import ColorSwatch from '#/components/ui/color-swatch/color-swatch'
 import classes from './game.module.css'
-import type { ReturnGetUserGameId } from '#/lib/server/game'
+import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 
 type PropTypes = {
   history: ReturnGetUserGameId['gameMovesLog']

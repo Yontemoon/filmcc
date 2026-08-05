@@ -2,7 +2,7 @@
 import PosterImage from '#/components/poster/poster'
 import ProfileImage from '#/components/profile-image'
 import { ScrollArea, Text } from '@mantine/core'
-import type { ReturnGetUserGameId } from '#/lib/server/game'
+import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import { TMDB_IMAGE_POSTER_URL_EXPAND } from '#/lib/constants'
 import OpenPersonImageExpand from '#/components/modals/image-expand'
 
@@ -16,7 +16,15 @@ type PropTypes = {
 // Thin connector drawn between consecutive nodes.
 const Connector = () => <div className="h-px w-4 shrink-0 bg-black/40" />
 
-const Node = ({ item, indx }: { item: HistoryItem; indx: number }) => {
+const Node = ({
+  item,
+  indx,
+  isCurrent,
+}: {
+  item: HistoryItem
+  indx: number
+  isCurrent: boolean
+}) => {
   const isStart = indx === 0
   const role = item.roleName
   const title = role ? `${item.entity?.label} — ${role}` : item.entity?.label
@@ -37,7 +45,7 @@ const Node = ({ item, indx }: { item: HistoryItem; indx: number }) => {
         tt="uppercase"
         className="leading-none"
       >
-        {isStart ? 'Start' : indx}
+        {isStart ? 'Start' : isCurrent ? 'Current' : indx}
       </Text>
       {item.entityType === 'MOVIE' ? (
         <div className="h-12 w-8">
@@ -71,24 +79,23 @@ const Node = ({ item, indx }: { item: HistoryItem; indx: number }) => {
 }
 
 const History = ({ gameMoves }: PropTypes) => {
+  const lastIdx = gameMoves.length - 1
   return (
-    <div id="footer" className="h-full bg-emerald-200/20 sm:px-5 px-2">
-      <ScrollArea h="100%" type="hover">
-        <div className="flex items-end">
-          <div className="flex h-full items-center gap-0 px-2 flex-row-reverse">
-            {gameMoves.map((curr, indx) => (
-              <div
-                key={`${curr.moveIndex}-${indx}`}
-                className="flex items-center"
-              >
-                <Node item={curr} indx={indx} />
-                {indx > 0 && <Connector />}
-              </div>
-            ))}
-          </div>
+    <ScrollArea h="100%" type="hover">
+      <div className="flex items-end">
+        <div className="flex h-full items-center gap-0 px-2 flex-row-reverse">
+          {gameMoves.map((curr, indx) => (
+            <div
+              key={`${curr.moveIndex}-${indx}`}
+              className="flex items-center"
+            >
+              <Node item={curr} indx={indx} isCurrent={indx === lastIdx} />
+              {indx > 0 && <Connector />}
+            </div>
+          ))}
         </div>
-      </ScrollArea>
-    </div>
+      </div>
+    </ScrollArea>
   )
 }
 

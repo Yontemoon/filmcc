@@ -176,10 +176,6 @@ function RouteComponent() {
                 query={query}
               />
             </div>
-
-            <div className="shrink-0" style={{ height: HISTORY_HEIGHT }}>
-              <History gameMoves={gameMoves} />
-            </div>
           </>
         )}
       </div>
