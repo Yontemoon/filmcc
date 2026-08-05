@@ -5,7 +5,7 @@ import type {
   T_TMDB_PERSON_CREDITS,
   T_TMDB_PERSON_DETAILS,
 } from '#/types/tmdb.types'
-import { OMDB_URL, TMDB_URL } from './constants'
+import { TMDB_URL } from './constants'
 
 const tmdbFetch = async <T>(url: string) => {
   const response = await fetch(`${TMDB_URL}${url}`, {
@@ -112,17 +112,8 @@ const getTmdbPerson = async (personId: number) => {
   }
 }
 
-const omdbFetch = async <T>(url: string) => {
-  const response = await fetch(`${OMDB_URL}${url}`, {
-    method: 'GET',
-  })
-  const data = (await response.json()) as T
-  return data
-}
-
 export {
   tmdbFetch,
-  omdbFetch,
   getTmdbMovie,
   getTmdbPerson,
   getSearchTmdbMovie,

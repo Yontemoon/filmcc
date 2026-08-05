@@ -1,69 +1,87 @@
 import { createServerFn } from '@tanstack/react-start'
 import type {
-  T_TMDB_EXTERNAL_IDS,
   T_TMDB_MOVIE_DETAILS,
   T_TMDB_PERSON_DETAILS,
 } from '#/types/tmdb.types'
-import { omdbFetch, tmdbFetch } from './fetch'
-import { POPULARITY_LIMIT } from './constants'
-import type { T_OMDB_PERSON_DETAILS } from '#/types/omdb.types'
+import { getTmdbPerson, tmdbFetch } from './fetch'
+import { POPULARITY_LIMIT, MOVIE_COUNT_LIMIT } from './constants'
+
 import { getRandomNumber } from './utils'
 
-let memory = null as {
-  start: T_TMDB_MOVIE_DETAILS
-  end: T_TMDB_PERSON_DETAILS
-} | null
+const postCreateRandomDaily = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    try {
+      return createRandomDaily()
+    } catch (error) {
+      console.error(error)
+    }
+  },
+)
 
-const fetchCreateGame = createServerFn({ method: 'GET' }).handler(async () => {
+const createRandomDaily = async () => {
   try {
     let numberOfLoops = 1
 
-    if (!memory) {
-      const [movies, people] = await Promise.all([
-        tmdbFetch<{ results: T_TMDB_MOVIE_DETAILS[] }>(
-          `/discover/movie?include_adult?sort_by=popularity.desc`,
-        ).then((res) => res.results),
-        getRandomPopularPerson(),
-      ])
-      const randomMovieNum = Math.floor(Math.random() * movies.length)
+    const [movie, people] = await Promise.all([
+      getRandomValidMovie(),
+      getRandomPopularPerson(),
+    ])
 
-      let randomPerson = people
-      let continueSearchingPerson = true
+    let randomPerson = people
+    let continueSearchingPerson = true
 
-      if (randomPerson) {
-        const isValidPopularPerson = await validateRandomPerson(randomPerson)
+    if (randomPerson) {
+      const isValidPopularPerson = await validateRandomPerson(randomPerson)
 
-        if (isValidPopularPerson) {
-          continueSearchingPerson = false
-        }
+      if (isValidPopularPerson) {
+        continueSearchingPerson = false
       }
-
-      while (continueSearchingPerson || !randomPerson) {
-        numberOfLoops++
-        const randomTmdbPerson = await getRandomPopularPerson()
-
-        if (!randomTmdbPerson) {
-          continue
-        }
-        const isValid = await validateRandomPerson(randomTmdbPerson)
-
-        if (isValid) {
-          continueSearchingPerson = false
-          randomPerson = randomTmdbPerson
-        }
-      }
-
-      const randomMovie = movies[randomMovieNum]
-      console.info('[Number of people fetches]: ', numberOfLoops)
-      memory = { start: randomMovie, end: randomPerson }
-      return { start: randomMovie, end: randomPerson }
-    } else {
-      return memory
     }
+
+    while (continueSearchingPerson || !randomPerson) {
+      numberOfLoops++
+      const randomTmdbPerson = await getRandomPopularPerson()
+
+      if (!randomTmdbPerson) {
+        continue
+      }
+      const isValid = await validateRandomPerson(randomTmdbPerson)
+
+      if (isValid) {
+        continueSearchingPerson = false
+        randomPerson = randomTmdbPerson
+      }
+    }
+
+    console.info('[Number of people fetches]: ', numberOfLoops)
+
+    return { start: movie, end: randomPerson }
   } catch (error) {
     console.error(error)
   }
-})
+}
+
+const getRandomValidMovie = async (): Promise<T_TMDB_MOVIE_DETAILS> => {
+  let keepLooking = true as boolean
+  while (keepLooking) {
+    const randomPage = getRandomNumber(100)
+    const movies = await tmdbFetch<{ results: T_TMDB_MOVIE_DETAILS[] }>(
+      `/discover/movie?include_adult=false&page=${randomPage}&region=us`,
+    ).then((res) => res.results)
+    const randomIdx = Math.floor(Math.random() * movies.length)
+    const randomMovie = movies[randomIdx]
+    console.log('page', randomPage)
+
+    const isValid = randomMovie.vote_count > MOVIE_COUNT_LIMIT
+
+    if (isValid) {
+      keepLooking = false
+      return randomMovie
+    }
+  }
+  console.error(`[getRandomValidMovie]`)
+  throw new Error('Failed to find a valid movie')
+}
 
 const getRandomPopularPerson = async () => {
   try {
@@ -85,21 +103,28 @@ const getRandomPopularPerson = async () => {
 
 const validateRandomPerson = async (personDetails: T_TMDB_PERSON_DETAILS) => {
   try {
-    const externalPersonData = await tmdbFetch<T_TMDB_EXTERNAL_IDS>(
-      `/person/${personDetails.id}/external_ids`,
-    )
-    console.log({ externalPersonData })
-    const imdbId = externalPersonData.imdb_id
+    const personInfo = await getTmdbPerson(personDetails.id)
+    const isActor =
+      personInfo.personDetails.known_for_department === 'Acting' ? true : false
 
-    if (imdbId) {
-      const omdbData = await omdbFetch<T_OMDB_PERSON_DETAILS>(
-        `/person/${imdbId}`,
-      )
-      console.log({ omdbData })
+    const popularity = personInfo.personDetails.popularity
 
-      return omdbData.popularity > POPULARITY_LIMIT ? true : false
+    if (popularity < POPULARITY_LIMIT) {
+      return false
     }
-    return false
+
+    if (isActor) {
+      const significantRoles = personInfo.personCredits.cast.filter(
+        (credit) => credit.vote_count > 500,
+      )
+
+      return significantRoles.length >= 3
+    } else {
+      const significantJobs = personInfo.personCredits.crew.filter(
+        (credit) => credit.vote_count > 500,
+      )
+      return significantJobs.length >= 3
+    }
   } catch (error) {
     console.error(error)
     console.error('[validateRandomPerson]: Something went wrong.')
@@ -108,7 +133,8 @@ const validateRandomPerson = async (personDetails: T_TMDB_PERSON_DETAILS) => {
 }
 
 export {
-  fetchCreateGame,
+  postCreateRandomDaily,
+  createRandomDaily,
   validateRandomPerson,
   getRandomNumber,
   getRandomPopularPerson,

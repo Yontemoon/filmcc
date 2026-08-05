@@ -5,9 +5,8 @@ const TMDB_IMAGE_PROFILE_URL = `https://image.tmdb.org/t/p/w185`
 const TMDB_IMAGE_PROFILE_URL_EXPAND = `https://image.tmdb.org/t/p/h632`
 const TMDB_IMAGE_POSTER_URL = 'https://image.tmdb.org/t/p/w185'
 const TMDB_IMAGE_POSTER_URL_EXPAND = 'https://image.tmdb.org/t/p/w500'
-
-const OMDB_URL = `https://api.balloonerismm.workers.dev`
-const POPULARITY_LIMIT = 10
+const POPULARITY_LIMIT = 3.0
+const MOVIE_COUNT_LIMIT = 700
 
 const DEMO = {
   dailyGameId: 1,
@@ -29,11 +28,11 @@ const DEMO = {
 
 export {
   TMDB_URL,
-  OMDB_URL,
   POPULARITY_LIMIT,
   TMDB_IMAGE_PROFILE_URL,
   TMDB_IMAGE_POSTER_URL,
   TMDB_IMAGE_PROFILE_URL_EXPAND,
   TMDB_IMAGE_POSTER_URL_EXPAND,
+  MOVIE_COUNT_LIMIT,
   DEMO,
 }
