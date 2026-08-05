@@ -1,5 +1,6 @@
 import { queryOptions } from '@tanstack/react-query'
-import { getDailyGameId, getUserGameId } from './server/game'
+import { getDailyGameId } from './server/daily'
+import { getUserGameId } from './server/attempt'
 
 const dailyGameOption = (dailyGameId: number) => {
   return queryOptions({

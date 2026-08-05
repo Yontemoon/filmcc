@@ -6,7 +6,7 @@ import {
   Hourglass,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import type { TArchivedGame } from '#/lib/server/game'
+import type { TArchivedGame } from '#/lib/server/daily'
 import { parseDisplayDate } from '#/lib/utils'
 
 type TArchiveStatus =

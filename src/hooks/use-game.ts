@@ -15,8 +15,8 @@ import type {
   T_TMDB_PERSON_CREDITS,
   T_TMDB_PERSON_DETAILS,
 } from '#/types/tmdb.types'
-import type { ReturnGetUserGameId } from '#/lib/server/game'
-import { addUserGameId, updateUserStatusGameId } from '#/lib/server/game'
+import type { ReturnGetUserGameId } from '#/lib/server/attempt'
+import { addUserGameId, updateUserStatusGameId } from '#/lib/server/attempt'
 import { gameAttemptOption } from '#/lib/options'
 import type { TGameStatuses } from '#/types/server.types'
 

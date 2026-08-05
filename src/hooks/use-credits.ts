@@ -1,4 +1,4 @@
-import { fetchMovieCredits, fetchPersonCredits } from '#/lib/server'
+import { fetchMovieCredits, fetchPersonCredits } from '#/lib/server/credits'
 import type { TType } from '#/types/client.types'
 import { useQuery } from '@tanstack/react-query'
 

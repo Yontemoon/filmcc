@@ -4,7 +4,7 @@ import type {
   T_TMDB_MOVIE_DETAILS,
   T_TMDB_PERSON_DETAILS,
 } from '#/types/tmdb.types'
-import { getTmdbMovie, getTmdbPerson, omdbFetch, tmdbFetch } from './fetch'
+import { omdbFetch, tmdbFetch } from './fetch'
 import { POPULARITY_LIMIT } from './constants'
 import type { T_OMDB_PERSON_DETAILS } from '#/types/omdb.types'
 import { getRandomNumber } from './utils'
@@ -13,57 +13,6 @@ let memory = null as {
   start: T_TMDB_MOVIE_DETAILS
   end: T_TMDB_PERSON_DETAILS
 } | null
-
-const fetchMovieCredits = createServerFn({ method: 'GET' })
-  .validator((data: { movieId: number }) => data)
-  .handler(async ({ data }) => {
-    const movieId = data.movieId
-
-    const { movieDetails, movieCredits } = await getTmdbMovie(movieId)
-
-    const movie = 'MOVIE' as const
-    const res = {
-      details: movieDetails,
-      credits: movieCredits,
-      type: 'MOVIE' as typeof movie,
-    }
-
-    return res
-  })
-
-const regexSelf = /\bself\b/i
-const fetchPersonCredits = createServerFn({ method: 'GET' })
-  .validator((data: { personId: number }) => data)
-  .handler(async ({ data }) => {
-    const personId = data.personId
-
-    const { personDetails, personCredits } = await getTmdbPerson(personId)
-
-    personCredits.cast = personCredits.cast
-      .filter((curr) => curr.release_date)
-      .filter((curr) => !regexSelf.test(curr.character))
-      .filter((curr) => curr.character !== '')
-      .sort((a, b) => {
-        if (!a.release_date) return 1
-        if (!b.release_date) return -1
-        return b.release_date.localeCompare(a.release_date)
-      })
-
-    personCredits.crew = personCredits.crew
-      .filter((curr) => curr.release_date)
-      .sort((a, b) => {
-        if (!a.release_date) return 1
-        if (!b.release_date) return -1
-        return b.release_date.localeCompare(a.release_date)
-      })
-
-    const res = {
-      details: personDetails,
-      credits: personCredits,
-      type: 'PERSON' as const,
-    }
-    return res
-  })
 
 const fetchCreateGame = createServerFn({ method: 'GET' }).handler(async () => {
   try {
@@ -129,7 +78,7 @@ const getRandomPopularPerson = async () => {
 
     return tmdbPerson
   } catch (error) {
-    console.error(error)
+    console.error('[getRandomPopularPerson]', error)
     return null
   }
 }
@@ -158,4 +107,9 @@ const validateRandomPerson = async (personDetails: T_TMDB_PERSON_DETAILS) => {
   }
 }
 
-export { fetchMovieCredits, fetchPersonCredits, fetchCreateGame }
+export {
+  fetchCreateGame,
+  validateRandomPerson,
+  getRandomNumber,
+  getRandomPopularPerson,
+}

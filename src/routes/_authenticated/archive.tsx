@@ -27,7 +27,7 @@ import {
   matchesSearch,
 } from '#/components/pages/archive/utils'
 import type { TArchiveFilter } from '#/components/pages/archive/utils'
-import { getDailyGames } from '#/lib/server/game'
+import { getDailyGames } from '#/lib/server/daily'
 
 const SORT_OPTIONS = [
   { label: 'Newest', value: 'newest' },

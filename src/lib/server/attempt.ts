@@ -1,76 +1,11 @@
 import { createServerFn } from '@tanstack/react-start'
-import db from '#/lib/db'
 import { guardAuthMiddlware } from './middleware/auth'
-import { entities, gameAttempts, gameMoves } from '../db/schema'
+import db from '../db'
 import { setResponseStatus } from '@tanstack/react-start/server'
+import { entities, gameAttempts, gameMoves } from '../db/schema'
 import type { TType } from '#/types/client.types'
 import type { TGameStatuses } from '#/types/server.types'
-
 import { eq, sql } from 'drizzle-orm'
-
-// Display for home page
-const getLatestDailyGame = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    const today = new Date().toDateString()
-
-    const todayGameData = await db.query.dailyGames.findFirst({
-      where: {
-        displayDate: today,
-      },
-    })
-
-    return todayGameData
-  },
-)
-
-// Display all daily games with the current user's attempt (if any)
-const getDailyGames = createServerFn({ method: 'GET' })
-  .middleware([guardAuthMiddlware])
-  .handler(async ({ context }) => {
-    try {
-      const { userDetails } = context
-      const games = await db.query.dailyGames.findMany({
-        orderBy: {
-          displayDate: 'desc',
-        },
-        with: {
-          gameAttempts: {
-            where: {
-              userId: userDetails.id,
-            },
-          },
-        },
-      })
-      return games
-    } catch (error) {
-      console.error('[getDailyGames] error', error)
-      return null
-    }
-  })
-
-type ReturnGetDailyGames = NonNullable<
-  Awaited<ReturnType<typeof getDailyGames>>
->
-type TArchivedGame = ReturnGetDailyGames[number]
-
-const getDailyGameId = createServerFn({ method: 'GET' })
-  .middleware([guardAuthMiddlware])
-  .validator((data: { dailyGameId: number }) => data)
-  .handler(async ({ data }) => {
-    try {
-      const { dailyGameId } = data
-      const game = await db.query.dailyGames.findFirst({
-        where: {
-          id: dailyGameId,
-        },
-      })
-
-      return game
-    } catch (error) {
-      console.error('[getDailyGameId] error', error)
-      return null
-    }
-  })
 
 // get info for specific game
 const getUserGameId = createServerFn({ method: 'GET' })
@@ -163,10 +98,6 @@ const getUserGameId = createServerFn({ method: 'GET' })
     }
   })
 
-type ReturnGetUserGameId = NonNullable<
-  Awaited<ReturnType<typeof getUserGameId>>
->
-
 const getUserGames = createServerFn({ method: 'GET' })
   .middleware([guardAuthMiddlware])
   .handler(async ({ context }) => {
@@ -178,6 +109,10 @@ const getUserGames = createServerFn({ method: 'GET' })
     })
     return games
   })
+
+type ReturnGetUserGameId = NonNullable<
+  Awaited<ReturnType<typeof getUserGameId>>
+>
 
 const addUserGameId = createServerFn({ method: 'POST' })
   .middleware([guardAuthMiddlware])
@@ -294,14 +229,5 @@ const updateUserStatusGameId = createServerFn({ method: 'POST' })
     }
   })
 
-export {
-  getLatestDailyGame,
-  getDailyGames,
-  getDailyGameId,
-  getUserGameId,
-  getUserGames,
-  updateUserStatusGameId,
-  addUserGameId,
-}
-
-export type { ReturnGetUserGameId, ReturnGetDailyGames, TArchivedGame }
+export { getUserGameId, getUserGames, addUserGameId, updateUserStatusGameId }
+export type { ReturnGetUserGameId }
