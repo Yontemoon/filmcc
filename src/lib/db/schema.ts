@@ -29,7 +29,7 @@ export const enumGameStatus = pgEnum('game_status', [
 export const enumEntityType = pgEnum('entity_type', ['MOVIE', 'PERSON'])
 
 export const dailyGames = pgTable('daily_games', {
-  id: integer('id').unique().primaryKey(),
+  id: integer('id').generatedByDefaultAsIdentity().primaryKey(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
