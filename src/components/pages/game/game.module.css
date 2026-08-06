@@ -23,6 +23,66 @@
   right: 5px;
 }
 
+/* Journey hierarchy: the target is the thing you're hunting, so it carries the
+   visual weight. The start is where you've already been — it recedes. */
+.startFrame {
+  border-radius: var(--mantine-radius-sm);
+  overflow: hidden;
+  opacity: 0.55;
+  filter: saturate(0.55);
+  transition:
+    opacity 0.2s ease,
+    filter 0.2s ease;
+}
+
+.startFrame:hover {
+  opacity: 1;
+  filter: none;
+}
+
+.targetFrame {
+  border-radius: var(--mantine-radius-sm);
+  overflow: hidden;
+  animation: targetPulse 3s ease-in-out infinite;
+}
+
+@keyframes targetPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px var(--mantine-color-grape-5),
+      0 0 10px -3px var(--mantine-color-grape-5);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px var(--mantine-color-grape-4),
+      0 0 18px 0 var(--mantine-color-grape-5);
+  }
+}
+
+/* Dashed run-up that fades from nothing into the target's colour. */
+.connector {
+  flex: 1 1 auto;
+  min-width: 1rem;
+  height: 2px;
+  border-radius: 1px;
+  background-image: linear-gradient(
+    to right,
+    var(--mantine-color-dimmed),
+    var(--mantine-color-grape-5)
+  );
+  opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .targetFrame {
+    animation: none;
+    box-shadow:
+      0 0 0 2px var(--mantine-color-grape-5),
+      0 0 10px -3px var(--mantine-color-grape-5);
+  }
+}
+
 /* The header is pinned by the route's flex layout, not by sticky positioning —
    it sits above the scrolling body, so it only needs to stack over it. */
 .headerSticky {

@@ -10,7 +10,6 @@ import { Modal, Title, Text, Flex } from '@mantine/core'
 import Button from '#/components/ui/button'
 import type { TController } from '#/types/client.types'
 import Spinner from '#/components/ui/spinner'
-import History from '#/components/pages/game/history'
 import Header from '#/components/pages/game/header'
 import { DEMO } from '#/lib/constants'
 import MainBody from '#/components/pages/game/body'
@@ -18,8 +17,6 @@ import { signInAnon, getSession } from '#/lib/auth.functions'
 import { gameAttemptOption, dailyGameOption } from '#/lib/options'
 
 const USE_DEMO = false as boolean
-
-const HISTORY_HEIGHT = '5.5rem'
 
 export const Route = createFileRoute('/_authenticated/game/$game_id')({
   component: RouteComponent,
@@ -84,23 +81,18 @@ function RouteComponent() {
   const controllerInformation = Route.useLoaderData()
 
   const router = useRouter()
-  const {
-    startGame,
-    changeController,
-    query,
-    gameState,
-    stats,
-    time,
-    gameMoves,
-  } = useGame(controllerInformation)
+  const { startGame, changeController, query, gameState, stats, gameMoves } =
+    useGame(controllerInformation)
 
   return (
     <React.Suspense>
       <Modal
         opened={gameState === 'failed'}
+
         onClose={() => {
-          console.log('passing here')
+          return false
         }}
+
         centered
         title={'You have failed!'}
       >
@@ -123,7 +115,7 @@ function RouteComponent() {
       <Modal
         opened={gameState === 'started'}
         onClose={() => {
-          console.log('passing here')
+          return false
         }}
         centered
         title={'You are about to start!'}
@@ -161,7 +153,6 @@ function RouteComponent() {
                 end={controllerInformation.end}
                 history={gameMoves}
                 moves={stats.count}
-                time={time}
               />
             </div>
 

@@ -107,7 +107,7 @@ function RouteComponent() {
   const counts = React.useMemo(() => {
     return dailyGames.reduce(
       (acc, game) => {
-        const status = getArchiveStatus(game)
+        const status = getArchiveStatus(game.attempt)
         if (status === 'completed') acc.solved += 1
         if (status === 'in_progress') acc.inProgress += 1
         if (status === 'unplayed') acc.unplayed += 1
@@ -120,8 +120,8 @@ function RouteComponent() {
   const visibleGames = React.useMemo(() => {
     const filtered = dailyGames.filter(
       (game) =>
-        matchesFilter(getArchiveStatus(game), filter) &&
-        matchesSearch(game, debouncedSearch),
+        matchesFilter(getArchiveStatus(game.attempt), filter) &&
+        matchesSearch(game.game, debouncedSearch),
     )
 
     // The loader hands them back newest first, so oldest is just the reverse.
@@ -213,7 +213,7 @@ function RouteComponent() {
             ) : (
               <SimpleGrid cols={GRID_COLS} spacing="lg" verticalSpacing="lg">
                 {visibleGames.map((dailyGame) => (
-                  <GameCard key={dailyGame.id} game={dailyGame} />
+                  <GameCard key={dailyGame.game.id} game={dailyGame} />
                 ))}
               </SimpleGrid>
             )}

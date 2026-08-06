@@ -32,12 +32,14 @@ const FILTER_OPTIONS: Array<{ label: string; value: TArchiveFilter }> = [
   { label: 'Finished', value: 'finished' },
 ]
 
-// `getDailyGames` scopes attempts to the signed in user, so there is at most one.
-const getAttempt = (game: TArchivedGame) => game.gameAttempts.at(0) ?? null
-
-const getArchiveStatus = (game: TArchivedGame): TArchiveStatus => {
-  const attempt = getAttempt(game)
-  if (!attempt) return 'unplayed'
+const getArchiveStatus = (
+  attempt: TArchivedGame['attempt'],
+): TArchiveStatus => {
+  if (!attempt) {
+    return 'unplayed'
+  }
+  // const attempt = getAttempt(game)
+  // if (!attempt) return 'unplayed'
 
   switch (attempt.status) {
     case 'completed':
@@ -65,13 +67,13 @@ const matchesFilter = (status: TArchiveStatus, filter: TArchiveFilter) => {
 }
 
 // Puzzles dated in the future are on the board but not playable yet.
-const isLocked = (game: TArchivedGame) => {
+const isLocked = (game: TArchivedGame['game']) => {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   return parseDisplayDate(game.displayDate).getTime() > today.getTime()
 }
 
-const matchesSearch = (game: TArchivedGame, term: string) => {
+const matchesSearch = (game: TArchivedGame['game'], term: string) => {
   const needle = term.trim().toLowerCase()
   if (!needle) return true
 
@@ -87,7 +89,6 @@ const matchesSearch = (game: TArchivedGame, term: string) => {
 export {
   STATUS_META,
   FILTER_OPTIONS,
-  getAttempt,
   getArchiveStatus,
   matchesFilter,
   matchesSearch,

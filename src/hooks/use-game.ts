@@ -1,7 +1,6 @@
 import React from 'react'
 import { notifications } from '@mantine/notifications'
 import { useCounter, useWindowScroll } from '@mantine/hooks'
-import useTimerRef from './use-timer-ref'
 import type { TController } from '#/types/client.types'
 import useCredits from '#/hooks/use-credits'
 import {
@@ -33,11 +32,9 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
 
   const gameMoves = gameAttemptQuery.data?.gameMovesLog ?? []
 
-  const { startTimer, stopTimer, isTimerRunning, getElapsedMs } = useTimerRef()
   const [count, { increment }] = useCounter(gameMoves.length - 1, { min: 0 })
   const [stats, setStats] = React.useState({
     count: count,
-    time: 0,
   })
 
   const [controller, setController] = React.useState<TController>(() => {
@@ -84,10 +81,17 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
         'game',
         dailyGameId,
       ]) as ReturnGetUserGameId
+      const isGoal =
+        newVariables.entityId === end.id && newVariables.entityType === end.type
+
+      if (isGoal) {
+        gameOver()
+      }
 
       const newHistory = {
         ...newVariables,
         movieIndex: previousGame.gameMovesLog.length,
+        is_goal: isGoal,
       }
 
       // * This is what causes optimistic updates.
@@ -96,6 +100,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
         (oldGameData: ReturnGetUserGameId) => {
           const optimisticData = {
             ...oldGameData,
+            status: isGoal ? 'completed' : 'in_progress',
             gameMovesLog: [...oldGameData.gameMovesLog, newHistory],
           }
 
@@ -115,12 +120,6 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
       context.client.invalidateQueries({ queryKey: ['game', dailyGameId] })
     },
   })
-
-  React.useEffect(() => {
-    if (gameState === 'in_progress') {
-      startTimer()
-    }
-  }, [gameState])
 
   React.useEffect(() => {
     if (gameState === 'in_progress') {
@@ -158,9 +157,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
   }
 
   const gameOver = () => {
-    if (gameState === 'in_progress') {
-      setGameState('completed')
-    }
+    setGameState('completed')
   }
 
   // * FETCHES THE CURRENT "CONTROLLER"
@@ -176,168 +173,162 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
       return
     }
 
-    if (gameState === 'in_progress' || gameState === 'started') {
-      const { data } = query
+    const { data } = query
 
-      if (gameMoves.find((curr) => curr.entityId === controller.id)) {
-        return
+    if (gameMoves.find((curr) => curr.entityId === controller.id)) {
+      return
+    }
+
+    if (!data) {
+      return
+    }
+
+    const { type: dataType } = data
+
+    if (controller.type === 'MOVIE' && dataType === 'MOVIE') {
+      const { type, ...restOfController } = controller
+
+      const prevController = gameMoves[gameMoves.length - 1]
+      const prevControlId = prevController.entityId
+      const prevControlCache = queryClient.getQueryData([
+        'PERSON',
+        prevControlId,
+      ]) as {
+        details: T_TMDB_PERSON_DETAILS
+        credits: T_TMDB_PERSON_CREDITS
+        type: 'PERSON'
       }
 
-      if (!data) {
-        return
-      }
+      const creditInfo =
+        prevControlCache.credits.cast.find((c) => c.id === controller.id) ??
+        prevControlCache.credits.crew.find((c) => c.id === controller.id)
 
-      const { type: dataType } = data
+      const isCast = creditInfo && 'character' in creditInfo
 
-      if (controller.type === 'MOVIE' && dataType === 'MOVIE') {
-        const { type, ...restOfController } = controller
+      if (gameAttemptQuery.data) {
+        const mutationData = {
+          attemptId: gameAttemptQuery.data.id,
 
-        const prevController = gameMoves[gameMoves.length - 1]
-        const prevControlId = prevController.entityId
-        const prevControlCache = queryClient.getQueryData([
-          'PERSON',
-          prevControlId,
-        ]) as {
-          details: T_TMDB_PERSON_DETAILS
-          credits: T_TMDB_PERSON_CREDITS
-          type: 'PERSON'
+          entityId: restOfController.id,
+          entityType: type,
+          imgPath: restOfController.img_path,
+          label: restOfController.label,
+          roleName: isCast ? creditInfo.character : null,
+          roleType: isCast ? 'Acting' : creditInfo ? creditInfo.job : 'unknown',
+          linkType: isCast ? ('CAST' as const) : ('CREW' as const),
         }
 
-        const creditInfo =
-          prevControlCache.credits.cast.find((c) => c.id === controller.id) ??
-          prevControlCache.credits.crew.find((c) => c.id === controller.id)
-
-        const isCast = creditInfo && 'character' in creditInfo
-
-        if (gameAttemptQuery.data) {
-          const mutationData = {
-            attemptId: gameAttemptQuery.data.id,
-            entityId: restOfController.id,
-            entityType: type,
-            imgPath: restOfController.img_path,
-            label: restOfController.label,
-            roleName: isCast ? creditInfo.character : null,
-            roleType: isCast
-              ? 'Acting'
-              : creditInfo
-                ? creditInfo.job
-                : 'unknown',
-          }
-
-          mutation.mutate({
-            data: mutationData,
-          })
-        }
-      }
-
-      if (controller.type === 'PERSON' && dataType === 'PERSON') {
-        const { type, ...restOfController } = controller
-
-        const prevController = gameMoves[gameMoves.length - 1]
-        const prevControlId = prevController.entityId
-        const prevControlCache = queryClient.getQueryData([
-          'MOVIE',
-          prevControlId,
-        ]) as {
-          details: T_TMDB_MOVIE_DETAILS
-          credits: T_TMDB_MOVIE_CREDITS
-          type: 'MOVIE'
-        }
-
-        const creditInfo =
-          prevControlCache.credits.cast.find((c) => c.id === controller.id) ??
-          prevControlCache.credits.crew.find((c) => c.id === controller.id)
-
-        const isCast = creditInfo && 'character' in creditInfo
-
-        if (gameAttemptQuery.data) {
-          const mutationData = {
-            attemptId: gameAttemptQuery.data.id,
-            entityId: restOfController.id,
-            entityType: type,
-            imgPath: restOfController.img_path,
-            label: restOfController.label,
-            roleName: isCast ? creditInfo.character : null,
-            roleType: isCast
-              ? 'Acting'
-              : creditInfo
-                ? creditInfo.job
-                : 'unknown',
-          }
-
-          mutation.mutate({
-            data: mutationData,
-          })
-        }
-      }
-
-      if (query.data?.credits) {
-        // TODO do the same with Movie Section
-        if (data.type === 'PERSON') {
-          const historyPersonsIds = gameMoves
-            .filter((control) => control.entityType === 'MOVIE')
-            .map((control) => control.entityId)
-
-          let NumberOfCastTaken = 0
-          const castLength = query.data.credits.cast.length
-
-          for (const movie of query.data.credits.cast) {
-            const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
-            if (isTaken >= 0) {
-              NumberOfCastTaken++
-            }
-          }
-
-          if (castLength !== 0 && NumberOfCastTaken === castLength) {
-            setGameState('failed')
-          }
-
-          let numberofCrewTaken = 0
-          const crewLength = query.data.credits.crew.length
-
-          for (const movie of query.data.credits.crew) {
-            const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
-            if (isTaken >= 0) {
-              numberofCrewTaken++
-            }
-          }
-          if (crewLength !== 0 && numberofCrewTaken === crewLength) {
-            setGameState('failed')
-          }
-        } else {
-          const historyPersonsIds = gameMoves
-            .filter((control) => control.entityType === 'PERSON')
-            .map((control) => control.entityId)
-
-          let NumberOfCastTaken = 0
-          const castLength = query.data.credits.cast.length
-
-          for (const movie of query.data.credits.cast) {
-            const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
-            if (isTaken >= 0) {
-              NumberOfCastTaken++
-            }
-          }
-
-          if (castLength !== 0 && NumberOfCastTaken === castLength) {
-            setGameState('failed')
-          }
-
-          let numberofCrewTaken = 0
-          const crewLength = query.data.credits.crew.length
-
-          for (const movie of query.data.credits.crew) {
-            const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
-            if (isTaken >= 0) {
-              numberofCrewTaken++
-            }
-          }
-          if (crewLength !== 0 && numberofCrewTaken === crewLength) {
-            setGameState('failed')
-          }
-        }
+        mutation.mutate({
+          data: mutationData,
+        })
       }
     }
+
+    if (controller.type === 'PERSON' && dataType === 'PERSON') {
+      const { type, ...restOfController } = controller
+
+      const prevController = gameMoves[gameMoves.length - 1]
+      const prevControlId = prevController.entityId
+      const prevControlCache = queryClient.getQueryData([
+        'MOVIE',
+        prevControlId,
+      ]) as {
+        details: T_TMDB_MOVIE_DETAILS
+        credits: T_TMDB_MOVIE_CREDITS
+        type: 'MOVIE'
+      }
+
+      const creditInfo =
+        prevControlCache.credits.cast.find((c) => c.id === controller.id) ??
+        prevControlCache.credits.crew.find((c) => c.id === controller.id)
+
+      const isCast = creditInfo && 'character' in creditInfo
+
+      if (gameAttemptQuery.data) {
+        const mutationData = {
+          attemptId: gameAttemptQuery.data.id,
+          entityId: restOfController.id,
+          entityType: type,
+          imgPath: restOfController.img_path,
+          label: restOfController.label,
+          roleName: isCast ? creditInfo.character : null,
+          roleType: isCast ? 'Acting' : creditInfo ? creditInfo.job : 'unknown',
+
+          linkType: isCast ? ('CAST' as const) : ('CREW' as const),
+        }
+
+        mutation.mutate({
+          data: mutationData,
+        })
+      }
+    }
+
+    // if (query.data?.credits) {
+    //   // TODO do the same with Movie Section
+    //   if (data.type === 'PERSON') {
+    //     const historyPersonsIds = gameMoves
+    //       .filter((control) => control.entityType === 'MOVIE')
+    //       .map((control) => control.entityId)
+
+    //     let NumberOfCastTaken = 0
+    //     const castLength = query.data.credits.cast.length
+
+    //     for (const movie of query.data.credits.cast) {
+    //       const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
+    //       if (isTaken >= 0) {
+    //         NumberOfCastTaken++
+    //       }
+    //     }
+
+    //     if (castLength !== 0 && NumberOfCastTaken === castLength) {
+    //       setGameState('failed')
+    //     }
+
+    //     let numberofCrewTaken = 0
+    //     const crewLength = query.data.credits.crew.length
+
+    //     for (const movie of query.data.credits.crew) {
+    //       const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
+    //       if (isTaken >= 0) {
+    //         numberofCrewTaken++
+    //       }
+    //     }
+    //     if (crewLength !== 0 && numberofCrewTaken === crewLength) {
+    //       setGameState('failed')
+    //     }
+    //   } else {
+    //     const historyPersonsIds = gameMoves
+    //       .filter((control) => control.entityType === 'PERSON')
+    //       .map((control) => control.entityId)
+
+    //     let NumberOfCastTaken = 0
+    //     const castLength = query.data.credits.cast.length
+
+    //     for (const movie of query.data.credits.cast) {
+    //       const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
+    //       if (isTaken >= 0) {
+    //         NumberOfCastTaken++
+    //       }
+    //     }
+
+    //     if (castLength !== 0 && NumberOfCastTaken === castLength) {
+    //       setGameState('failed')
+    //     }
+
+    //     let numberofCrewTaken = 0
+    //     const crewLength = query.data.credits.crew.length
+
+    //     for (const movie of query.data.credits.crew) {
+    //       const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
+    //       if (isTaken >= 0) {
+    //         numberofCrewTaken++
+    //       }
+    //     }
+    //     if (crewLength !== 0 && numberofCrewTaken === crewLength) {
+    //       setGameState('failed')
+    //     }
+    //   }
+    // }
   }, [query.data])
 
   // * FUNCTION THAT GETS CALLED TO CHANGE THE CONTROLLER => TRIGGERS THE USECREDITS HOOK.
@@ -349,23 +340,6 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
         notifications.show({
           title: 'Already chosen!',
           message: `${newControll.label} is already in your history.`,
-        })
-        return
-      }
-
-      if (newControll.id === end.id && newControll.type === end.type) {
-        setGameState('completed')
-        const attemptId = gameAttemptQuery.data?.id
-
-        if (attemptId) {
-          await updateUserStatusGameId({
-            data: { gameId: attemptId, status: 'completed' },
-          })
-        }
-        const finalTime = stopTimer()
-        setStats({
-          count: count + 1,
-          time: finalTime,
         })
         return
       }
@@ -384,11 +358,6 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
     changeController,
     gameOver,
     stats,
-    time: {
-      isTimerRunning,
-      getElapsedMs,
-      finalTime: stats.time,
-    },
     gameState,
     gameMoves,
   }

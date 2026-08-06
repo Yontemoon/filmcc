@@ -17,6 +17,7 @@ import {
   real,
 } from 'drizzle-orm/pg-core'
 import type { TController } from '#/types/client.types'
+import { MAX_CAST_LINKS, MAX_CREW_LINKS } from '../constants'
 
 export const enumGameStatus = pgEnum('game_status', [
   'started',
@@ -27,6 +28,7 @@ export const enumGameStatus = pgEnum('game_status', [
 ])
 
 export const enumEntityType = pgEnum('entity_type', ['MOVIE', 'PERSON'])
+export const enumLinkType = pgEnum('link_type', ['CAST', 'CREW'])
 
 export const dailyGames = pgTable('daily_games', {
   id: integer('id').unique().primaryKey(),
@@ -44,6 +46,8 @@ export const dailyGames = pgTable('daily_games', {
   endId: integer('end_id').notNull(),
   parMoves: integer('par_moves'),
   solutionPath: jsonb('solution_path').$type<Array<TController>>(),
+  castBudget: integer('cast_budget').default(MAX_CAST_LINKS),
+  crewBudget: integer('crew_budget').default(MAX_CREW_LINKS),
 })
 
 export const gameAttempts = pgTable(
@@ -57,12 +61,6 @@ export const gameAttempts = pgTable(
       .references(() => dailyGames.id, { onDelete: 'cascade' }),
     userId: uuid('user_id').references(() => user.id, { onDelete: 'cascade' }),
     status: enumGameStatus('status').default('started').notNull(),
-    moves: integer('moves').default(0).notNull(),
-    elapsedMs: integer('elapsed_ms'),
-    path: jsonb('path')
-      .$type<Array<TController>>()
-      .default(sql`'[]'::jsonb`)
-      .notNull(),
     completedAt: timestamp('completed_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true })
       .defaultNow()
@@ -73,6 +71,7 @@ export const gameAttempts = pgTable(
       .notNull(),
 
     startedAt: timestamp('started_at', { withTimezone: true }),
+    message: text('message'),
   },
   (t) => [
     uniqueIndex('one_attempt_per_user_game').on(t.gameId, t.userId),
@@ -119,6 +118,7 @@ export const gameMoves = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true })
       .defaultNow()
       .notNull(),
+    linkType: enumLinkType('link_type'),
   },
   (t) => [
     primaryKey({ columns: [t.attemptId, t.moveIndex] }),

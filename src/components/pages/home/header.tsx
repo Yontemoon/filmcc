@@ -22,7 +22,7 @@ export function HomeHeader() {
             </Link>
           </Group>
         ) : (
-          <Link to="/dashboard">
+          <Link to="/game">
             <Button variant="transparent">Play</Button>
           </Link>
         )}

@@ -20,6 +20,7 @@ const USE_DEMO = false as boolean
 
 export const Route = createFileRoute('/_authenticated/game/')({
   component: RouteComponent,
+
   beforeLoad: async ({ context }) => {
     const { queryClient } = context
     const game = await queryClient.ensureQueryData(dailyGameOption(1))
@@ -80,7 +81,7 @@ function RouteComponent() {
     query,
     gameState,
     stats,
-    time,
+
     gameMoves,
   } = useGame(controllerInformation)
 
@@ -151,7 +152,6 @@ function RouteComponent() {
                 end={controllerInformation.end}
                 history={gameMoves}
                 moves={stats.count}
-                time={time}
               />
             </div>
 

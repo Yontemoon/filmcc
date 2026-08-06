@@ -4,6 +4,7 @@ import type {
 } from '#/types/tmdb.types'
 
 type TType = 'MOVIE' | 'PERSON'
+type TlinkType = 'CAST' | 'CREW'
 
 type TController = {
   type: TType
@@ -23,4 +24,10 @@ type TBaseController<T extends TType, TDetails> = Omit<TController, 'type'> & {
 type TMovieController = TBaseController<'MOVIE', T_TMDB_MOVIE_DETAILS>
 type TPersonController = TBaseController<'PERSON', T_TMDB_PERSON_DETAILS>
 
-export type { TType, TController, TMovieController, TPersonController }
+export type {
+  TType,
+  TController,
+  TMovieController,
+  TPersonController,
+  TlinkType,
+}

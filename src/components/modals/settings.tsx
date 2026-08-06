@@ -29,6 +29,20 @@ const SettingsChild = () => {
         />
       </Flex>
       <Divider my="md" w={'100%'} />
+      <Flex align={'center'} justify={'space-between'} w={'100%'}>
+        <Text>Hide Used Entities</Text>
+        <Switch
+          value={colorScheme}
+          onChange={() => {
+            if (colorScheme === 'dark') {
+              setColorScheme('light')
+            } else {
+              setColorScheme('dark')
+            }
+          }}
+        />
+      </Flex>
+      <Divider my="md" w={'100%'} />
     </Group>
   )
 }

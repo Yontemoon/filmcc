@@ -3,21 +3,21 @@ import {
   Card,
   Divider,
   Group,
+  Image,
   Stack,
   Text,
   ThemeIcon,
   Tooltip,
 } from '@mantine/core'
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, Footprints, Lock, TimerReset, Trophy } from 'lucide-react'
-import Poster from '#/components/poster/poster'
-import ProfileImage from '#/components/profile-image'
+import { ArrowRight, Footprints, Lock, Trophy } from 'lucide-react'
 import Button from '#/components/ui/button'
-import type { TArchivedGame } from '#/lib/server/game'
+import type { TArchivedGame } from '#/lib/server/daily'
 import type { TController } from '#/types/client.types'
-import { formatDisplayDate, formatTime } from '#/lib/utils'
-import { STATUS_META, getArchiveStatus, getAttempt, isLocked } from './utils'
+import { formatDisplayDate } from '#/lib/utils'
+import { STATUS_META, getArchiveStatus, isLocked } from './utils'
 import classes from './archive.module.css'
+import { TMDB_IMAGE_POSTER_URL, TMDB_IMAGE_PROFILE_URL } from '#/lib/constants'
 
 type PropTypes = {
   game: TArchivedGame
@@ -45,18 +45,21 @@ const Endpoint = ({
       <div className={classes.artFrame}>
         {controller.type === 'MOVIE' ? (
           <div className={classes.posterBox}>
-            <Poster
-              posterPath={controller.img_path}
+            <Image
+              src={`${TMDB_IMAGE_POSTER_URL}${controller.img_path}`}
               id={controller.id.toString()}
-              altText={controller.label}
-              showExpand={false}
+              alt={controller.id.toString()}
+              fit="contain"
+              // altText={controller.label}
+              // showExpand={false}
             />
           </div>
         ) : (
           <div className={classes.profileBox}>
-            <ProfileImage
-              profilePath={controller.img_path}
-              creditId={controller.id}
+            <Image
+              src={`${TMDB_IMAGE_PROFILE_URL}${controller.img_path}`}
+              alt={controller.id.toString()}
+              fit="contain"
             />
           </div>
         )}
@@ -66,7 +69,7 @@ const Endpoint = ({
         {kicker}
       </Badge>
 
-      <Text
+      {/* <Text
         fw={700}
         size="sm"
         lineClamp={2}
@@ -74,15 +77,15 @@ const Endpoint = ({
         className={classes.label}
       >
         {controller.label}
-      </Text>
+      </Text> */}
     </Stack>
   )
 }
 
 const GameCard = ({ game }: PropTypes) => {
-  const status = getArchiveStatus(game)
-  const attempt = getAttempt(game)
-  const locked = isLocked(game)
+  const status = getArchiveStatus(game.attempt)
+  const attempt = game.movesCount
+  const locked = isLocked(game.game)
   const meta = STATUS_META[status]
   const StatusIcon = meta.icon
 
@@ -90,34 +93,55 @@ const GameCard = ({ game }: PropTypes) => {
     <Card
       withBorder
       radius="lg"
-      padding="md"
+      padding={0}
       shadow="xs"
       className={`${classes.card} ${locked ? classes.cardLocked : ''}`}
     >
-      <Card.Section inheritPadding py="xs" className={classes.cardHeader}>
+      <Card.Section
+        inheritPadding
+        py="xs"
+        px="md"
+        className={classes.cardHeader}
+      >
         <Group justify="space-between" wrap="nowrap">
           <Badge variant="light" color="blue" radius="sm">
-            No. {game.id}
+            No. {game.game.id}
           </Badge>
           <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-            {formatDisplayDate(game.displayDate)}
+            {formatDisplayDate(game.game.displayDate)}
           </Text>
         </Group>
       </Card.Section>
 
-      <Group justify="space-between" wrap="nowrap" gap="xs" mt="md">
-        <Endpoint controller={game.start} kicker="Start" color="teal" />
+      <Group
+        justify="space-between"
+        wrap="nowrap"
+        gap="0"
+        pos={'relative'}
+        p={'0'}
+      >
+        <ThemeIcon
+          variant="light"
+          color="gray"
+          radius="xl"
+          size="md"
+          pos={'absolute'}
 
-        <ThemeIcon variant="light" color="gray" radius="xl" size="md">
+          className={classes.arrowRight}
+
+          // top={'50%'}
+          // bottom={'50%'}
+        >
           <ArrowRight size={16} />
         </ThemeIcon>
-
-        <Endpoint controller={game.end} kicker="Target" color="grape" />
+        <Endpoint controller={game.game.start} kicker="Start" color="teal" />
+        <Divider orientation="vertical" />
+        <Endpoint controller={game.game.end} kicker="Target" color="grape" />
       </Group>
 
-      <Divider my="sm" />
+      <Divider my="md" />
 
-      <Group justify="space-between" wrap="nowrap" gap="xs">
+      <Group justify="space-between" wrap="nowrap" gap="xs" px="md">
         <Badge
           variant="light"
           color={locked ? 'gray' : meta.color}
@@ -127,35 +151,27 @@ const GameCard = ({ game }: PropTypes) => {
           {locked ? 'Locked' : meta.label}
         </Badge>
 
-        {game.parMoves ? (
+        {game.movesCount ? (
           <Tooltip label="Moves in the shortest known solution" withArrow>
             <Badge
               variant="default"
               radius="sm"
               leftSection={<Trophy size={12} />}
             >
-              Par {game.parMoves}
+              Par {game.game.parMoves}
             </Badge>
           </Tooltip>
         ) : null}
       </Group>
 
       {attempt ? (
-        <Group gap="xs" mt="xs" wrap="nowrap">
+        <Group gap="xs" mt="xs" wrap="nowrap" px="md">
           <Group gap={4} wrap="nowrap">
             <Footprints size={14} />
             <Text size="xs" c="dimmed">
-              {attempt.moves} {attempt.moves === 1 ? 'move' : 'moves'}
+              {attempt} {attempt === 1 ? 'move' : 'moves'}
             </Text>
           </Group>
-          {attempt.elapsedMs ? (
-            <Group gap={4} wrap="nowrap">
-              <TimerReset size={14} />
-              <Text size="xs" c="dimmed">
-                {formatTime(attempt.elapsedMs)}
-              </Text>
-            </Group>
-          ) : null}
         </Group>
       ) : (
         <Text size="xs" c="dimmed" mt="xs">
@@ -163,21 +179,23 @@ const GameCard = ({ game }: PropTypes) => {
         </Text>
       )}
 
-      {locked ? (
-        <Button fullWidth mt="md" variant="light" disabled>
-          Locked
-        </Button>
-      ) : (
-        <Link
-          to="/game/$game_id"
-          params={{ game_id: String(game.id) }}
-          className={classes.playLink}
-        >
-          <Button fullWidth mt="md" variant={attempt ? 'light' : 'filled'}>
-            {CTA_LABEL[status]}
+      <Group gap="xs" my="xs" wrap="nowrap" px="md">
+        {locked ? (
+          <Button fullWidth mt="md" variant="light" disabled>
+            Locked
           </Button>
-        </Link>
-      )}
+        ) : (
+          <Link
+            to="/game/$game_id"
+            params={{ game_id: String(game.game.id) }}
+            className={classes.playLink}
+          >
+            <Button fullWidth mt="md" variant={attempt ? 'light' : 'filled'}>
+              {CTA_LABEL[status]}
+            </Button>
+          </Link>
+        )}
+      </Group>
     </Card>
   )
 }

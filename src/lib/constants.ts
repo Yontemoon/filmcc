@@ -26,6 +26,11 @@ const DEMO = {
   },
 } as { dailyGameId: number; start: TController; end: TController }
 
+const MAX_CREW_LINKS = 2
+const MAX_CAST_LINKS = 6
+const ENTITY_TYPE = ['MOVIE', 'PERSON']
+const LINK_TYPE = ['CAST', 'CREW']
+
 export {
   TMDB_URL,
   POPULARITY_LIMIT,
@@ -35,4 +40,8 @@ export {
   TMDB_IMAGE_POSTER_URL_EXPAND,
   MOVIE_COUNT_LIMIT,
   DEMO,
+  MAX_CAST_LINKS,
+  MAX_CREW_LINKS,
+  ENTITY_TYPE,
+  LINK_TYPE,
 }

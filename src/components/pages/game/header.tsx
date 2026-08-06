@@ -1,15 +1,15 @@
 import type { TController } from '#/types/client.types'
-import { Group, Stack, Text, Badge, ThemeIcon, Divider } from '@mantine/core'
+import { Group, Text, Badge, ThemeIcon, Divider } from '@mantine/core'
 import PosterImage from '#/components/poster/poster'
 import ProfileImage from '#/components/profile-image'
-import Timer from '#/components/timer'
+
 import Paper from '#/components/ui/paper/paper'
 import { ArrowRight } from 'lucide-react'
 import classes from './game.module.css'
 import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import OpenPersonImageExpand from '#/components/modals/image-expand'
 import { TMDB_IMAGE_POSTER_URL_EXPAND } from '#/lib/constants'
-import History from './history'
+import ModalGameHistory from '#/components/modals/game-history'
 
 type HistoryItem = ReturnGetUserGameId['gameMovesLog'][0]
 
@@ -18,40 +18,39 @@ type PropTypes = {
   end: TController
   history: ReturnGetUserGameId['gameMovesLog']
   moves: number
-  time: {
-    isTimerRunning: boolean
-    getElapsedMs: () => number
-    finalTime: number | null
-  }
 }
 
 const Endpoint = ({
   kicker,
-  color,
   controller,
-  align,
+  variant,
 }: {
   kicker: string
-  color: string
   controller: TController
-  align: 'start' | 'end'
+  variant: 'origin' | 'target'
 }) => {
-  const reversed = align === 'end'
+  const isTarget = variant === 'target'
   const expandedProfileUrl = controller.img_path
     ? `${TMDB_IMAGE_POSTER_URL_EXPAND}${controller.img_path}`
     : ''
 
+  // Both image components fill their wrapper, so the wrapper carries the 2:3
+  // sizing. The target is roughly 1.6x the origin.
+  const frame = isTarget
+    ? `${classes.targetFrame} h-[66px] w-11`
+    : `${classes.startFrame} h-[42px] w-7`
+
   return (
     <Group
-      gap="sm"
+      gap={isTarget ? 'sm' : 'xs'}
       wrap="nowrap"
       style={{
-        flexDirection: reversed ? 'row-reverse' : 'row',
+        flexDirection: isTarget ? 'row-reverse' : 'row',
         minWidth: 0,
       }}
     >
       {controller.type === 'MOVIE' ? (
-        <div className="h-12 w-9">
+        <div className={frame}>
           <PosterImage
             onClick={(e) => {
               e.stopPropagation()
@@ -63,7 +62,7 @@ const Endpoint = ({
           />
         </div>
       ) : (
-        <div className="h-12 w-9">
+        <div className={frame}>
           <ProfileImage
             profilePath={controller.img_path}
             creditId={controller.id}
@@ -71,11 +70,24 @@ const Endpoint = ({
         </div>
       )}
 
-      <div style={{ minWidth: 0, textAlign: reversed ? 'right' : 'left' }}>
-        <Badge variant="light" color={color} size="xs" radius="sm">
+      <div style={{ minWidth: 0, textAlign: isTarget ? 'right' : 'left' }}>
+        <Badge
+          variant={isTarget ? 'filled' : 'transparent'}
+          color={isTarget ? 'grape' : 'gray'}
+          size="xs"
+          radius="sm"
+          px={isTarget ? 8 : 0}
+        >
           {kicker}
         </Badge>
-        <Text fw={700} size="sm" truncate title={controller.label}>
+        <Text
+          fw={isTarget ? 800 : 500}
+          size={isTarget ? 'lg' : 'xs'}
+          c={isTarget ? undefined : 'dimmed'}
+          lh={1.2}
+          truncate
+          title={controller.label}
+        >
           {controller.label}
         </Text>
       </div>
@@ -114,63 +126,75 @@ const CurrentImage = ({ current }: { current: HistoryItem }) => {
   }
 }
 
-const Header = ({ start, end, history, moves, time }: PropTypes) => {
+const Header = ({ start, end, history, moves }: PropTypes) => {
+  const current = history.length > 0 ? history[history.length - 1] : null
   return (
     <div className={classes.headerSticky} id="header">
       <Paper withBorder radius="lg" p="sm" mb="xs" shadow="xs">
-        {/* Journey: start -> target */}
-        <Group justify="space-between" wrap="nowrap" gap="sm">
-          <Endpoint
-            kicker="Start"
-            color="teal"
-            controller={start}
-            align="start"
-          />
+        {/* Journey: the origin recedes, the target is the hero. */}
+        <Group wrap="nowrap" gap="xs" align="center">
+          <div style={{ flex: '0 1 auto', minWidth: 0 }}>
+            <Endpoint kicker="From" controller={start} variant="origin" />
+          </div>
 
-          <Stack align="center" gap={2} px="xs">
-            <ThemeIcon variant="subtle" color="gray" size="md">
-              <ArrowRight />
-            </ThemeIcon>
-            <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-              Goal
-            </Text>
-          </Stack>
+          <div className={classes.connector} />
+          <ThemeIcon variant="subtle" color="grape" size="sm">
+            <ArrowRight />
+          </ThemeIcon>
 
-          <Endpoint
-            kicker="Target"
-            color="grape"
-            controller={end}
-            align="end"
-          />
+          <div style={{ flex: '1 1 auto', minWidth: 0 }}>
+            <Endpoint kicker="TARGET" controller={end} variant="target" />
+          </div>
         </Group>
 
         <Divider my={6} />
 
         {/* History + stats */}
         <Group justify="space-between" wrap="wrap" gap="sm">
-          <Group gap="xs" wrap="nowrap">
-            {/* <Badge
-              className="w-42"
+          <Group
+            gap="xs"
+            wrap="nowrap"
+            flex={'row'}
+            w="100%"
+            justify="space-between"
+          >
+            <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
+              <Text size="xs" c="dimmed" fw={600} tt="uppercase">
+                Now
+              </Text>
+              {current ? (
+                <Group gap={8} wrap="nowrap" style={{ minWidth: 0 }}>
+                  <CurrentImage current={current} />
+                  <Text
+                    fw={700}
+                    size="sm"
+                    truncate
+                    title={current.entity?.label}
+                  >
+                    {current.entity?.label}
+                  </Text>
+                </Group>
+              ) : (
+                <Text size="sm" c="dimmed" truncate>
+                  {start.label}
+                </Text>
+              )}
+            </Group>
+            <Badge
               variant="light"
-              color="cyan"
+              color="gray"
               size="lg"
               radius="sm"
-              leftSection="Time"
+              onClick={() => {
+                ModalGameHistory(history)
+              }}
             >
-              <Timer
-                label=""
-                isRunning={time.isTimerRunning}
-                getElapsedMs={time.getElapsedMs}
-                finalElapsedMs={time.finalTime}
-              />
-            </Badge> */}
-            <Badge variant="light" color="gray" size="lg" radius="sm">
               {moves} moves
             </Badge>
           </Group>
-          <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
+          {/* <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
             <History gameMoves={history} />
-          </Group>
+          </Group> */}
         </Group>
       </Paper>
     </div>

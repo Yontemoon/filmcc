@@ -2,6 +2,12 @@ import { createServerFn } from '@tanstack/react-start'
 import db from '#/lib/db'
 import { guardAuthMiddlware } from './middleware/auth'
 import { createRandomDaily } from '../server'
+import { count, eq } from 'drizzle-orm'
+import {
+  dailyGames,
+  gameAttempts,
+  gameMoves as gameMovesLog,
+} from '../db/schema'
 
 const postCreateRandomDaily = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -33,19 +39,20 @@ const getDailyGames = createServerFn({ method: 'GET' })
   .handler(async ({ context }) => {
     try {
       const { userDetails } = context
-      const games = await db.query.dailyGames.findMany({
-        orderBy: {
-          displayDate: 'desc',
-        },
-        with: {
-          gameAttempts: {
-            where: {
-              userId: userDetails.id,
-            },
-          },
-        },
-      })
-      return games
+      const results = await db
+        .select({
+          game: dailyGames,
+          attempt: gameAttempts,
+          movesCount: count(gameMovesLog.attemptId),
+        })
+        .from(dailyGames)
+        .leftJoin(gameAttempts, eq(gameAttempts.gameId, dailyGames.id))
+        .leftJoin(gameMovesLog, eq(gameMovesLog.attemptId, gameAttempts.id))
+        .where(eq(gameAttempts.userId, userDetails.id))
+        .groupBy(dailyGames.id, gameAttempts.id)
+        .orderBy(dailyGames.displayDate)
+
+      return results
     } catch (error) {
       console.error('[getDailyGames] error', error)
       return null
