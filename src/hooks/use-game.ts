@@ -18,6 +18,7 @@ import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import { addUserGameId, updateUserStatusGameId } from '#/lib/server/attempt'
 import { gameAttemptOption } from '#/lib/options'
 import type { TGameStatuses } from '#/types/server.types'
+import usePicks from './use-picks'
 
 interface PropTypes {
   dailyGameId: number
@@ -28,6 +29,10 @@ type TGameState = TGameStatuses
 
 const useGame = ({ dailyGameId, end }: PropTypes) => {
   const [initRender, setInitRender] = React.useState<boolean>(true)
+  const picks = usePicks(dailyGameId)
+
+  const canKeepPlay = picks.checkUsedUpAllPoints()
+
   const gameAttemptQuery = useSuspenseQuery(gameAttemptOption(dailyGameId))
 
   const gameMoves = gameAttemptQuery.data?.gameMovesLog ?? []
@@ -72,6 +77,12 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
     return statusInfo.status
   })
 
+  React.useEffect(() => {
+    if (canKeepPlay === false && controller.type === 'MOVIE') {
+      setGameState('failed')
+    }
+  }, [canKeepPlay, controller])
+
   const mutation = useMutation({
     mutationFn: addUserGameId,
     onMutate: async (variables, context) => {
@@ -107,6 +118,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
           return optimisticData
         },
       )
+
       return { previousGame }
     },
     onError: (_error, _variables, onMutateResult, context) => {
@@ -360,6 +372,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
     stats,
     gameState,
     gameMoves,
+    picks,
   }
 }
 

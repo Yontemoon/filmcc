@@ -31,6 +31,7 @@ const getUserGameId = createServerFn({ method: 'GET' })
               moveIndex: 'asc',
             },
           },
+          dailyGame: true,
         },
       })
 
@@ -88,6 +89,7 @@ const getUserGameId = createServerFn({ method: 'GET' })
                   moveIndex: 'asc',
                 },
               },
+              dailyGame: true,
             },
           })
 

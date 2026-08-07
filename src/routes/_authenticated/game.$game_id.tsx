@@ -81,8 +81,15 @@ function RouteComponent() {
   const controllerInformation = Route.useLoaderData()
 
   const router = useRouter()
-  const { startGame, changeController, query, gameState, stats, gameMoves } =
-    useGame(controllerInformation)
+  const {
+    startGame,
+    changeController,
+    query,
+    gameState,
+    stats,
+    gameMoves,
+    picks,
+  } = useGame(controllerInformation)
 
   return (
     <React.Suspense>
@@ -153,6 +160,7 @@ function RouteComponent() {
                 end={controllerInformation.end}
                 history={gameMoves}
                 moves={stats.count}
+                picks={picks}
               />
             </div>
 
@@ -165,6 +173,7 @@ function RouteComponent() {
                 changeController={changeController}
                 history={gameMoves}
                 query={query}
+                picks={picks}
               />
             </div>
           </>

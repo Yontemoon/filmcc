@@ -12,13 +12,21 @@ import {
   ArrowRight,
   CalendarClock,
   Clapperboard,
-  Timer,
+  Ticket,
   UserRound,
   Ban,
 } from 'lucide-react'
 import PosterImage from '#/components/poster/poster'
 import ColorSwatch from '#/components/ui/color-swatch/color-swatch'
-import { TMDB_IMAGE_PROFILE_URL } from '#/lib/constants'
+import PointTracker, {
+  TRACKER_META,
+} from '#/components/pages/game/point-tracker'
+import type { TlinkType } from '#/types/client.types'
+import {
+  MAX_CAST_LINKS,
+  MAX_CREW_LINKS,
+  TMDB_IMAGE_PROFILE_URL,
+} from '#/lib/constants'
 
 type ExampleStep = {
   id: number
@@ -27,9 +35,9 @@ type ExampleStep = {
   img_path: string
   kicker: string
   via: string | null
+  cost: TlinkType | null
 }
 
-// Worked example: The Dark Knight -> Michael Caine -> Interstellar -> Nolan.
 const EXAMPLE: ExampleStep[] = [
   {
     id: 155,
@@ -38,6 +46,7 @@ const EXAMPLE: ExampleStep[] = [
     img_path: '/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
     kicker: 'Start',
     via: null,
+    cost: null,
   },
   {
     id: 3895,
@@ -45,7 +54,8 @@ const EXAMPLE: ExampleStep[] = [
     label: 'Michael Caine',
     img_path: '/bVZRMlpjTAO2pJK6v90buFgVbSW.jpg',
     kicker: 'Move 1',
-    via: 'Cast · Alfred',
+    via: 'Alfred',
+    cost: 'CAST',
   },
   {
     id: 157336,
@@ -53,7 +63,8 @@ const EXAMPLE: ExampleStep[] = [
     label: 'Interstellar',
     img_path: '/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg',
     kicker: 'Move 2',
-    via: 'Cast · Professor Brand',
+    via: 'He acted in it',
+    cost: null,
   },
   {
     id: 525,
@@ -61,15 +72,33 @@ const EXAMPLE: ExampleStep[] = [
     label: 'Christopher Nolan',
     img_path: '/xuAIuYSmsUzKlUMBFGVZaWsY3DZ.jpg',
     kicker: 'Target',
-    via: 'Crew · Director',
+    via: 'Director',
+    cost: 'CREW',
   },
 ]
+
+const CostChip = ({ cost }: { cost: TlinkType | null }) => {
+  if (!cost) {
+    return (
+      <Badge variant="outline" color="gray" size="xs" radius="sm">
+        Free
+      </Badge>
+    )
+  }
+
+  const { label, color } = TRACKER_META[cost]
+  return (
+    <Badge variant="light" color={color} size="xs" radius="sm">
+      −1 {label}
+    </Badge>
+  )
+}
 
 const Step = ({ step }: { step: ExampleStep }) => {
   const isEndpoint = step.via === null || step.kicker === 'Target'
 
   return (
-    <Stack gap={4} align="center" w={78} style={{ flexShrink: 0 }}>
+    <Stack gap={4} align="center" w={84} style={{ flexShrink: 0 }}>
       <Badge
         variant="light"
         color={isEndpoint ? (step.via ? 'grape' : 'teal') : 'gray'}
@@ -103,6 +132,7 @@ const Step = ({ step }: { step: ExampleStep }) => {
       <Text size="10px" c="dimmed" ta="center" className="leading-tight">
         {step.via ?? 'Where you begin'}
       </Text>
+      {step.kicker !== 'Start' && <CostChip cost={step.cost} />}
     </Stack>
   )
 }
@@ -129,13 +159,13 @@ const HowToBody = () => {
     <Stack gap="md">
       <Text size="sm">
         Every day you get a <b>Start</b> and a <b>Target</b> — a film or a
-        person. Get from one to the other through shared credits, in as few
-        moves as possible.
+        person. Get from one to the other through shared credits. The catch: you
+        only get so many people to travel through.
       </Text>
 
       <div>
         <Text size="xs" c="dimmed" fw={600} tt="uppercase" mb={6}>
-          Example — solved in 3 moves
+          Example — solved on one cast pick and one crew pick
         </Text>
         <Group
           gap={4}
@@ -160,11 +190,25 @@ const HowToBody = () => {
 
       <Stack gap="xs">
         <Rule icon={<Clapperboard size={14} />}>
-          Standing on a <b>film</b>? Pick anyone from its cast or crew.
+          Standing on a <b>film</b>? Pick anyone from its cast or crew. This is
+          the move that costs you — an actor spends a <b>cast pick</b>, anyone
+          else spends a <b>crew pick</b>.
         </Rule>
         <Rule icon={<UserRound size={14} />}>
-          Standing on a <b>person</b>? Pick any film they worked on.
+          Standing on a <b>person</b>? Pick any film they worked on. Film hops
+          are always <b>free</b>.
         </Rule>
+        <Rule icon={<Ticket size={14} />}>
+          A run gives you <b>{MAX_CAST_LINKS} cast picks</b> and{' '}
+          <b>{MAX_CREW_LINKS} crew picks</b>. Crew are scarce but they travel
+          further — a director or composer links films that share no actors.
+        </Rule>
+
+        <Group gap="lg" pl={30} py={2}>
+          <PointTracker type="CAST" curr={0} max={MAX_CAST_LINKS} />
+          <PointTracker type="CREW" curr={0} max={MAX_CREW_LINKS} />
+        </Group>
+
         <Rule icon={<Ban size={14} />}>
           No repeats. A{' '}
           <ColorSwatch
@@ -178,12 +222,8 @@ const HowToBody = () => {
             size={12}
             style={{ display: 'inline-block', verticalAlign: 'middle' }}
           />{' '}
-          dot means it's already in your chain. If every link from where you're
-          standing is used up, the run is over.
-        </Rule>
-        <Rule icon={<Timer size={14} />}>
-          Moves and time are both counted, so the best runs are short <i>and</i>{' '}
-          quick.
+          dot means it's already in your chain. Run out of picks, or out of open
+          links, and the run is over.
         </Rule>
         <Rule icon={<CalendarClock size={14} />}>
           A new game drops daily at midnight. Sign up to get a reminder each

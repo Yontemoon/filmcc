@@ -19,9 +19,6 @@ export const Route = createFileRoute('/_authenticated')({
       <AppShell.Header>
         <GameHeader />
       </AppShell.Header>
-      {/* h-dvh + overflow-y-auto: Main is the only scroll container. Pages that
-          fit (the game) can use h-full and manage their own inner scrolling,
-          pages that don't (the archive) just scroll here. */}
       <AppShell.Main className="h-dvh overflow-y-auto">
         <Outlet />
       </AppShell.Main>

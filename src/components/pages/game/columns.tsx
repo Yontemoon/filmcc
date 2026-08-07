@@ -18,11 +18,15 @@ const movieCombineCol: ColumnDef<TMovieCastCol | TMovieCrewCol>[] = [
     header: 'Name',
     cell: ({ row, table }) => {
       const onClickName = table.options.meta?.onClickName
+      const isPickable = row.original.can_be_picked
+      // console.log(row.original.name, isPickable)
+
       return (
         <div className="flex items-center gap-3">
           <div className="h-8 w-8">
             <ProfileImage
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation()
                 if (onClickName) onClickName(row.original)
               }}
               profilePath={row.original.profile_url}
@@ -31,8 +35,16 @@ const movieCombineCol: ColumnDef<TMovieCastCol | TMovieCrewCol>[] = [
           </div>
           <div
             className="hover:cursor-pointer hover:underline "
-            onClick={() => {
-              if (onClickName) onClickName(row.original)
+            onClick={(e) => {
+              e.stopPropagation()
+              if (onClickName) {
+                if (isPickable === false) {
+                  console.log('nahh')
+                  return
+                } else {
+                  onClickName(row.original)
+                }
+              }
             }}
           >
             <Text size="xs">{row.original.name}</Text>
@@ -52,7 +64,7 @@ const movieCombineCol: ColumnDef<TMovieCastCol | TMovieCrewCol>[] = [
         return (
           <Group gap={'xs'} wrap="nowrap">
             {jobs.map((job, indx) => (
-              <Badge key={indx} size="xs">
+              <Badge key={indx} size="xs" color="var(--mantine-color-orange-5)">
                 {job}
               </Badge>
             ))}
@@ -61,7 +73,7 @@ const movieCombineCol: ColumnDef<TMovieCastCol | TMovieCrewCol>[] = [
       } else {
         return (
           <>
-            <Badge variant="gradient" size="xs">
+            <Badge color={'var(--mantine-color-blue-5)'} size="xs">
               {row.original.role}
             </Badge>
           </>

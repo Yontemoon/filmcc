@@ -24,8 +24,10 @@ import { displayYear } from '#/lib/utils'
 import ColorSwatch from '#/components/ui/color-swatch/color-swatch'
 import classes from './game.module.css'
 import type { ReturnGetUserGameId } from '#/lib/server/attempt'
+import type { TReturnUsePicks } from '#/hooks/use-picks'
 
 type PropTypes = {
+  picks: TReturnUsePicks
   history: ReturnGetUserGameId['gameMovesLog']
   query: UseQueryResult<
     NoInfer<
@@ -46,12 +48,12 @@ type PropTypes = {
   changeController: (data: TController) => void
 }
 
-const MainBody = ({ history, query, changeController }: PropTypes) => {
+const MainBody = ({ history, query, changeController, picks }: PropTypes) => {
   const { isLoading, error, data } = query
 
   const memoTableData = React.useMemo(() => {
-    return reformatForTable(data, history)
-  }, [data, history])
+    return reformatForTable(data, history, picks)
+  }, [data, history, picks])
 
   return (
     <div className="mx-1">

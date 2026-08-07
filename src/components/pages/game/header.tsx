@@ -1,8 +1,16 @@
 import type { TController } from '#/types/client.types'
-import { Group, Text, Badge, ThemeIcon, Divider } from '@mantine/core'
+import {
+  Group,
+  Text,
+  Badge,
+  ThemeIcon,
+  Divider,
+  Flex,
+  Stack,
+} from '@mantine/core'
 import PosterImage from '#/components/poster/poster'
 import ProfileImage from '#/components/profile-image'
-
+import PointTracker from './point-tracker'
 import Paper from '#/components/ui/paper/paper'
 import { ArrowRight } from 'lucide-react'
 import classes from './game.module.css'
@@ -10,6 +18,7 @@ import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import OpenPersonImageExpand from '#/components/modals/image-expand'
 import { TMDB_IMAGE_POSTER_URL_EXPAND } from '#/lib/constants'
 import ModalGameHistory from '#/components/modals/game-history'
+import type { TReturnUsePicks } from '#/hooks/use-picks'
 
 type HistoryItem = ReturnGetUserGameId['gameMovesLog'][0]
 
@@ -18,6 +27,7 @@ type PropTypes = {
   end: TController
   history: ReturnGetUserGameId['gameMovesLog']
   moves: number
+  picks: TReturnUsePicks
 }
 
 const Endpoint = ({
@@ -126,7 +136,7 @@ const CurrentImage = ({ current }: { current: HistoryItem }) => {
   }
 }
 
-const Header = ({ start, end, history, moves }: PropTypes) => {
+const Header = ({ start, end, history, moves, picks }: PropTypes) => {
   const current = history.length > 0 ? history[history.length - 1] : null
   return (
     <div className={classes.headerSticky} id="header">
@@ -180,21 +190,32 @@ const Header = ({ start, end, history, moves }: PropTypes) => {
                 </Text>
               )}
             </Group>
-            <Badge
-              variant="light"
-              color="gray"
-              size="lg"
-              radius="sm"
-              onClick={() => {
-                ModalGameHistory(history)
-              }}
-            >
-              {moves} moves
-            </Badge>
+            <Flex direction={'column'} gap={6} align="flex-end">
+              <Badge
+                variant="light"
+                color="gray"
+                size="lg"
+                radius="sm"
+                onClick={() => {
+                  ModalGameHistory(history)
+                }}
+              >
+                {moves} moves
+              </Badge>
+              <Stack gap={3}>
+                <PointTracker
+                  type="CAST"
+                  curr={picks.scores.castScore.curr}
+                  max={picks.scores.castScore.max}
+                />
+                <PointTracker
+                  type="CREW"
+                  curr={picks.scores.crewScore.curr}
+                  max={picks.scores.crewScore.max}
+                />
+              </Stack>
+            </Flex>
           </Group>
-          {/* <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
-            <History gameMoves={history} />
-          </Group> */}
         </Group>
       </Paper>
     </div>

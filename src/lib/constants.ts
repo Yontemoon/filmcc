@@ -27,7 +27,7 @@ const DEMO = {
 } as { dailyGameId: number; start: TController; end: TController }
 
 const MAX_CREW_LINKS = 2
-const MAX_CAST_LINKS = 6
+const MAX_CAST_LINKS = 3
 const ENTITY_TYPE = ['MOVIE', 'PERSON']
 const LINK_TYPE = ['CAST', 'CREW']
 

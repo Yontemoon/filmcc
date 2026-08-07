@@ -1,4 +1,5 @@
 import type { TUseCreditsResults } from '#/hooks/hooks.types'
+import type { TReturnUsePicks } from '#/hooks/use-picks'
 import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import type {
   TMovieCastCol,
@@ -10,11 +11,13 @@ import type {
 const reformatForTable = (
   data: TUseCreditsResults['data'],
   history: ReturnGetUserGameId['gameMovesLog'],
+  picks: TReturnUsePicks,
 ) => {
   if (!data) {
     return
   }
-
+  const crewCanBePicked = picks.scores.crewScore.canPick
+  const castCanBePicked = picks.scores.castScore.canPick
   if (data.type === 'MOVIE') {
     const crewCredits = data.credits.crew.reduce(
       (acc: TMovieCrewCol[], curr) => {
@@ -37,6 +40,7 @@ const reformatForTable = (
             jobs: Array(curr.job),
             already_added: isDuplicate >= 0 ? true : false,
             person_type: 'crew' as const,
+            can_be_picked: crewCanBePicked,
           }
 
           acc.push(newReduce)
@@ -57,6 +61,7 @@ const reformatForTable = (
         profile_url: cast.profile_path,
         already_added: isDuplicate >= 0 ? true : false,
         person_type: 'cast' as const,
+        can_be_picked: castCanBePicked,
       }
     }) as TMovieCastCol[]
 

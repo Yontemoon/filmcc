@@ -5,6 +5,7 @@ type TMovieCastCol = {
   profile_url: string
   already_added: boolean
   person_type: 'cast'
+  can_be_picked: boolean
 }
 
 type TMovieCrewCol = {
@@ -16,6 +17,7 @@ type TMovieCrewCol = {
   jobs: string[]
   already_added: boolean
   person_type: 'crew'
+  can_be_picked: boolean
 }
 
 type TPersonCastCol = {
