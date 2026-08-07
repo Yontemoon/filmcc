@@ -148,11 +148,12 @@ const reformatForTable = (
 
     return {
       type: 'PERSON' as const,
-      crew: crewCredits.filter((movie) => movie.poster_url),
-      cast: castCredits.filter((movie) => movie.poster_url),
       combined: outerJoinArrary,
     }
   }
 }
 
+type TReturnReformatTable = ReturnType<typeof reformatForTable>
+
 export { reformatForTable }
+export type { TReturnReformatTable }

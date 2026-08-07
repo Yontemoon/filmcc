@@ -2,8 +2,6 @@ import { Group, Text, Tooltip } from '@mantine/core'
 import ColorSwatch from '#/components/ui/color-swatch/color-swatch'
 import type { TlinkType } from '#/types/client.types'
 
-// Cast and crew get distinct hues so the two rows never read as one bar. Teal
-// and red are reserved by the option grid's open/taken legend, so stay off them.
 const TRACKER_META: Record<
   TlinkType,
   { label: string; color: string; hint: string }
@@ -31,8 +29,6 @@ const PointTracker = ({
 }) => {
   const { label, color, hint } = TRACKER_META[type]
 
-  // `curr` is the spent count. Clamp it so an over-count can't render negative
-  // pips, and drain the swatches left-to-right so filled always means "left".
   const spent = Math.min(Math.max(curr, 0), max)
   const left = max - spent
   const exhausted = left === 0

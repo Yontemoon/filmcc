@@ -1,18 +1,9 @@
 import type { TController } from '#/types/client.types'
-import {
-  Group,
-  Text,
-  Badge,
-  ThemeIcon,
-  Divider,
-  Flex,
-  Stack,
-} from '@mantine/core'
+import { Group, Text, Badge, Divider, Flex, Stack } from '@mantine/core'
 import PosterImage from '#/components/poster/poster'
 import ProfileImage from '#/components/profile-image'
 import PointTracker from './point-tracker'
 import Paper from '#/components/ui/paper/paper'
-import { ArrowRight } from 'lucide-react'
 import classes from './game.module.css'
 import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import OpenPersonImageExpand from '#/components/modals/image-expand'
@@ -141,25 +132,16 @@ const Header = ({ start, end, history, moves, picks }: PropTypes) => {
   return (
     <div className={classes.headerSticky} id="header">
       <Paper withBorder radius="lg" p="sm" mb="xs" shadow="xs">
-        {/* Journey: the origin recedes, the target is the hero. */}
         <Group wrap="nowrap" gap="xs" align="center">
           <div style={{ flex: '0 1 auto', minWidth: 0 }}>
             <Endpoint kicker="From" controller={start} variant="origin" />
           </div>
 
-          <div className={classes.connector} />
-          <ThemeIcon variant="subtle" color="grape" size="sm">
-            <ArrowRight />
-          </ThemeIcon>
-
           <div style={{ flex: '1 1 auto', minWidth: 0 }}>
             <Endpoint kicker="TARGET" controller={end} variant="target" />
           </div>
         </Group>
-
         <Divider my={6} />
-
-        {/* History + stats */}
         <Group justify="space-between" wrap="wrap" gap="sm">
           <Group
             gap="xs"

@@ -1,25 +1,12 @@
 import React from 'react'
-
 import Spinner from '#/components/ui/spinner'
-import DataTable from '#/components/ui/table/headless-table'
-import type { UseQueryResult } from '@tanstack/react-query'
-import { movieCombineCol } from './columns'
-import type {
-  T_TMDB_MOVIE_CREDITS,
-  T_TMDB_MOVIE_DETAILS,
-  T_TMDB_PERSON_CREDITS,
-  T_TMDB_PERSON_DETAILS,
-} from '#/types/tmdb.types'
 import { reformatForTable } from './utils'
+import type { TReturnReformatTable } from './utils'
 import type { TController } from '#/types/client.types'
-import type {
-  TMovieCastCol,
-  TMovieCrewCol,
-  TPersonCastCol,
-  TPersonCrewCol,
-} from './types'
 import PosterImage from '#/components/poster/poster'
-import { Text, Title, Grid, Group } from '@mantine/core'
+import type { TReturnUseCredits } from '#/hooks/use-credits'
+import { Text, Title, Grid, Group, Badge } from '@mantine/core'
+import { TRACKER_META } from './point-tracker'
 import { displayYear } from '#/lib/utils'
 import ColorSwatch from '#/components/ui/color-swatch/color-swatch'
 import classes from './game.module.css'
@@ -29,22 +16,7 @@ import type { TReturnUsePicks } from '#/hooks/use-picks'
 type PropTypes = {
   picks: TReturnUsePicks
   history: ReturnGetUserGameId['gameMovesLog']
-  query: UseQueryResult<
-    NoInfer<
-      | {
-          details: T_TMDB_MOVIE_DETAILS
-          credits: T_TMDB_MOVIE_CREDITS
-          type: 'MOVIE'
-        }
-      | {
-          details: T_TMDB_PERSON_DETAILS
-          credits: T_TMDB_PERSON_CREDITS
-          type: 'PERSON'
-        }
-      | null
-    >,
-    Error
-  >
+  query: TReturnUseCredits
   changeController: (data: TController) => void
 }
 
@@ -64,7 +36,7 @@ const MainBody = ({ history, query, changeController, picks }: PropTypes) => {
       )}
       {error && <div>{error.message}</div>}
       {memoTableData?.type === 'MOVIE' && data?.type === 'MOVIE' && (
-        <TableLayout
+        <GridLayout
           details={data}
           memoData={memoTableData}
           changeController={changeController}
@@ -82,32 +54,8 @@ const MainBody = ({ history, query, changeController, picks }: PropTypes) => {
 }
 
 type GridLayoutProps = {
-  details:
-    | {
-        details: T_TMDB_PERSON_DETAILS
-        credits: T_TMDB_PERSON_CREDITS
-        type: 'PERSON'
-      }
-    | null
-    | undefined
-  memoData:
-    | {
-        type: 'PERSON'
-        crew: TPersonCrewCol[]
-        cast: {
-          date: string | null
-          title: string
-          role: string
-          poster_url: string
-          id: number
-          already_added: boolean
-        }[]
-        combined: {
-          cast: TPersonCastCol | null
-          crew: TPersonCrewCol | null
-        }[]
-      }
-    | undefined
+  details: TReturnUseCredits['data']
+  memoData: TReturnReformatTable
   changeController: (data: TController) => void
 }
 const GridLayout = ({
@@ -120,7 +68,10 @@ const GridLayout = ({
   return (
     <div className="py-3">
       <Title mb={'md'}>
-        {details?.details.name} ({combinedLength})
+        {details?.type == 'MOVIE'
+          ? details.details.title
+          : details?.details.name}{' '}
+        ({combinedLength})
       </Title>
       <Grid>
         {memoData?.type === 'PERSON' &&
@@ -208,56 +159,116 @@ const GridLayout = ({
               </Grid.Col>
             )
           })}
+
+        {memoData?.type === 'MOVIE' &&
+          memoData.combined.map((person) => {
+            const { already_added, can_be_picked, id, name, profile_url } =
+              person
+
+            const meta =
+              TRACKER_META[person.person_type === 'cast' ? 'CAST' : 'CREW']
+
+            // Two reasons a tile can be dead, and they need different copy:
+            // it's already in your chain, or that pick type is spent.
+            const disabled = already_added || !can_be_picked
+            const blockedReason = already_added
+              ? 'Used'
+              : can_be_picked
+                ? null
+                : 'None left'
+
+            return (
+              <Grid.Col key={person.id} span={{ base: 4, md: 3, lg: 2 }}>
+                <div
+                  className={`${classes.imageLift} ${classes.personFrame} ${
+                    disabled ? classes.personDisabled : ''
+                  }`}
+                  style={
+                    {
+                      '--tile-accent': disabled
+                        ? 'var(--mantine-color-gray-5)'
+                        : `var(--mantine-color-${meta.color}-5)`,
+                    } as React.CSSProperties
+                  }
+                  onClick={() => {
+                    if (disabled) return
+                    changeController({
+                      id,
+                      type: 'PERSON',
+                      label: name,
+                      img_path: profile_url,
+                    })
+                  }}
+                >
+                  <PosterImage
+                    posterPath={profile_url}
+                    id={id.toString()}
+                    showExpand={false}
+                    hd={true}
+                    overlay={disabled}
+                  />
+                  {/* Text label as well as hue — never colour alone. */}
+                  <Group
+                    className={classes.posterInfo}
+                    justify="space-between"
+                    gap={4}
+                    wrap="nowrap"
+                  >
+                    <Badge
+                      variant="filled"
+                      color={disabled ? 'gray' : meta.color}
+                      size="xs"
+                      radius="sm"
+                    >
+                      {meta.label}
+                    </Badge>
+                    {blockedReason && (
+                      <Badge
+                        variant="filled"
+                        color="dark"
+                        size="xs"
+                        radius="sm"
+                      >
+                        {blockedReason}
+                      </Badge>
+                    )}
+                  </Group>
+                </div>
+                <div className={classes.movieInfo}>
+                  <Text
+                    classNames={{
+                      root: classes.movieInfo,
+                    }}
+                    size="sm"
+                  >
+                    {name}
+                  </Text>
+                  {person.person_type === 'cast' && (
+                    <Text
+                      size="xs"
+                      c={disabled ? 'dimmed' : meta.color}
+                      className={classes.movieInfo}
+                      title={person.role}
+                    >
+                      as {person.role}
+                    </Text>
+                  )}
+                  {person.person_type === 'crew' && (
+                    <Text
+                      size="xs"
+                      c={disabled ? 'dimmed' : meta.color}
+                      className={classes.movieInfo}
+                      title={person.jobs.join(', ')}
+                    >
+                      {[...new Set(person.jobs)].join(', ')}
+                    </Text>
+                  )}
+                </div>
+              </Grid.Col>
+            )
+          })}
       </Grid>
     </div>
-  )
-}
-
-type TableLayoutProps = {
-  details:
-    | {
-        details: T_TMDB_MOVIE_DETAILS
-        credits: T_TMDB_MOVIE_CREDITS
-        type: 'MOVIE'
-      }
-    | {
-        details: T_TMDB_PERSON_DETAILS
-        credits: T_TMDB_PERSON_CREDITS
-        type: 'PERSON'
-      }
-    | null
-    | undefined
-  memoData:
-    | {
-        type: 'MOVIE'
-
-        combined: (TMovieCastCol | TMovieCrewCol)[]
-      }
-    | undefined
-  changeController: (data: TController) => void
-}
-
-const TableLayout = ({ memoData, changeController }: TableLayoutProps) => {
-  return (
-    <>
-      {memoData?.type === 'MOVIE' && (
-        <div className="grid grid-cols-1 gap-2">
-          <DataTable
-            data={memoData.combined}
-            columns={movieCombineCol}
-            highlightOnHover={false}
-            onClickName={(rowData) => {
-              changeController({
-                id: rowData.id,
-                type: 'PERSON',
-                label: rowData.name,
-                img_path: rowData.profile_url,
-              })
-            }}
-          />
-        </div>
-      )}
-    </>
   )
 }
 

@@ -6,7 +6,7 @@ import {
   useRouter,
 } from '@tanstack/react-router'
 import useGame from '#/hooks/use-game'
-import { Modal, Title, Text, Flex } from '@mantine/core'
+import { Modal, Title, Text, Flex, Stack, Badge } from '@mantine/core'
 import Button from '#/components/ui/button'
 import type { TController } from '#/types/client.types'
 import Spinner from '#/components/ui/spinner'
@@ -15,6 +15,9 @@ import { DEMO } from '#/lib/constants'
 import MainBody from '#/components/pages/game/body'
 import { signInAnon, getSession } from '#/lib/auth.functions'
 import { gameAttemptOption, dailyGameOption } from '#/lib/options'
+import Poster from '#/components/poster/poster'
+import ModalHowTo from '#/components/modals/how-to'
+import { ArrowRight } from 'lucide-react'
 
 const USE_DEMO = false as boolean
 
@@ -91,10 +94,14 @@ function RouteComponent() {
     picks,
   } = useGame(controllerInformation)
 
+  const start = controllerInformation.start
+  const end = controllerInformation.end
+
   return (
     <React.Suspense>
       <Modal
         opened={gameState === 'failed'}
+        withCloseButton={false}
 
         onClose={() => {
           return false
@@ -121,6 +128,7 @@ function RouteComponent() {
       </Modal>
       <Modal
         opened={gameState === 'started'}
+        withCloseButton={false}
         onClose={() => {
           return false
         }}
@@ -128,12 +136,38 @@ function RouteComponent() {
         title={'You are about to start!'}
       >
         <h2>Are you ready?</h2>
-        <p>
-          You are on {controllerInformation.start.label} and have to get to{' '}
-          {controllerInformation.end.label}
-        </p>
 
-        <div className="w-full grid grid-cols-2 gap-2">
+        <Flex
+          dir="row"
+          justify={'space-between'}
+          p={'lg'}
+          m={'lg'}
+          align={'center'}
+        >
+          <Stack align="center">
+            <Badge variant="light" color={'teal'} size="xs" radius="sm">
+              Start
+            </Badge>
+            <div className="h-36 w-24">
+              <Poster id={start.id.toString()} posterPath={start.img_path} />
+            </div>
+            <Text>{start.label}</Text>
+          </Stack>
+          <div className="flex items-center">
+            <ArrowRight size={'45'} />
+          </div>
+          <Stack align="center">
+            <Badge variant="light" color={'grape'} size="xs" radius="sm">
+              Finish
+            </Badge>
+            <div className="h-36 w-24">
+              <Poster id={end.id.toString()} posterPath={end.img_path} />
+            </div>
+            <Text>{end.label}</Text>
+          </Stack>
+        </Flex>
+
+        <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2">
           <Button
             className="w-full"
             onClick={async () => {
@@ -142,9 +176,18 @@ function RouteComponent() {
           >
             I am ready!
           </Button>
-          <Link to={'/'} className="w-full">
-            <Button>Go back</Button>
-          </Link>
+          <Button
+            variant="transparent"
+            onClick={() => {
+              ModalHowTo()
+            }}
+          >
+            How to play
+          </Button>
+
+          <Button variant="filled" color="red">
+            <Link to={'/'}>Go back</Link>
+          </Button>
         </div>
       </Modal>
       <div className="mx-auto max-w-200 h-full flex flex-col px-2 relative overflow-hidden">

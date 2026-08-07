@@ -26,4 +26,7 @@ const useCredits = (type: TType, id: number | undefined) => {
   })
 }
 
+type TReturnUseCredits = ReturnType<typeof useCredits>
+
 export default useCredits
+export type { TReturnUseCredits }

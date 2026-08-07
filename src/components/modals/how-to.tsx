@@ -17,7 +17,6 @@ import {
   Ban,
 } from 'lucide-react'
 import PosterImage from '#/components/poster/poster'
-import ColorSwatch from '#/components/ui/color-swatch/color-swatch'
 import PointTracker, {
   TRACKER_META,
 } from '#/components/pages/game/point-tracker'
@@ -209,22 +208,7 @@ const HowToBody = () => {
           <PointTracker type="CREW" curr={0} max={MAX_CREW_LINKS} />
         </Group>
 
-        <Rule icon={<Ban size={14} />}>
-          No repeats. A{' '}
-          <ColorSwatch
-            color="var(--mantine-color-teal-5)"
-            size={12}
-            style={{ display: 'inline-block', verticalAlign: 'middle' }}
-          />{' '}
-          dot means it's open, a{' '}
-          <ColorSwatch
-            color="var(--mantine-color-red-5)"
-            size={12}
-            style={{ display: 'inline-block', verticalAlign: 'middle' }}
-          />{' '}
-          dot means it's already in your chain. Run out of picks, or out of open
-          links, and the run is over.
-        </Rule>
+        <Rule icon={<Ban size={14} />}>No repeats.</Rule>
         <Rule icon={<CalendarClock size={14} />}>
           A new game drops daily at midnight. Sign up to get a reminder each
           day.

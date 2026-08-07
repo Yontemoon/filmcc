@@ -7,6 +7,7 @@ import { ScrollArea, Text } from '@mantine/core'
 
 import { TMDB_IMAGE_POSTER_URL_EXPAND } from '#/lib/constants'
 import OpenPersonImageExpand from '#/components/modals/image-expand'
+import type { TlinkType } from '#/types/client.types'
 
 const GameHistory = ({
   history,
@@ -30,23 +31,39 @@ const connectionLabel = (item: HistoryItem) => {
   return type
 }
 
-const Connector = ({ label }: { label: string | null }) => (
-  <div className="flex w-24 shrink-0 flex-col items-center">
-    <div className="h-3 w-px bg-black/50" />
+const Connector = ({
+  label,
+  type,
+}: {
+  label: string | null
+  type?: TlinkType | null
+}) => (
+  <div className="flex  shrink-0 flex-col items-center">
+    <div
+      className={`h-3 w-px ${!type ? 'bg-black/50' : type === 'CREW' && 'bg-orange-400'} ${type === 'CAST' && 'bg-blue-400'}`}
+    />
     {label ? (
       <Text
-        size="sm"
-        c="dimmed"
+        size="xs"
+        c={!type ? 'dimmed' : type === 'CREW' ? 'orange' : 'blue'}
         fw={600}
         tt="uppercase"
         lineClamp={2}
         title={label}
         className="max-w-full px-1.5 py-px text-center leading-tight"
       >
-        {label}
+        {type ? (
+          <>
+            {label} ({type})
+          </>
+        ) : (
+          <>{label}</>
+        )}
       </Text>
     ) : null}
-    <div className="h-3 w-px bg-black/50" />
+    <div
+      className={`h-3 w-px ${!type ? 'bg-black/50' : type === 'CREW' && 'bg-orange-400'} ${type === 'CAST' && 'bg-blue-400'}`}
+    />
   </div>
 )
 
@@ -99,12 +116,7 @@ const Node = ({
           />
         </div>
       )}
-      <Text
-        size="md"
-        fw={600}
-        // lineClamp={1}
-        className="w-full text-center leading-tight"
-      >
+      <Text size="md" fw={600} className="w-full text-center leading-tight">
         {item.entity?.label}
       </Text>
     </div>
@@ -121,7 +133,12 @@ const History = ({ history }: PropTypes) => {
           className="flex items-center flex-col"
         >
           <Node item={curr} indx={indx} isCurrent={indx === lastIdx} />
-          {indx > 0 && <Connector label={connectionLabel(curr)} />}
+          {indx > 0 && (
+            <Connector
+              label={connectionLabel(curr)}
+              type={curr.entityType === 'PERSON' ? curr.linkType : null}
+            />
+          )}
         </div>
       ))}
     </div>
