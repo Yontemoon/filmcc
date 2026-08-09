@@ -33,6 +33,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
 
   const attemptQuery = useSuspenseQuery(gameAttemptOption(dailyGameId))
   const picks = usePicks(dailyGameId)
+  console.log(picks)
 
   const attempt = attemptQuery.data
   if (!attempt) {
@@ -60,10 +61,6 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
   )
 
   const credits = useCredits(controller.type, controller.id)
-
-  React.useEffect(() => {
-    failedGame('You have used up all your cast and crew points.')
-  }, [picks.hasPicksLeft])
 
   const bodyData = React.useMemo(
     () =>
