@@ -1,6 +1,5 @@
 import React from 'react'
 import Spinner from '#/components/ui/spinner'
-import { reformatForTable } from './utils'
 import type { TReturnReformatTable } from './utils'
 import type { TController } from '#/types/client.types'
 import PosterImage from '#/components/poster/poster'
@@ -10,22 +9,18 @@ import { TRACKER_META } from './point-tracker'
 import { displayYear } from '#/lib/utils'
 import ColorSwatch from '#/components/ui/color-swatch/color-swatch'
 import classes from './game.module.css'
-import type { ReturnGetUserGameId } from '#/lib/server/attempt'
-import type { TReturnUsePicks } from '#/hooks/use-picks'
+import type { TReturnUseGame } from '#/hooks/use-game'
 
 type PropTypes = {
-  picks: TReturnUsePicks
-  history: ReturnGetUserGameId['gameMovesLog']
   query: TReturnUseCredits
   changeController: (data: TController) => void
+  bodyData: TReturnUseGame['bodyData']
 }
 
-const MainBody = ({ history, query, changeController, picks }: PropTypes) => {
+const MainBody = ({ query, changeController, bodyData }: PropTypes) => {
   const { isLoading, error, data } = query
 
-  const memoTableData = React.useMemo(() => {
-    return reformatForTable(data, history, picks)
-  }, [data, history, picks])
+  const memoTableData = bodyData
 
   return (
     <div className="mx-1">
@@ -75,18 +70,18 @@ const GridLayout = ({
       </Title>
       <Grid>
         {memoData?.type === 'PERSON' &&
-          memoData.combined.map(({ cast, crew }) => {
-            const credit = cast ?? crew
-            if (!credit) return null
+          memoData.combined.map((curr) => {
+            // const isCredit = curr.person_type === 'crew' ? true : false
 
-            const id = credit.id
-            const title = credit.title
-            const posterUrl = credit.poster_url
+            const id = curr.id
+            const title = curr.title
+            const posterUrl = curr.poster_url
 
-            const date = cast?.date ?? crew?.release_date
-            const added = credit.already_added
-            const jobs = crew ? [...new Set(crew.jobs)] : []
-
+            const date =
+              curr.person_type === 'crew' ? curr.release_date : curr.date
+            const added = curr.already_added
+            const jobs =
+              curr.person_type === 'crew' ? [...new Set(curr.jobs)] : []
             return (
               <Grid.Col key={id} span={{ base: 4, md: 3, lg: 2 }}>
                 <div
@@ -135,14 +130,14 @@ const GridLayout = ({
                       {displayYear(date)}
                     </Text>
                   )}
-                  {cast?.role && (
+                  {curr.person_type === 'cast' && curr.role && (
                     <Text
                       c="dimmed"
                       className={classes.movieInfo}
                       size="xs"
-                      title={cast.role}
+                      title={curr.role}
                     >
-                      as {cast.role}
+                      as {curr.role}
                     </Text>
                   )}
                   {jobs.length > 0 && (
@@ -161,7 +156,7 @@ const GridLayout = ({
           })}
 
         {memoData?.type === 'MOVIE' &&
-          memoData.combined.map((person) => {
+          memoData.combined.map((person, indx) => {
             const { already_added, can_be_picked, id, name, profile_url } =
               person
 
@@ -178,7 +173,10 @@ const GridLayout = ({
                 : 'None left'
 
             return (
-              <Grid.Col key={person.id} span={{ base: 4, md: 3, lg: 2 }}>
+              <Grid.Col
+                key={`${indx}-${person.id}`}
+                span={{ base: 4, md: 3, lg: 2 }}
+              >
                 <div
                   className={`${classes.imageLift} ${classes.personFrame} ${
                     disabled ? classes.personDisabled : ''

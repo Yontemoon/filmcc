@@ -148,7 +148,9 @@ const reformatForTable = (
 
     return {
       type: 'PERSON' as const,
-      combined: outerJoinArrary,
+      combined: outerJoinArrary
+        .map((arr) => arr.cast ?? arr.crew)
+        .filter((arr) => arr !== null),
     }
   }
 }

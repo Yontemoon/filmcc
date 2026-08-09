@@ -90,8 +90,9 @@ function RouteComponent() {
     query,
     gameState,
     stats,
-    gameMoves,
+    history,
     picks,
+    bodyData,
   } = useGame(controllerInformation)
 
   const start = controllerInformation.start
@@ -201,7 +202,7 @@ function RouteComponent() {
               <Header
                 start={controllerInformation.start}
                 end={controllerInformation.end}
-                history={gameMoves}
+                history={history}
                 moves={stats.count}
                 picks={picks}
               />
@@ -214,9 +215,8 @@ function RouteComponent() {
             >
               <MainBody
                 changeController={changeController}
-                history={gameMoves}
                 query={query}
-                picks={picks}
+                bodyData={bodyData}
               />
             </div>
           </>

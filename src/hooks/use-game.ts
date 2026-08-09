@@ -1,6 +1,6 @@
 import React from 'react'
 import { notifications } from '@mantine/notifications'
-import { useCounter, useWindowScroll } from '@mantine/hooks'
+import { useWindowScroll } from '@mantine/hooks'
 import type { TController } from '#/types/client.types'
 import useCredits from '#/hooks/use-credits'
 import {
@@ -19,6 +19,7 @@ import { addUserGameId, updateUserStatusGameId } from '#/lib/server/attempt'
 import { gameAttemptOption } from '#/lib/options'
 import type { TGameStatuses } from '#/types/server.types'
 import usePicks from './use-picks'
+import { reformatForTable } from '#/components/pages/game/utils'
 
 interface PropTypes {
   dailyGameId: number
@@ -30,17 +31,12 @@ type TGameState = TGameStatuses
 const useGame = ({ dailyGameId, end }: PropTypes) => {
   const [initRender, setInitRender] = React.useState<boolean>(true)
   const picks = usePicks(dailyGameId)
+  const queryClient = useQueryClient()
 
   const canKeepPlay = picks.checkUsedUpAllPoints()
 
   const gameAttemptQuery = useSuspenseQuery(gameAttemptOption(dailyGameId))
-
-  const gameMoves = gameAttemptQuery.data?.gameMovesLog ?? []
-
-  const [count, { increment }] = useCounter(gameMoves.length - 1, { min: 0 })
-  const [stats, setStats] = React.useState({
-    count: count,
-  })
+  const history = gameAttemptQuery.data?.gameMovesLog ?? []
 
   const [controller, setController] = React.useState<TController>(() => {
     const last =
@@ -67,7 +63,6 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
   })
 
   const [_scroll, scrollTo] = useWindowScroll()
-  const queryClient = useQueryClient()
 
   const [gameState, setGameState] = React.useState<TGameState>(() => {
     const statusInfo = gameAttemptQuery.data
@@ -78,10 +73,11 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
   })
 
   React.useEffect(() => {
-    if (canKeepPlay === false && controller.type === 'MOVIE') {
+    console.log(canKeepPlay)
+    if (canKeepPlay === false) {
       setGameState('failed')
     }
-  }, [canKeepPlay, controller])
+  }, [canKeepPlay])
 
   const mutation = useMutation({
     mutationFn: addUserGameId,
@@ -133,16 +129,8 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
     },
   })
 
-  React.useEffect(() => {
-    if (gameState === 'in_progress') {
-      setStats((prev) => {
-        return { ...prev, count: count }
-      })
-    }
-  }, [count])
-
   const checkController = (newController: TController) => {
-    const isPresent = gameMoves.findIndex((curr) => {
+    const isPresent = history.findIndex((curr) => {
       if (
         curr.entityId === newController.id &&
         curr.entityType === newController.type
@@ -178,7 +166,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
   const query = useCredits(controller.type, controller.id)
 
   // * SIDE EFFECT ONCE CURRENT CONTROLLER CHANGES,
-  // * MODIFIES THE HISTORY / GAME MOVES
+  // * MODIFIES THE HISTORY
   React.useEffect(() => {
     if (initRender) {
       setInitRender(false)
@@ -187,7 +175,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
 
     const { data } = query
 
-    if (gameMoves.find((curr) => curr.entityId === controller.id)) {
+    if (history.find((curr) => curr.entityId === controller.id)) {
       return
     }
 
@@ -200,7 +188,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
     if (controller.type === 'MOVIE' && dataType === 'MOVIE') {
       const { type, ...restOfController } = controller
 
-      const prevController = gameMoves[gameMoves.length - 1]
+      const prevController = history[history.length - 1]
       const prevControlId = prevController.entityId
       const prevControlCache = queryClient.getQueryData([
         'PERSON',
@@ -239,7 +227,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
     if (controller.type === 'PERSON' && dataType === 'PERSON') {
       const { type, ...restOfController } = controller
 
-      const prevController = gameMoves[gameMoves.length - 1]
+      const prevController = history[history.length - 1]
       const prevControlId = prevController.entityId
       const prevControlCache = queryClient.getQueryData([
         'MOVIE',
@@ -274,74 +262,38 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
         })
       }
     }
+  }, [query.data, history, picks])
 
-    // if (query.data?.credits) {
-    //   // TODO do the same with Movie Section
-    //   if (data.type === 'PERSON') {
-    //     const historyPersonsIds = gameMoves
-    //       .filter((control) => control.entityType === 'MOVIE')
-    //       .map((control) => control.entityId)
+  const memoTableData = React.useMemo(() => {
+    const formatData = reformatForTable(query.data, history, picks)
 
-    //     let NumberOfCastTaken = 0
-    //     const castLength = query.data.credits.cast.length
+    return formatData
+  }, [query.data, history, picks])
 
-    //     for (const movie of query.data.credits.cast) {
-    //       const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
-    //       if (isTaken >= 0) {
-    //         NumberOfCastTaken++
-    //       }
-    //     }
+  React.useEffect(() => {
+    if (!initRender) {
+      const total = memoTableData?.combined.length
+      if (total) {
+        if (memoTableData.type === 'MOVIE') {
+          const movieSec = memoTableData.combined.filter(
+            (curr) => curr.already_added || curr.can_be_picked === false,
+          ).length
 
-    //     if (castLength !== 0 && NumberOfCastTaken === castLength) {
-    //       setGameState('failed')
-    //     }
+          if (movieSec >= total) {
+            setGameState('failed')
+          }
+        } else {
+          const numAdded = memoTableData.combined.filter((curr) => {
+            return curr.already_added
+          }).length
 
-    //     let numberofCrewTaken = 0
-    //     const crewLength = query.data.credits.crew.length
-
-    //     for (const movie of query.data.credits.crew) {
-    //       const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
-    //       if (isTaken >= 0) {
-    //         numberofCrewTaken++
-    //       }
-    //     }
-    //     if (crewLength !== 0 && numberofCrewTaken === crewLength) {
-    //       setGameState('failed')
-    //     }
-    //   } else {
-    //     const historyPersonsIds = gameMoves
-    //       .filter((control) => control.entityType === 'PERSON')
-    //       .map((control) => control.entityId)
-
-    //     let NumberOfCastTaken = 0
-    //     const castLength = query.data.credits.cast.length
-
-    //     for (const movie of query.data.credits.cast) {
-    //       const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
-    //       if (isTaken >= 0) {
-    //         NumberOfCastTaken++
-    //       }
-    //     }
-
-    //     if (castLength !== 0 && NumberOfCastTaken === castLength) {
-    //       setGameState('failed')
-    //     }
-
-    //     let numberofCrewTaken = 0
-    //     const crewLength = query.data.credits.crew.length
-
-    //     for (const movie of query.data.credits.crew) {
-    //       const isTaken = historyPersonsIds.findIndex((id) => id === movie.id)
-    //       if (isTaken >= 0) {
-    //         numberofCrewTaken++
-    //       }
-    //     }
-    //     if (crewLength !== 0 && numberofCrewTaken === crewLength) {
-    //       setGameState('failed')
-    //     }
-    //   }
-    // }
-  }, [query.data])
+          if (numAdded >= total) {
+            setGameState('failed')
+          }
+        }
+      }
+    }
+  }, [memoTableData])
 
   // * FUNCTION THAT GETS CALLED TO CHANGE THE CONTROLLER => TRIGGERS THE USECREDITS HOOK.
   const changeController = async (newControll: TController): Promise<void> => {
@@ -357,7 +309,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
       }
 
       setController(newControll)
-      increment()
+
       scrollTo({
         y: 0,
       })
@@ -369,11 +321,17 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
     query,
     changeController,
     gameOver,
-    stats,
+    stats: {
+      count: history.length - 1,
+    },
     gameState,
-    gameMoves,
+    history,
     picks,
+    bodyData: memoTableData,
   }
 }
 
+type TReturnUseGame = ReturnType<typeof useGame>
+
 export default useGame
+export type { TReturnUseGame }
