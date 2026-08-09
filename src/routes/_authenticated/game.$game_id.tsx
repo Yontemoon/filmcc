@@ -1,10 +1,5 @@
 import React from 'react'
-import {
-  createFileRoute,
-  Link,
-  redirect,
-  useRouter,
-} from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import useGame from '#/hooks/use-game'
 import { Modal, Title, Text, Flex, Stack, Badge } from '@mantine/core'
 import Button from '#/components/ui/button'
@@ -82,26 +77,15 @@ export const Route = createFileRoute('/_authenticated/game/$game_id')({
 
 function RouteComponent() {
   const controllerInformation = Route.useLoaderData()
-
-  const router = useRouter()
-  const {
-    startGame,
-    changeController,
-    query,
-    gameState,
-    stats,
-    history,
-    picks,
-    bodyData,
-  } = useGame(controllerInformation)
-
   const start = controllerInformation.start
   const end = controllerInformation.end
+
+  const { state, data, actions, stats } = useGame(controllerInformation)
 
   return (
     <React.Suspense>
       <Modal
-        opened={gameState === 'failed'}
+        opened={state.status === 'failed'}
         withCloseButton={false}
 
         onClose={() => {
@@ -114,21 +98,13 @@ function RouteComponent() {
         <h2>You cannot make any other moves.</h2>
 
         <div className="w-full grid grid-cols-2 gap-2">
-          <Button
-            className="w-full"
-            onClick={() => {
-              router.invalidate()
-            }}
-          >
-            Redo
-          </Button>
-          <Link to={'/'} className="w-full">
-            <Button>Go home</Button>
+          <Link to={'/archive'} className="w-full">
+            <Button>Check out Archieve</Button>
           </Link>
         </div>
       </Modal>
       <Modal
-        opened={gameState === 'started'}
+        opened={state.status === 'started'}
         withCloseButton={false}
         onClose={() => {
           return false
@@ -171,8 +147,8 @@ function RouteComponent() {
         <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2">
           <Button
             className="w-full"
-            onClick={async () => {
-              startGame()
+            onClick={() => {
+              actions.startGame()
             }}
           >
             I am ready!
@@ -192,31 +168,27 @@ function RouteComponent() {
         </div>
       </Modal>
       <div className="mx-auto max-w-200 h-full flex flex-col px-2 relative overflow-hidden">
-        {gameState === 'completed' ? (
+        {state.status === 'completed' ? (
           <CompletedGame />
         ) : (
           <>
-            {/* Fixed header: journey context, always visible */}
-
             <div className="shrink-0 pt-1">
               <Header
                 start={controllerInformation.start}
                 end={controllerInformation.end}
-                history={history}
-                moves={stats.count}
-                picks={picks}
+                history={data.history}
+                moves={stats.moves}
+                picks={data.picks}
               />
             </div>
-
-            {/* The only scrolling region: header and history stay pinned. */}
             <div
               className="flex-1 min-h-0 overflow-y-auto pb-4 scrollbar-none"
               id="main-body"
             >
               <MainBody
-                changeController={changeController}
-                query={query}
-                bodyData={bodyData}
+                changeController={actions.changeController}
+                query={data.credits}
+                bodyData={data.bodyData}
               />
             </div>
           </>

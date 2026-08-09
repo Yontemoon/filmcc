@@ -1,7 +1,8 @@
 import React from 'react'
 import Spinner from '#/components/ui/spinner'
 import type { TReturnReformatTable } from './utils'
-import type { TController } from '#/types/client.types'
+import { movieRowToMove, personRowToMove } from './utils'
+import type { TMove } from '#/types/client.types'
 import PosterImage from '#/components/poster/poster'
 import type { TReturnUseCredits } from '#/hooks/use-credits'
 import { Text, Title, Grid, Group, Badge } from '@mantine/core'
@@ -9,18 +10,15 @@ import { TRACKER_META } from './point-tracker'
 import { displayYear } from '#/lib/utils'
 import ColorSwatch from '#/components/ui/color-swatch/color-swatch'
 import classes from './game.module.css'
-import type { TReturnUseGame } from '#/hooks/use-game'
 
 type PropTypes = {
   query: TReturnUseCredits
-  changeController: (data: TController) => void
-  bodyData: TReturnUseGame['bodyData']
+  changeController: (move: TMove) => void
+  bodyData: TReturnReformatTable
 }
 
 const MainBody = ({ query, changeController, bodyData }: PropTypes) => {
   const { isLoading, error, data } = query
-
-  const memoTableData = bodyData
 
   return (
     <div className="mx-1">
@@ -30,17 +28,17 @@ const MainBody = ({ query, changeController, bodyData }: PropTypes) => {
         </div>
       )}
       {error && <div>{error.message}</div>}
-      {memoTableData?.type === 'MOVIE' && data?.type === 'MOVIE' && (
+      {bodyData?.type === 'MOVIE' && data?.type === 'MOVIE' && (
         <GridLayout
           details={data}
-          memoData={memoTableData}
+          memoData={bodyData}
           changeController={changeController}
         />
       )}
-      {memoTableData?.type === 'PERSON' && data?.type === 'PERSON' && (
+      {bodyData?.type === 'PERSON' && data?.type === 'PERSON' && (
         <GridLayout
           details={data}
-          memoData={memoTableData}
+          memoData={bodyData}
           changeController={changeController}
         />
       )}
@@ -51,7 +49,7 @@ const MainBody = ({ query, changeController, bodyData }: PropTypes) => {
 type GridLayoutProps = {
   details: TReturnUseCredits['data']
   memoData: TReturnReformatTable
-  changeController: (data: TController) => void
+  changeController: (move: TMove) => void
 }
 const GridLayout = ({
   memoData,
@@ -71,8 +69,6 @@ const GridLayout = ({
       <Grid>
         {memoData?.type === 'PERSON' &&
           memoData.combined.map((curr) => {
-            // const isCredit = curr.person_type === 'crew' ? true : false
-
             const id = curr.id
             const title = curr.title
             const posterUrl = curr.poster_url
@@ -80,6 +76,8 @@ const GridLayout = ({
             const date =
               curr.person_type === 'crew' ? curr.release_date : curr.date
             const added = curr.already_added
+
+            const disabled = added || !curr.can_be_picked
             const jobs =
               curr.person_type === 'crew' ? [...new Set(curr.jobs)] : []
             return (
@@ -87,12 +85,8 @@ const GridLayout = ({
                 <div
                   className={classes.imageLift}
                   onClick={() => {
-                    changeController({
-                      id,
-                      type: 'MOVIE',
-                      label: title,
-                      img_path: posterUrl,
-                    })
+                    if (disabled) return
+                    changeController(personRowToMove(curr))
                   }}
                 >
                   <PosterImage
@@ -100,10 +94,10 @@ const GridLayout = ({
                     id={id.toString()}
                     showExpand={false}
                     hd={true}
-                    overlay={added}
+                    overlay={disabled}
                   />
                   <Group className={classes.posterInfo}>
-                    {added ? (
+                    {disabled ? (
                       <ColorSwatch
                         color="var(--mantine-color-red-5)"
                         size={20}
@@ -163,8 +157,6 @@ const GridLayout = ({
             const meta =
               TRACKER_META[person.person_type === 'cast' ? 'CAST' : 'CREW']
 
-            // Two reasons a tile can be dead, and they need different copy:
-            // it's already in your chain, or that pick type is spent.
             const disabled = already_added || !can_be_picked
             const blockedReason = already_added
               ? 'Used'
@@ -190,12 +182,7 @@ const GridLayout = ({
                   }
                   onClick={() => {
                     if (disabled) return
-                    changeController({
-                      id,
-                      type: 'PERSON',
-                      label: name,
-                      img_path: profile_url,
-                    })
+                    changeController(movieRowToMove(person))
                   }}
                 >
                   <PosterImage
@@ -205,7 +192,7 @@ const GridLayout = ({
                     hd={true}
                     overlay={disabled}
                   />
-                  {/* Text label as well as hue — never colour alone. */}
+
                   <Group
                     className={classes.posterInfo}
                     justify="space-between"

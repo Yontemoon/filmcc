@@ -8,6 +8,19 @@ const TMDB_IMAGE_POSTER_URL_EXPAND = 'https://image.tmdb.org/t/p/w500'
 const POPULARITY_LIMIT = 3.0
 const MOVIE_COUNT_LIMIT = 700
 
+// * ALSO IN ORDER OF IMPORTANCES
+const FILTERED_CREW_TYPES = [
+  'Director',
+  'Screenplay',
+  'Author',
+  'Writer',
+  'Director of Photography',
+  'Editor',
+  'Original Music Composer',
+]
+
+const MAX_CAST_CREDITS = 15
+
 const DEMO = {
   dailyGameId: 1,
   start: {
@@ -42,6 +55,8 @@ export {
   DEMO,
   MAX_CAST_LINKS,
   MAX_CREW_LINKS,
+  FILTERED_CREW_TYPES,
+  MAX_CAST_CREDITS,
   ENTITY_TYPE,
   LINK_TYPE,
 }

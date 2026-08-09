@@ -5,7 +5,7 @@ import type {
   T_TMDB_PERSON_CREDITS,
   T_TMDB_PERSON_DETAILS,
 } from '#/types/tmdb.types'
-import { TMDB_URL } from './constants'
+import { FILTERED_CREW_TYPES, MAX_CAST_CREDITS, TMDB_URL } from './constants'
 
 const tmdbFetch = async <T>(url: string) => {
   const response = await fetch(`${TMDB_URL}${url}`, {
@@ -17,7 +17,6 @@ const tmdbFetch = async <T>(url: string) => {
 
   if (!response.ok) {
     console.error('[tmdbFetch] response not OK: ', response.text)
-    // throw new Error(response.statusText)
   }
   return response.json() as T
 }
@@ -42,22 +41,12 @@ const getSearchTmdbPerson = async (query: string) => {
   return data.results
 }
 
-// * FILTERED DIRECTOR, WRITER, CINEMATOGRAPHER, COMPOSER (MUSIC), EDITOR
 const filterCrewCredits = <
   T extends T_TMDB_CREW | T_TMDB_PERSON_CREDITS['crew'][0],
 >(
   crew: Array<T>,
 ) => {
-  return crew.filter(
-    (movie) =>
-      movie.job === 'Director' ||
-      movie.job === 'Director of Photography' ||
-      movie.job === 'Editor' ||
-      movie.job === 'Original Music Composer' ||
-      movie.job === 'Screenplay' ||
-      movie.job === 'Writer' ||
-      movie.job === 'Author',
-  )
+  return crew.filter((movie) => FILTERED_CREW_TYPES.includes(movie.job))
 }
 
 const getTmdbMovie = async (
@@ -73,7 +62,7 @@ const getTmdbMovie = async (
     ),
   ])
 
-  const filteredCastCredits = movieCredits.cast.slice(0, 15)
+  const filteredCastCredits = movieCredits.cast.slice(0, MAX_CAST_CREDITS)
   const filteredCrewCredits = filterCrewCredits(movieCredits.crew)
 
   return {

@@ -1,6 +1,7 @@
 import type { TUseCreditsResults } from '#/hooks/hooks.types'
-import type { TReturnUsePicks } from '#/hooks/use-picks'
+import { FILTERED_CREW_TYPES } from '#/lib/constants'
 import type { ReturnGetUserGameId } from '#/lib/server/attempt'
+import type { TMove } from '#/types/client.types'
 import type {
   TMovieCastCol,
   TMovieCrewCol,
@@ -8,16 +9,22 @@ import type {
   TPersonCrewCol,
 } from './types'
 
+type TPickBudget = {
+  castCanPick: boolean
+  crewCanPick: boolean
+}
+
 const reformatForTable = (
   data: TUseCreditsResults['data'],
   history: ReturnGetUserGameId['gameMovesLog'],
-  picks: TReturnUsePicks,
+  budget: TPickBudget,
 ) => {
   if (!data) {
     return
   }
-  const crewCanBePicked = picks.scores.crewScore.canPick
-  const castCanBePicked = picks.scores.castScore.canPick
+
+  const { castCanPick, crewCanPick } = budget
+
   if (data.type === 'MOVIE') {
     const crewCredits = data.credits.crew.reduce(
       (acc: TMovieCrewCol[], curr) => {
@@ -40,7 +47,7 @@ const reformatForTable = (
             jobs: Array(curr.job),
             already_added: isDuplicate >= 0 ? true : false,
             person_type: 'crew' as const,
-            can_be_picked: crewCanBePicked,
+            can_be_picked: crewCanPick,
           }
 
           acc.push(newReduce)
@@ -49,6 +56,30 @@ const reformatForTable = (
       },
       [],
     )
+
+    crewCredits.forEach((crew) => {
+      crew.jobs.sort((a, b) => {
+        const indexA = FILTERED_CREW_TYPES.includes(a)
+          ? FILTERED_CREW_TYPES.indexOf(a)
+          : 999
+        const indexB = FILTERED_CREW_TYPES.includes(b)
+          ? FILTERED_CREW_TYPES.indexOf(b)
+          : 999
+
+        return indexA - indexB
+      })
+    })
+
+    crewCredits.sort((a, b) => {
+      const indexA = FILTERED_CREW_TYPES.includes(a.jobs[0])
+        ? FILTERED_CREW_TYPES.indexOf(a.jobs[0])
+        : 999
+      const indexB = FILTERED_CREW_TYPES.includes(b.jobs[0])
+        ? FILTERED_CREW_TYPES.indexOf(b.jobs[0])
+        : 999
+
+      return indexA - indexB
+    })
 
     const castCredits = data.credits.cast.map((cast) => {
       const isDuplicate = history.findIndex(
@@ -61,7 +92,7 @@ const reformatForTable = (
         profile_url: cast.profile_path,
         already_added: isDuplicate >= 0 ? true : false,
         person_type: 'cast' as const,
-        can_be_picked: castCanBePicked,
+        can_be_picked: castCanPick,
       }
     }) as TMovieCastCol[]
 
@@ -72,6 +103,7 @@ const reformatForTable = (
 
     // Person
   } else {
+    const movieCanBePicked = castCanPick || crewCanPick
     const castCredits = data.credits.cast
       .map((credit) => {
         const isDuplicate = history.findIndex(
@@ -85,6 +117,7 @@ const reformatForTable = (
           poster_url: credit.poster_path,
           already_added: isDuplicate >= 0 ? true : false,
           person_type: 'cast' as const,
+          can_be_picked: movieCanBePicked,
         }
       })
       .filter((movie) => movie.poster_url) as TPersonCastCol[]
@@ -110,13 +143,13 @@ const reformatForTable = (
             jobs: Array(curr.job),
             already_added: isDuplicate >= 0 ? true : false,
             person_type: 'crew' as const,
+            can_be_picked: movieCanBePicked,
           }
 
           acc.push(newReduce)
           return acc
         }
       }, [])
-      .filter((movie) => movie.poster_url)
       .filter((movie) => movie.poster_url)
 
     const mergedMap = new Map<
@@ -156,6 +189,69 @@ const reformatForTable = (
 }
 
 type TReturnReformatTable = ReturnType<typeof reformatForTable>
+type TStuckReason = 'no_picks_left' | 'board_exhausted'
 
-export { reformatForTable }
-export type { TReturnReformatTable }
+const stuckReason = (
+  bodyData: TReturnReformatTable,
+  hasPicksLeft: boolean,
+): TStuckReason | null => {
+  if (!hasPicksLeft) {
+    return 'no_picks_left'
+  }
+
+  if (!bodyData || bodyData.combined.length === 0) {
+    return null
+  }
+
+  const rows: Array<{ already_added: boolean; can_be_picked: boolean }> =
+    bodyData.combined
+
+  return rows.every((row) => row.already_added || !row.can_be_picked)
+    ? 'board_exhausted'
+    : null
+}
+
+const movieRowToMove = (row: TMovieCastCol | TMovieCrewCol): TMove =>
+  row.person_type === 'cast'
+    ? {
+        entityId: row.id,
+        entityType: 'PERSON',
+        label: row.name,
+        imgPath: row.profile_url,
+        linkType: 'CAST',
+        roleName: row.role,
+        roleType: 'Acting',
+      }
+    : {
+        entityId: row.id,
+        entityType: 'PERSON',
+        label: row.name,
+        imgPath: row.profile_url,
+        linkType: 'CREW',
+        roleName: null,
+        roleType: row.job,
+      }
+
+const personRowToMove = (row: TPersonCastCol | TPersonCrewCol): TMove =>
+  row.person_type === 'cast'
+    ? {
+        entityId: row.id,
+        entityType: 'MOVIE',
+        label: row.title,
+        imgPath: row.poster_url,
+        linkType: 'CAST',
+        roleName: row.role,
+        roleType: 'Acting',
+      }
+    : {
+        entityId: row.id,
+        entityType: 'MOVIE',
+        label: row.title,
+        imgPath: row.poster_url,
+        linkType: 'CREW',
+        roleName: null,
+        roleType: row.job,
+      }
+
+export { reformatForTable, stuckReason, movieRowToMove, personRowToMove }
+export type { TReturnReformatTable, TPickBudget, TStuckReason }

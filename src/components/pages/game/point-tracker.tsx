@@ -52,7 +52,6 @@ const PointTracker = ({
           {label}
         </Text>
 
-        {/* Decorative — the Group above already carries the accessible name. */}
         <Group gap={3} wrap="nowrap" aria-hidden>
           {Array.from({ length: max }, (_, indx) => (
             <ColorSwatch
@@ -67,7 +66,6 @@ const PointTracker = ({
           ))}
         </Group>
 
-        {/* Never let the count be conveyed by colour alone. */}
         <Text
           size="10px"
           fw={700}

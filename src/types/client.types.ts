@@ -24,10 +24,21 @@ type TBaseController<T extends TType, TDetails> = Omit<TController, 'type'> & {
 type TMovieController = TBaseController<'MOVIE', T_TMDB_MOVIE_DETAILS>
 type TPersonController = TBaseController<'PERSON', T_TMDB_PERSON_DETAILS>
 
+type TMove = {
+  entityId: number
+  entityType: TType
+  label: string
+  imgPath: string | null
+  linkType: TlinkType
+  roleName: string | null
+  roleType: string
+}
+
 export type {
   TType,
   TController,
   TMovieController,
   TPersonController,
   TlinkType,
+  TMove,
 }

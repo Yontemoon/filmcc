@@ -28,6 +28,7 @@ type TPersonCastCol = {
   poster_url: string
   already_added: boolean
   person_type: 'cast'
+  can_be_picked: boolean
 }
 
 type TPersonCrewCol = {
@@ -40,6 +41,7 @@ type TPersonCrewCol = {
   jobs: string[]
   already_added: boolean
   person_type: 'crew'
+  can_be_picked: boolean
 }
 
 export type { TMovieCastCol, TMovieCrewCol, TPersonCastCol, TPersonCrewCol }

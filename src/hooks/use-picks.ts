@@ -18,35 +18,31 @@ const usePicks = (dailyGameId: number) => {
       return {
         cast: foundCast,
         crew: foundCrew,
+        castBudget: d?.dailyGame?.castBudget ?? MAX_CAST_LINKS,
+        crewBudget: d?.dailyGame?.crewBudget ?? MAX_CREW_LINKS,
       }
     }),
   )
 
-  const scores = React.useMemo(() => {
+  return React.useMemo(() => {
     const crewScore = {
-      max: MAX_CREW_LINKS,
+      max: data.crewBudget,
       curr: data.crew.length,
-      canPick: data.crew.length < MAX_CREW_LINKS,
+      canPick: data.crew.length < data.crewBudget,
     }
     const castScore = {
-      max: MAX_CAST_LINKS,
+      max: data.castBudget,
       curr: data.cast.length,
-      canPick: data.cast.length < MAX_CAST_LINKS,
+      canPick: data.cast.length < data.castBudget,
     }
 
     return {
-      crewScore,
-      castScore,
+      cast: data.cast,
+      crew: data.crew,
+      scores: { crewScore, castScore },
+      hasPicksLeft: crewScore.canPick || castScore.canPick,
     }
   }, [data])
-
-  const checkUsedUpAllPoints = React.useCallback(() => {
-    const total = MAX_CREW_LINKS + MAX_CAST_LINKS
-    const currentTotal = scores.castScore.curr + scores.crewScore.curr
-    return currentTotal < total
-  }, [scores])
-
-  return { cast: data.cast, crew: data.crew, scores, checkUsedUpAllPoints }
 }
 
 type TReturnUsePicks = ReturnType<typeof usePicks>
