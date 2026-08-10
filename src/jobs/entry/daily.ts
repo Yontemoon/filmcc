@@ -6,7 +6,7 @@ import { gameDateString, gameTimeZone, isIsoDay } from '../date'
 // Generate tomorrow's puzzle, not today's. Generation polls TMDB and can fail;
 // a one-day buffer means a failed run is noticed with 24h of slack instead of
 // players landing on an empty game.
-const DEFAULT_OFFSET_DAYS = 1
+const DEFAULT_OFFSET_DAYS = 5
 
 const REQUIRED_ENV = ['DATABASE_URL', 'TMDB_API_KEY'] as const
 
@@ -34,8 +34,7 @@ const run = async (): Promise<number> => {
   }
 
   const timeZone = gameTimeZone()
-  const displayDate =
-    requested ?? gameDateString(timeZone, DEFAULT_OFFSET_DAYS)
+  const displayDate = requested ?? gameDateString(timeZone, DEFAULT_OFFSET_DAYS)
 
   console.info(`[daily] target=${displayDate} timezone=${timeZone}`)
 
