@@ -1,7 +1,9 @@
-const main = () => {
-  console.log('passing here')
-  console.log('yay!!')
-  console.log(new Date())
+async function main() {
+  console.log(`[${new Date().toISOString()}] Executing scheduled task...`)
+  console.log('Task completed successfully.')
 }
 
-void main()
+main().catch((err) => {
+  console.error('Task failed:', err)
+  process.exit(1)
+})
