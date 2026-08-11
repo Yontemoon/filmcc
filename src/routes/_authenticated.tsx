@@ -9,7 +9,7 @@ export const Route = createFileRoute('/_authenticated')({
 
     if (!session) {
       const anonUserData = await signInAnon()
-      return { user: anonUserData.user }
+      return { user: anonUserData }
     }
 
     return { user: session.user }

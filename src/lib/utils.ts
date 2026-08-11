@@ -1,5 +1,3 @@
-import type { TlinkType } from '#/types/client.types'
-
 // Format time into MM:SS:CC (Minutes : Seconds : Centiseconds)
 const formatTime = (ms: number) => {
   // 1. Extract total components

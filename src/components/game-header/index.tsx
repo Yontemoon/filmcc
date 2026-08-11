@@ -13,6 +13,7 @@ import { Link } from '@tanstack/react-router'
 import ModalSetting from '../modals/settings'
 import ModalStatistics from '../modals/statistics'
 import ModalHowTo from '../modals/how-to'
+import ModalAchieveBlock from '../modals/achieve-block'
 
 const links = [
   { modalOpen: ModalStatistics, icon: <ChartBarBig /> },
@@ -42,10 +43,24 @@ const GameHeader = () => {
       <div className={classes.inner}>
         <div>Film CC</div>
         <div className={classes.rightInner}>
-          <Link to="/archive">
-            <Archive />
-          </Link>
-          <Group gap={'sm'}>{items}</Group>
+          <Group gap={'sm'}>
+            {isGuest ? (
+              <ActionIcon
+                variant="transparent"
+                size="lg"
+                onClick={() => {
+                  ModalAchieveBlock()
+                }}
+              >
+                <Archive />
+              </ActionIcon>
+            ) : (
+              <Link to="/archive">
+                <Archive />
+              </Link>
+            )}
+            {items}
+          </Group>
           {isGuest && (
             <Button variant="outline">
               <Link to="/signup">Sign Up</Link>

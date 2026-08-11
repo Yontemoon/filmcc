@@ -2,7 +2,7 @@ import { Anchor, Button, Paper, Text, Title } from '@mantine/core'
 import classes from './auth.module.css'
 import { TextInput, PasswordInput } from '#/components/ui/input'
 import Checkbox from '#/components/ui/checkbox'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { signIn, signUp } from '#/lib/auth-client'
 import { useForm, isEmail, hasLength, matchesField } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
@@ -90,7 +90,7 @@ const SigninComp = () => {
           </Button>
 
           <Text ta="center" mt="md">
-            Don&apos;t have an account?
+            Don&apos;t have an account?{' '}
             <Anchor fw={500} component={Link} to="/signup">
               Register
             </Anchor>
@@ -129,10 +129,10 @@ const SignUpComp = () => {
       confirmPassword: matchesField('password', 'Passwords are not the same'),
     },
   })
+  const navigate = useNavigate()
 
   const handleAccountCreation = async (values: SigninForm) => {
     try {
-      console.log(values)
       const response = await signUp.email({
         email: values.email,
 
@@ -141,7 +141,15 @@ const SignUpComp = () => {
         username: values.username,
         displayUsername: values.username,
       })
-      console.log(response)
+
+      if (response.error) {
+        console.error(response.error)
+        throw new Error(response.error.message)
+      }
+
+      navigate({
+        to: '/archive',
+      })
     } catch (error) {
       console.error('Account creation failed:', error)
     }

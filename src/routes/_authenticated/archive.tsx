@@ -1,5 +1,5 @@
 import React from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import {
   Alert,
   Card,
@@ -37,6 +37,15 @@ const SORT_OPTIONS = [
 const GRID_COLS = { base: 1, xs: 2, md: 3, lg: 4 }
 
 export const Route = createFileRoute('/_authenticated/archive')({
+  beforeLoad({ context }) {
+    const { user } = context
+
+    if (user.isAnonymous) {
+      throw redirect({
+        to: '/',
+      })
+    }
+  },
   component: RouteComponent,
   pendingComponent: PendingArchive,
   loader: async () => {

@@ -5,6 +5,7 @@ import { username, anonymous } from 'better-auth/plugins'
 import db from '#/lib/db'
 import * as schema from '#/lib/db/schema'
 import { generateUsername } from 'unique-username-generator'
+import { eq } from 'drizzle-orm'
 
 const auth = betterAuth({
   advanced: {
@@ -24,6 +25,16 @@ const auth = betterAuth({
   plugins: [
     anonymous({
       emailDomainName: 'guest.com',
+      onLinkAccount: async ({ anonymousUser, newUser }) => {
+        console.log('anon', anonymousUser)
+        console.log('new', newUser)
+        await db
+          .update(schema.gameAttempts)
+          .set({
+            userId: newUser.user.id,
+          })
+          .where(eq(schema.gameAttempts.userId, anonymousUser.user.id))
+      },
       generateName() {
         const createdUserName = generateUsername('-', 0, 20)
         return createdUserName

@@ -3,16 +3,16 @@ import { Route } from '#/routes/_authenticated'
 import { Anchor, Flex, Text, Title } from '@mantine/core'
 import Button from '../ui/button'
 
-const StatsBody = () => {
+const AchieveBlock = () => {
   const { user } = Route.useRouteContext()
   const isGuest = user.isAnonymous
   const username = user.username
 
   return isGuest ? (
     <Flex direction="column" align={'center'} gap={'lg'}>
-      <Title size={'xl'}>Track your stats and view badges</Title>
+      <Title size={'xl'}>Checkout other daily games from the past.</Title>
       <Text size="lg">
-        Access your Film CC badges, win percentage and more with a free account.
+        Create an account for free to play previous daily games!
       </Text>
       <Anchor href="/signup">
         <Button>Create a free account</Button>
@@ -23,13 +23,12 @@ const StatsBody = () => {
   )
 }
 
-const ModalStatistics = () => {
+const ModalAchieveBlock = () => {
   return modals.open({
-    title: 'Statistics',
     centered: true,
-    children: <StatsBody />,
+    children: <AchieveBlock />,
     onClose() {},
   })
 }
 
-export default ModalStatistics
+export default ModalAchieveBlock

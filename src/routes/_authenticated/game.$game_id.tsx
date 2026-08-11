@@ -77,15 +77,18 @@ export const Route = createFileRoute('/_authenticated/game/$game_id')({
 
 function RouteComponent() {
   const controllerInformation = Route.useLoaderData()
+  const { user } = Route.useRouteContext()
+  const isAnon = user.isAnonymous
   const start = controllerInformation.start
   const end = controllerInformation.end
 
   const { state, data, actions, stats } = useGame(controllerInformation)
+  const status = state.status
 
   return (
     <React.Suspense>
       <Modal
-        opened={state.status === 'failed'}
+        opened={status === 'failed'}
         withCloseButton={false}
 
         onClose={() => {
@@ -98,13 +101,19 @@ function RouteComponent() {
         <h2>You cannot make any other moves.</h2>
 
         <div className="w-full grid grid-cols-2 gap-2">
-          <Link to={'/archive'} className="w-full">
-            <Button>Check out Archieve</Button>
-          </Link>
+          {isAnon ? (
+            <Link to={'/signup'} className="w-full">
+              <Button>Sign up to play more</Button>
+            </Link>
+          ) : (
+            <Link to={'/archive'} className="w-full">
+              <Button>Check out Archieve</Button>
+            </Link>
+          )}
         </div>
       </Modal>
       <Modal
-        opened={state.status === 'started'}
+        opened={status === 'started'}
         withCloseButton={false}
         onClose={() => {
           return false

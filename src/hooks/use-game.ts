@@ -33,7 +33,6 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
 
   const attemptQuery = useSuspenseQuery(gameAttemptOption(dailyGameId))
   const picks = usePicks(dailyGameId)
-  console.log(picks)
 
   const attempt = attemptQuery.data
   if (!attempt) {

@@ -9,12 +9,13 @@ import {
   gameMoves as gameMovesLog,
 } from '../db/schema'
 
-const postCreateRandomDaily = createServerFn({ method: 'GET' }).handler(
+const postCreateRandomDaily = createServerFn({ method: 'POST' }).handler(
   async () => {
     try {
       return createRandomDaily()
     } catch (error) {
       console.error(error)
+      return null
     }
   },
 )

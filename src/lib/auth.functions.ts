@@ -9,6 +9,8 @@ const getSession = createServerFn({ method: 'GET' }).handler(async () => {
   return session
 })
 
+type ReturnGetSession = NonNullable<Awaited<ReturnType<typeof getSession>>>
+
 const ensureSession = createServerFn({ method: 'GET' }).handler(async () => {
   const headers = getRequestHeaders()
   const session = await auth.api.getSession({ headers })
@@ -40,7 +42,7 @@ const signInAnon = createServerFn({ method: 'POST' }).handler(async () => {
     throw new Error('Something wrong happened')
   }
 
-  return signInRes.user
+  return signInRes.user as unknown as ReturnGetSession['user']
 })
 
 export { getSession, ensureSession, signOut, signInAnon }
