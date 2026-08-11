@@ -8,6 +8,7 @@ import {
   gameAttempts,
   gameMoves as gameMovesLog,
 } from '../db/schema'
+import { gameDateString } from '#/jobs/date'
 
 const postCreateRandomDaily = createServerFn({ method: 'GET' }).handler(
   async () => {
@@ -21,7 +22,9 @@ const postCreateRandomDaily = createServerFn({ method: 'GET' }).handler(
 
 const getLatestDailyGame = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const today = new Date().toDateString()
+    // `display_date` is a postgres `date`, so it compares as 'YYYY-MM-DD'.
+    // toDateString() ('Wed Aug 05 2026') could never match.
+    const today = gameDateString()
 
     const todayGameData = await db.query.dailyGames.findFirst({
       where: {
