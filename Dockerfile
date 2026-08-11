@@ -22,9 +22,6 @@ FROM node:lts-alpine
 WORKDIR /src
 
 COPY --from=build /src/.output ./.output
-# Bundled cron entrypoints (src/jobs/entry/*). One image serves both the web
-# service and the cron service; they differ only by start command.
-COPY --from=build /src/dist ./dist
 COPY --from=build /src/package.json ./
 
 EXPOSE 3000

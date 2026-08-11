@@ -31,7 +31,7 @@ export const enumEntityType = pgEnum('entity_type', ['MOVIE', 'PERSON'])
 export const enumLinkType = pgEnum('link_type', ['CAST', 'CREW'])
 
 export const dailyGames = pgTable('daily_games', {
-  id: integer('id').generatedByDefaultAsIdentity().primaryKey(),
+  id: integer('id').unique().primaryKey(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),
