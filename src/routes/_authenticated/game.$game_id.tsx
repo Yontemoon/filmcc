@@ -198,6 +198,7 @@ function RouteComponent() {
                 changeController={actions.changeController}
                 query={data.credits}
                 bodyData={data.bodyData}
+                end={end}
               />
             </div>
           </>

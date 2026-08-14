@@ -2,7 +2,7 @@ import React from 'react'
 import Spinner from '#/components/ui/spinner'
 import type { TReturnReformatTable } from './utils'
 import { movieRowToMove, personRowToMove } from './utils'
-import type { TMove } from '#/types/client.types'
+import type { TController, TMove } from '#/types/client.types'
 import PosterImage from '#/components/poster/poster'
 import type { TReturnUseCredits } from '#/hooks/use-credits'
 import { Text, Title, Grid, Group, Badge } from '@mantine/core'
@@ -15,9 +15,10 @@ type PropTypes = {
   query: TReturnUseCredits
   changeController: (move: TMove) => void
   bodyData: TReturnReformatTable
+  end: TController
 }
 
-const MainBody = ({ query, changeController, bodyData }: PropTypes) => {
+const MainBody = ({ query, changeController, bodyData, end }: PropTypes) => {
   const { isLoading, error, data } = query
 
   return (
@@ -33,6 +34,7 @@ const MainBody = ({ query, changeController, bodyData }: PropTypes) => {
           details={data}
           memoData={bodyData}
           changeController={changeController}
+          end={end}
         />
       )}
       {bodyData?.type === 'PERSON' && data?.type === 'PERSON' && (
@@ -40,6 +42,7 @@ const MainBody = ({ query, changeController, bodyData }: PropTypes) => {
           details={data}
           memoData={bodyData}
           changeController={changeController}
+          end={end}
         />
       )}
     </div>
@@ -50,11 +53,13 @@ type GridLayoutProps = {
   memoData: TReturnReformatTable
   changeController: (move: TMove) => void
   details: TReturnUseCredits['data']
+  end: TController
 }
 const GridLayout = ({
   memoData,
   changeController,
   details,
+  end,
 }: GridLayoutProps) => {
   const combinedLength = memoData?.combined.length
 
@@ -77,7 +82,8 @@ const GridLayout = ({
               curr.person_type === 'crew' ? curr.release_date : curr.date
             const added = curr.already_added
 
-            const disabled = added || !curr.can_be_picked
+            const isEndPoint = end.id === curr.id && end.type === memoData.type
+            const disabled = !isEndPoint && (added || !curr.can_be_picked)
             const jobs =
               curr.person_type === 'crew' ? [...new Set(curr.jobs)] : []
             return (
@@ -157,7 +163,9 @@ const GridLayout = ({
             const meta =
               TRACKER_META[person.person_type === 'cast' ? 'CAST' : 'CREW']
 
-            const disabled = already_added || !can_be_picked
+            const isEndPoint =
+              end.id === person.id && end.type === memoData.type
+            const disabled = !isEndPoint && (already_added || !can_be_picked)
             const blockedReason = already_added
               ? 'Used'
               : can_be_picked
