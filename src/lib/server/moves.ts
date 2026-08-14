@@ -15,7 +15,7 @@ const getMoves = createServerFn({ method: 'POST' })
           entity: true,
         },
       })
-      console.log(data)
+
       return data
     } catch (error) {
       console.error(error)

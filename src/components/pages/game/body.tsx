@@ -47,9 +47,9 @@ const MainBody = ({ query, changeController, bodyData }: PropTypes) => {
 }
 
 type GridLayoutProps = {
-  details: TReturnUseCredits['data']
   memoData: TReturnReformatTable
   changeController: (move: TMove) => void
+  details: TReturnUseCredits['data']
 }
 const GridLayout = ({
   memoData,
