@@ -74,6 +74,7 @@ const getUserGameId = createServerFn({ method: 'GET' })
             entityType: dailyGame.start.type,
             userId: userDetails.id,
             moveIndex: 0,
+            isStart: true,
           })
 
           const newGameAttempt = tx.query.gameAttempts.findFirst({
@@ -220,6 +221,15 @@ const updateUserStatusGameId = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const { status, gameId, message } = data
     switch (status) {
+      case 'in_progress':
+        await db
+          .update(gameAttempts)
+          .set({
+            status: status,
+            startedAt: sql`NOW()`,
+          })
+          .where(eq(gameAttempts.id, gameId))
+        break
       case 'started':
         await db
           .update(gameAttempts)
@@ -270,5 +280,30 @@ const updateUserStatusGameId = createServerFn({ method: 'POST' })
     }
   })
 
-export { getUserGameId, getUserGames, addUserGameId, updateUserStatusGameId }
+const updateGameHint = createServerFn({ method: 'POST' })
+  .middleware([guardAuthMiddlware])
+  .handler(async ({ context }) => {
+    try {
+      const { userDetails } = context
+      const userId = userDetails.id
+      await db
+        .update(gameAttempts)
+        .set({
+          useEndGameHint: true,
+        })
+        .where(eq(gameAttempts.id, userId))
+      return { success: true, message: null }
+    } catch (error) {
+      console.error(error)
+      return { success: false, error: 'Updateing game hint failed.' }
+    }
+  })
+
+export {
+  getUserGameId,
+  getUserGames,
+  addUserGameId,
+  updateUserStatusGameId,
+  updateGameHint,
+}
 export type { ReturnGetUserGameId }

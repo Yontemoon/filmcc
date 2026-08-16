@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import db from '../db'
 import { guardAuthMiddlware } from './middleware/auth'
 
-const getMoves = createServerFn({ method: 'POST' })
+const getMoves = createServerFn({ method: 'GET' })
   .middleware([guardAuthMiddlware])
   .handler(async ({ context }) => {
     try {

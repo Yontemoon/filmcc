@@ -1,5 +1,5 @@
 import type { TController } from '#/types/client.types'
-import { Group, Text, Badge, Divider, Flex, Stack } from '@mantine/core'
+import { Group, Text, Badge, Divider, Flex, Stack, Button } from '@mantine/core'
 import PosterImage from '#/components/poster/poster'
 import ProfileImage from '#/components/profile-image'
 import PointTracker from './point-tracker'
@@ -10,6 +10,7 @@ import OpenPersonImageExpand from '#/components/modals/image-expand'
 import { TMDB_IMAGE_POSTER_URL_EXPAND } from '#/lib/constants'
 import ModalGameHistory from '#/components/modals/game-history'
 import type { TReturnUsePicks } from '#/hooks/use-picks'
+import type { TReturnUseGame } from '#/hooks/use-game'
 
 type HistoryItem = ReturnGetUserGameId['gameMovesLog'][0]
 
@@ -19,6 +20,7 @@ type PropTypes = {
   history: ReturnGetUserGameId['gameMovesLog']
   moves: number
   picks: TReturnUsePicks
+  giveUp: TReturnUseGame['actions']['gaveUpGame']
 }
 
 const Endpoint = ({
@@ -127,7 +129,7 @@ const CurrentImage = ({ current }: { current: HistoryItem }) => {
   }
 }
 
-const Header = ({ start, end, history, moves, picks }: PropTypes) => {
+const Header = ({ start, end, history, moves, picks, giveUp }: PropTypes) => {
   const current = history.length > 0 ? history[history.length - 1] : null
   return (
     <div className={classes.headerSticky} id="header">
@@ -197,6 +199,18 @@ const Header = ({ start, end, history, moves, picks }: PropTypes) => {
                 />
               </Stack>
             </Flex>
+            <Button
+              size="xs"
+              variant="outline"
+              onClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+
+                giveUp()
+              }}
+            >
+              Give Up
+            </Button>
           </Group>
         </Group>
       </Paper>

@@ -3,7 +3,7 @@ import classes from './auth.module.css'
 import { TextInput, PasswordInput } from '#/components/ui/input'
 import Checkbox from '#/components/ui/checkbox'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { signIn, signUp } from '#/lib/auth-client'
+import { signIn, signUp, useSession, signOut } from '#/lib/auth-client'
 import { useForm, isEmail, hasLength, matchesField } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 
@@ -14,6 +14,7 @@ interface SignInInt {
 }
 
 const SigninComp = () => {
+  const session = useSession()
   const form = useForm<SignInInt>({
     mode: 'uncontrolled',
     initialValues: {
@@ -28,6 +29,10 @@ const SigninComp = () => {
 
   const handleSignIn = async (values: SignInInt) => {
     try {
+      if (session.data?.user.isAnonymous) {
+        await signOut()
+      }
+
       const { error } = await signIn.email({
         email: values.email,
         password: values.password,

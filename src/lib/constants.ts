@@ -17,7 +17,7 @@ const FILTERED_CREW_TYPES = [
   'Director of Photography',
   'Editor',
   'Original Music Composer',
-]
+] as const
 
 const MAX_CAST_CREDITS = 15
 
@@ -60,3 +60,7 @@ export {
   ENTITY_TYPE,
   LINK_TYPE,
 }
+
+// const TFilterCrew = FILTERED_CREW_TYPES as const
+
+export type {}

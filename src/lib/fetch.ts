@@ -1,5 +1,4 @@
 import type {
-  T_TMDB_CREW,
   T_TMDB_MOVIE_CREDITS,
   T_TMDB_MOVIE_DETAILS,
   T_TMDB_PERSON_CREDITS,
@@ -41,20 +40,16 @@ const getSearchTmdbPerson = async (query: string) => {
   return data.results
 }
 
-const filterCrewCredits = <
-  T extends T_TMDB_CREW | T_TMDB_PERSON_CREDITS['crew'][0],
->(
-  crew: Array<T>,
-) => {
-  return crew.filter((movie) => FILTERED_CREW_TYPES.includes(movie.job))
+const filterCrewCredits = <T extends { job: string }>(crew: Array<T>) => {
+  return crew.filter(
+    (movie): movie is T & { job: (typeof FILTERED_CREW_TYPES)[number] } =>
+      FILTERED_CREW_TYPES.includes(
+        movie.job as (typeof FILTERED_CREW_TYPES)[number],
+      ),
+  )
 }
 
-const getTmdbMovie = async (
-  movieId: number,
-): Promise<{
-  movieDetails: T_TMDB_MOVIE_DETAILS
-  movieCredits: T_TMDB_MOVIE_CREDITS
-}> => {
+const getTmdbMovie = async (movieId: number) => {
   const [movieDetails, movieCredits] = await Promise.all([
     tmdbFetch<T_TMDB_MOVIE_DETAILS>(`/movie/${movieId}?language=en-US`),
     tmdbFetch<T_TMDB_MOVIE_CREDITS>(
@@ -92,12 +87,13 @@ const getTmdbPerson = async (personId: number) => {
   })
 
   const fileredCrewCredits = filterCrewCredits(personCredits.crew)
-  personCredits.cast = filteredPersonCredits
-  personCredits.crew = fileredCrewCredits
 
   return {
     personDetails,
-    personCredits,
+    personCredits: {
+      cast: filteredPersonCredits,
+      crew: fileredCrewCredits,
+    },
   }
 }
 

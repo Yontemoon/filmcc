@@ -68,9 +68,9 @@ export const Route = createFileRoute('/_authenticated/game/$game_id')({
   },
   pendingComponent: () => {
     return (
-      <div className="flex justify-center">
+      <Flex justify={'center'} align={'center'} h={'100%'}>
         <Spinner />
-      </div>
+      </Flex>
     )
   },
 })
@@ -176,6 +176,19 @@ function RouteComponent() {
           </Button>
         </div>
       </Modal>
+      <Modal
+        opened={status === 'gave_up'}
+        title={'You gave up :('}
+        centered
+        withCloseButton={false}
+        onClose={() => {
+          return false
+        }}
+      >
+        <Link to={'/archive'}>
+          <Button>Go to Achieves</Button>
+        </Link>
+      </Modal>
       <div className="mx-auto max-w-200 h-full flex flex-col px-2 relative overflow-hidden">
         {state.status === 'completed' ? (
           <CompletedGame />
@@ -188,6 +201,7 @@ function RouteComponent() {
                 history={data.history}
                 moves={stats.moves}
                 picks={data.picks}
+                giveUp={actions.gaveUpGame}
               />
             </div>
             <div

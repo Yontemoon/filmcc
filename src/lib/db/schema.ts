@@ -69,9 +69,9 @@ export const gameAttempts = pgTable(
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
-
     startedAt: timestamp('started_at', { withTimezone: true }),
     message: text('message'),
+    useEndGameHint: boolean('use_end_game_hint').default(false),
   },
   (t) => [
     uniqueIndex('one_attempt_per_user_game').on(t.gameId, t.userId),
@@ -114,6 +114,7 @@ export const gameMoves = pgTable(
     entityId: integer('entity_id').notNull(),
     roleName: text('role_name'), // Ex. 'Batman' if 'Acting' roleType
     roleType: text('role_type'), // 'Acting' | crew job
+    isStart: boolean('is_start').default(false).notNull(),
     isGoal: boolean('is_goal').default(false).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true })
       .defaultNow()

@@ -1,7 +1,7 @@
 import React from 'react'
 import Spinner from '#/components/ui/spinner'
 import type { TReturnReformatTable } from './utils'
-import { movieRowToMove, personRowToMove } from './utils'
+import { displayCrew, movieRowToMove, personRowToMove } from './utils'
 import type { TController, TMove } from '#/types/client.types'
 import PosterImage from '#/components/poster/poster'
 import type { TReturnUseCredits } from '#/hooks/use-credits'
@@ -82,7 +82,7 @@ const GridLayout = ({
               curr.person_type === 'crew' ? curr.release_date : curr.date
             const added = curr.already_added
 
-            const isEndPoint = end.id === curr.id && end.type === memoData.type
+            const isEndPoint = end.id === curr.id
             const disabled = !isEndPoint && (added || !curr.can_be_picked)
             const jobs =
               curr.person_type === 'crew' ? [...new Set(curr.jobs)] : []
@@ -147,7 +147,7 @@ const GridLayout = ({
                       size="xs"
                       title={jobs.join(', ')}
                     >
-                      {jobs.join(', ')}
+                      {jobs.map((job) => displayCrew(job)).join(', ')}
                     </Text>
                   )}
                 </div>
@@ -163,8 +163,8 @@ const GridLayout = ({
             const meta =
               TRACKER_META[person.person_type === 'cast' ? 'CAST' : 'CREW']
 
-            const isEndPoint =
-              end.id === person.id && end.type === memoData.type
+            const isEndPoint = end.id === person.id
+
             const disabled = !isEndPoint && (already_added || !can_be_picked)
             const blockedReason = already_added
               ? 'Used'
@@ -253,7 +253,9 @@ const GridLayout = ({
                       className={classes.movieInfo}
                       title={person.jobs.join(', ')}
                     >
-                      {[...new Set(person.jobs)].join(', ')}
+                      {[
+                        ...new Set(person.jobs.map((job) => displayCrew(job))),
+                      ].join(', ')}
                     </Text>
                   )}
                 </div>

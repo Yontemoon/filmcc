@@ -1,3 +1,5 @@
+import type { FILTERED_CREW_TYPES } from '#/lib/constants'
+
 interface T_TMDB_MOVIE_CREDITS {
   id: number
   cast: T_TMDB_CAST[]
@@ -64,7 +66,7 @@ interface T_TMDB_CREW {
   profile_path: string
   credit_id: string
   department: string
-  job: string
+  job: (typeof FILTERED_CREW_TYPES)[number] | (string & {})
 }
 
 interface T_TMDB_MOVIE_DETAILS {

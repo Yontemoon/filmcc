@@ -28,6 +28,7 @@ const auth = betterAuth({
       onLinkAccount: async ({ anonymousUser, newUser }) => {
         console.log('anon', anonymousUser)
         console.log('new', newUser)
+
         await db
           .update(schema.gameAttempts)
           .set({

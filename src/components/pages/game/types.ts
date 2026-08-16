@@ -1,3 +1,5 @@
+import type { FILTERED_CREW_TYPES } from '#/lib/constants'
+
 type TMovieCastCol = {
   id: number
   name: string
@@ -12,9 +14,9 @@ type TMovieCrewCol = {
   id: number
   name: string
   department: string
-  job: string
+  job: (typeof FILTERED_CREW_TYPES)[number]
   profile_url: string
-  jobs: string[]
+  jobs: (typeof FILTERED_CREW_TYPES)[number][]
   already_added: boolean
   person_type: 'crew'
   can_be_picked: boolean
@@ -36,9 +38,9 @@ type TPersonCrewCol = {
   release_date: string | null
   title: string
   poster_url: string
-  job: string
+  job: (typeof FILTERED_CREW_TYPES)[number]
   department: string
-  jobs: string[]
+  jobs: (typeof FILTERED_CREW_TYPES)[number][]
   already_added: boolean
   person_type: 'crew'
   can_be_picked: boolean

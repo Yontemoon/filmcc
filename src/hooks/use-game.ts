@@ -135,6 +135,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
       const now = new Date()
 
       const optimisticMove: TMoveEntry = {
+        isStart: false,
         attemptId: move.attemptId,
         userId: previous.userId ?? '',
         moveIndex: previous.gameMovesLog.length,

@@ -1,5 +1,6 @@
 import type { TUseCreditsResults } from '#/hooks/hooks.types'
 import { FILTERED_CREW_TYPES } from '#/lib/constants'
+import type { FILTERED_CREW_TYPES as TFILTERED_CREW_TYPES } from '#/lib/constants'
 import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import type { TMove } from '#/types/client.types'
 import type {
@@ -253,5 +254,26 @@ const personRowToMove = (row: TPersonCastCol | TPersonCrewCol): TMove =>
         roleType: row.job,
       }
 
-export { reformatForTable, stuckReason, movieRowToMove, personRowToMove }
+const crewMapDisplay: Record<(typeof TFILTERED_CREW_TYPES)[number], string> = {
+  Director: 'Director',
+  Screenplay: 'Writer',
+  'Director of Photography': 'Cinematographer',
+  Editor: 'Editor',
+  'Original Music Composer': 'Composer',
+  Author: 'Writer',
+  Writer: 'Writer',
+}
+
+const displayCrew = (crewLabel: keyof typeof crewMapDisplay) => {
+  const display = crewMapDisplay[crewLabel]
+  return display
+}
+
+export {
+  reformatForTable,
+  stuckReason,
+  movieRowToMove,
+  personRowToMove,
+  displayCrew,
+}
 export type { TReturnReformatTable, TPickBudget, TStuckReason }
