@@ -11,12 +11,11 @@ import classes from './game-header.module.css'
 import Button from '../ui/button'
 import { Link } from '@tanstack/react-router'
 import ModalSetting from '../modals/settings'
-import ModalStatistics from '../modals/statistics'
 import ModalHowTo from '../modals/how-to'
 import ModalAchieveBlock from '../modals/achieve-block'
+import ModalStatsBlock from '../modals/stats-block'
 
 const links = [
-  { modalOpen: ModalStatistics, icon: <ChartBarBig /> },
   { modalOpen: ModalHowTo, icon: <CircleQuestionMark /> },
   { modalOpen: ModalSetting, icon: <Settings /> },
 ]
@@ -45,26 +44,42 @@ const GameHeader = () => {
         <div className={classes.rightInner}>
           <Group gap={'sm'}>
             {isGuest ? (
-              <ActionIcon
-                variant="transparent"
-                size="lg"
-                onClick={() => {
-                  ModalAchieveBlock()
-                }}
-              >
-                <Archive />
-              </ActionIcon>
+              <>
+                <ActionIcon
+                  variant="transparent"
+                  size="lg"
+                  onClick={() => {
+                    ModalAchieveBlock()
+                  }}
+                >
+                  <Archive />
+                </ActionIcon>
+                <ActionIcon
+                  variant="transparent"
+                  size="lg"
+                  onClick={() => {
+                    ModalStatsBlock()
+                  }}
+                >
+                  <ChartBarBig />
+                </ActionIcon>
+              </>
             ) : (
-              <Link to="/archive">
-                <Archive />
-              </Link>
+              <>
+                <Link to="/archive">
+                  <Archive />
+                </Link>
+                <Link to="/stats">
+                  <ChartBarBig />
+                </Link>
+              </>
             )}
             {items}
           </Group>
           {isGuest && (
-            <Button variant="outline">
-              <Link to="/signup">Sign Up</Link>
-            </Button>
+            <Link to="/signup">
+              <Button variant="outline">Sign Up</Button>
+            </Link>
           )}
         </div>
       </div>

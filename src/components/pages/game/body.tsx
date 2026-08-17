@@ -8,8 +8,8 @@ import type { TReturnUseCredits } from '#/hooks/use-credits'
 import { Text, Title, Grid, Group, Badge } from '@mantine/core'
 import { TRACKER_META } from './point-tracker'
 import { displayYear } from '#/lib/utils'
-import ColorSwatch from '#/components/ui/color-swatch/color-swatch'
 import classes from './game.module.css'
+import { useEntitiesProvider } from '#/provider/entites'
 
 type PropTypes = {
   query: TReturnUseCredits
@@ -21,6 +21,38 @@ type PropTypes = {
 const MainBody = ({ query, changeController, bodyData, end }: PropTypes) => {
   const { isLoading, error, data } = query
 
+  const { hideUsedEntities } = useEntitiesProvider()
+
+  const filteredEntites = React.useMemo(() => {
+    console.log('passing here', hideUsedEntities)
+    if (hideUsedEntities || !bodyData) {
+      // console.log(bodyData)
+      return bodyData
+    } else {
+      if (bodyData.type === 'MOVIE') {
+        const filter = bodyData.combined.filter((entity) => {
+          const isEndPoint = end.id === entity.id
+          const added = entity.already_added
+          const disabled = !isEndPoint && (added || !entity.can_be_picked)
+          return disabled === false
+        })
+
+        return { type: bodyData.type, combined: filter }
+      } else {
+        const filter = bodyData.combined.filter((entity) => {
+          const isEndPoint = end.id === entity.id
+          const added = entity.already_added
+          const disabled = !isEndPoint && (added || !entity.can_be_picked)
+          return disabled === false
+        })
+
+        return { type: 'PERSON' as const, combined: filter }
+      }
+    }
+  }, [hideUsedEntities, bodyData])
+
+  console.log(filteredEntites)
+
   return (
     <div className="mx-1">
       {isLoading && (
@@ -29,18 +61,18 @@ const MainBody = ({ query, changeController, bodyData, end }: PropTypes) => {
         </div>
       )}
       {error && <div>{error.message}</div>}
-      {bodyData?.type === 'MOVIE' && data?.type === 'MOVIE' && (
+      {filteredEntites?.type === 'MOVIE' && data?.type === 'MOVIE' && (
         <GridLayout
           details={data}
-          memoData={bodyData}
+          memoData={filteredEntites}
           changeController={changeController}
           end={end}
         />
       )}
-      {bodyData?.type === 'PERSON' && data?.type === 'PERSON' && (
+      {filteredEntites?.type === 'PERSON' && data?.type === 'PERSON' && (
         <GridLayout
           details={data}
-          memoData={bodyData}
+          memoData={filteredEntites}
           changeController={changeController}
           end={end}
         />
@@ -102,19 +134,6 @@ const GridLayout = ({
                     hd={true}
                     overlay={disabled}
                   />
-                  <Group className={classes.posterInfo}>
-                    {disabled ? (
-                      <ColorSwatch
-                        color="var(--mantine-color-red-5)"
-                        size={20}
-                      />
-                    ) : (
-                      <ColorSwatch
-                        color="var(--mantine-color-teal-5)"
-                        size={20}
-                      />
-                    )}
-                  </Group>
                 </div>
                 <div className={classes.movieInfo}>
                   <Text

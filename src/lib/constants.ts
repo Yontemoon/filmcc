@@ -44,6 +44,8 @@ const MAX_CAST_LINKS = 3
 const ENTITY_TYPE = ['MOVIE', 'PERSON']
 const LINK_TYPE = ['CAST', 'CREW']
 
+const LOCAL_STORAGE_ENTITY_KEY = 'hide_entity'
+
 export {
   TMDB_URL,
   POPULARITY_LIMIT,
@@ -59,8 +61,5 @@ export {
   MAX_CAST_CREDITS,
   ENTITY_TYPE,
   LINK_TYPE,
+  LOCAL_STORAGE_ENTITY_KEY,
 }
-
-// const TFilterCrew = FILTERED_CREW_TYPES as const
-
-export type {}
