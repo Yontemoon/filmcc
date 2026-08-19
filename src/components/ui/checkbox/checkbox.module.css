@@ -1,3 +1,16 @@
-.container {
-  border: 2px solid var(--mantine-color-dark-5);
+.input {
+  border: 2px solid var(--mantine-color-text);
+  background-color: var(--mantine-color-background);
+}
+
+input[type='checkbox']:checked {
+  color: var(--mantine-color-text);
+  background-color: var(--mantine-color-background);
+}
+
+.icon {
+  --checkbox-icon-color: var(--mantine-color-text);
+  & .mantine-Checkbox-icon {
+    color: var(--mantine-color-text);
+  }
 }

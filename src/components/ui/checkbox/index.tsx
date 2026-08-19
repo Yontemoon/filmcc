@@ -6,7 +6,9 @@ const Checkbox = ({ ...props }: CheckboxProps) => {
   return (
     <CheckboxMantine
       classNames={{
-        input: classes.container,
+        input: classes.input,
+
+        icon: classes.icon,
       }}
       {...props}
     />

@@ -11,7 +11,7 @@ import {
 } from '@mantine/core'
 import { Link } from '@tanstack/react-router'
 import { ArrowRight, Footprints, Lock, Trophy } from 'lucide-react'
-import Button from '#/components/ui/button'
+import Button from '#/components/ui/buttons/button'
 import type { TArchivedGame } from '#/lib/server/daily'
 import type { TController } from '#/types/client.types'
 import { formatDisplayDate } from '#/lib/utils'

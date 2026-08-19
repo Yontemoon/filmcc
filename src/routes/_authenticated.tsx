@@ -15,7 +15,7 @@ export const Route = createFileRoute('/_authenticated')({
     return { user: session.user }
   },
   component: () => (
-    <AppShell header={{ height: 60 }} zIndex={1000}>
+    <AppShell header={{ height: 60 }}>
       <AppShell.Header>
         <GameHeader />
       </AppShell.Header>

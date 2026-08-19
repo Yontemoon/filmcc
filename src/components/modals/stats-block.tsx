@@ -1,6 +1,6 @@
 import { modals } from '@mantine/modals'
 import { Anchor, Flex, Text, Title } from '@mantine/core'
-import Button from '../ui/button'
+import Button from '../ui/buttons/button'
 
 const StatsBlock = () => {
   return (

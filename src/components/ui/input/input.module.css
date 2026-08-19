@@ -1,3 +1,10 @@
-.input {
-  border: 2px solid var(--mantine-color-dark-5);
+.input-container {
+  border: 2px solid var(--mantine-color-text);
+  background-color: var(--mantine-color-body);
+}
+
+/* FOR PASSWORD INPUT */
+.input-container:focus-within {
+  outline: 2px dashed var(--mantine-primary-color-filled);
+  outline-offset: 2px;
 }

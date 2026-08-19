@@ -8,7 +8,7 @@ import {
   Archive,
 } from 'lucide-react'
 import classes from './game-header.module.css'
-import Button from '../ui/button'
+import Button from '../ui/buttons/button'
 import { Link } from '@tanstack/react-router'
 import ModalSetting from '../modals/settings'
 import ModalHowTo from '../modals/how-to'

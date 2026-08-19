@@ -5,12 +5,11 @@ const Button = ({
   children,
   ...props
 }: ButtonProps &
-  React.ComponentProps<'button'> & { children: React.ReactNode }) => {
-  return (
-    <MantineButton variant="filled" {...props}>
-      {children}
-    </MantineButton>
-  )
+  React.ComponentProps<typeof MantineButton> &
+  React.ComponentProps<'button'> & {
+    children: React.ReactNode
+  }) => {
+  return <MantineButton {...props}>{children}</MantineButton>
 }
 
 export default Button

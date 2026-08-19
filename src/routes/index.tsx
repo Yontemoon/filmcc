@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useRouterState } from '@tanstack/react-router'
 import { Flex, Text } from '@mantine/core'
-import Button from '#/components/ui/button'
+import Button from '#/components/ui/buttons/button'
 import { getSession } from '#/lib/auth.functions'
 
 export const Route = createFileRoute('/')({
@@ -57,10 +57,10 @@ function HomePage() {
           }}
         >
           <h1 className="text-6xl font-black ">Film CC</h1>
-          <div className="text-gray-500 text-2xl">
+          <Text size="lg">
             Test your knowledge of connecting movies and the people that created
             them.
-          </div>
+          </Text>
           <Flex direction={{ base: 'column', sm: 'row' }} gap={'md'} w={'100%'}>
             {!user && (
               <Link
@@ -71,7 +71,6 @@ function HomePage() {
                 }}
               >
                 <Button
-                  radius={'lg'}
                   size="lg"
                   variant="outline"
                   style={{
@@ -89,7 +88,6 @@ function HomePage() {
               }}
             >
               <Button
-                radius={'lg'}
                 size="lg"
                 variant="filled"
                 style={{

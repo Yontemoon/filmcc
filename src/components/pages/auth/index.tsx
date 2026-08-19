@@ -96,7 +96,7 @@ const SigninComp = () => {
 
           <Text ta="center" mt="md">
             Don&apos;t have an account?{' '}
-            <Anchor fw={500} component={Link} to="/signup">
+            <Anchor fw={500} component={Link} to="/signup" ml={'xs'}>
               Register
             </Anchor>
           </Text>
@@ -170,6 +170,7 @@ const SignUpComp = () => {
 
           <TextInput
             withAsterisk
+            // className="striped-active"
             label="Username"
             placeholder="Superman22"
             size="md"
@@ -215,7 +216,7 @@ const SignUpComp = () => {
           <Checkbox
             label="Keep me logged in"
             mt="xl"
-            size="md"
+            size="sm"
             key={form.key('keepLoggedIn')}
             {...form.getInputProps('keepLoggedIn', { type: 'checkbox' })}
           />
@@ -224,7 +225,6 @@ const SignUpComp = () => {
             fullWidth
             mt="xl"
             size="md"
-            radius="md"
             type="submit"
             loading={form.submitting}
           >
@@ -233,7 +233,7 @@ const SignUpComp = () => {
 
           <Text ta="center" mt="md">
             Have an account?{' '}
-            <Anchor fw={500} component={Link} to="/signin">
+            <Anchor fw={500} component={Link} to="/signin" ml="xs">
               Sign In
             </Anchor>
           </Text>

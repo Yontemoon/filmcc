@@ -2,7 +2,7 @@ import React from 'react'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import useGame from '#/hooks/use-game'
 import { Modal, Title, Text, Flex, Stack, Badge } from '@mantine/core'
-import Button from '#/components/ui/button'
+import Button from '#/components/ui/buttons/button'
 import type { TController } from '#/types/client.types'
 import Spinner from '#/components/ui/spinner'
 import Header from '#/components/pages/game/header'
@@ -13,6 +13,7 @@ import { gameAttemptOption, dailyGameOption } from '#/lib/options'
 import Poster from '#/components/poster/poster'
 import ModalHowTo from '#/components/modals/how-to'
 import { ArrowRight } from 'lucide-react'
+import { ButtonLink } from '#/components/ui/buttons'
 
 const USE_DEMO = false as boolean
 
@@ -100,15 +101,23 @@ function RouteComponent() {
       >
         <h2>You cannot make any other moves.</h2>
 
-        <div className="w-full grid grid-cols-2 gap-2">
+        <div className="w-full ">
           {isAnon ? (
-            <Link to={'/signup'} className="w-full">
-              <Button>Sign up to play more</Button>
-            </Link>
+            <ButtonLink
+              LinkProps={{
+                to: '/signup',
+              }}
+            >
+              Sign up to play more
+            </ButtonLink>
           ) : (
-            <Link to={'/archive'} className="w-full">
-              <Button>Check out Archieve</Button>
-            </Link>
+            <ButtonLink
+              LinkProps={{
+                to: '/archive',
+              }}
+            >
+              Check out Archieve
+            </ButtonLink>
           )}
         </div>
       </Modal>

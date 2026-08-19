@@ -1,7 +1,7 @@
 import { modals } from '@mantine/modals'
 import { Route } from '#/routes/_authenticated'
 import { Anchor, Flex, Text, Title } from '@mantine/core'
-import Button from '../ui/button'
+import Button from '../ui/buttons/button'
 
 const StatsBody = () => {
   const { user } = Route.useRouteContext()

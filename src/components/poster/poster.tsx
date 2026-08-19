@@ -61,12 +61,9 @@ const Poster = ({
           </svg>
         </div>
       ) : (
-        <div
-          className={`w-full h-full hover:cursor-pointer transition-opacity duration-200 z-1000 ${
-            isLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
+        <div className="striped-active" tabIndex={0}>
           <Image
+            // draggable={false}
             className={classes.posterImage}
             alt={`${altText}-${id}`}
             onLoad={() => setIsLoaded(true)}
@@ -80,7 +77,7 @@ const Poster = ({
         </div>
       )}
       {overlay && (
-        <Overlay backgroundOpacity={0.7} className={classes.overLay} />
+        <Overlay backgroundOpacity={0.6} className={classes.overLay} />
       )}
     </AspectRatio>
   )

@@ -1,6 +1,6 @@
 import { Container, Group } from '@mantine/core'
 import classes from './header.module.css'
-import Button from '#/components/ui/button'
+import Button from '#/components/ui/buttons/button'
 import { Link } from '@tanstack/react-router'
 import { Route } from '#/routes'
 

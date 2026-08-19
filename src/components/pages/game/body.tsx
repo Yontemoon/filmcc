@@ -24,9 +24,7 @@ const MainBody = ({ query, changeController, bodyData, end }: PropTypes) => {
   const { hideUsedEntities } = useEntitiesProvider()
 
   const filteredEntites = React.useMemo(() => {
-    console.log('passing here', hideUsedEntities)
     if (hideUsedEntities || !bodyData) {
-      // console.log(bodyData)
       return bodyData
     } else {
       if (bodyData.type === 'MOVIE') {
@@ -50,8 +48,6 @@ const MainBody = ({ query, changeController, bodyData, end }: PropTypes) => {
       }
     }
   }, [hideUsedEntities, bodyData])
-
-  console.log(filteredEntites)
 
   return (
     <div className="mx-1">

@@ -1,74 +1,6 @@
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 
-:root {
-  --sea-ink: #173a40;
-  --sea-ink-soft: #416166;
-  --lagoon: #4fb8b2;
-  --lagoon-deep: #328f97;
-  --palm: #2f6a4a;
-  --sand: #e7f0e8;
-  --foam: #f3faf5;
-  --surface: rgba(255, 255, 255, 0.74);
-  --surface-strong: rgba(255, 255, 255, 0.9);
-  --line: rgba(23, 58, 64, 0.14);
-  --inset-glint: rgba(255, 255, 255, 0.82);
-  --kicker: rgba(47, 106, 74, 0.9);
-  --bg-base: #e7f3ec;
-  --header-bg: rgba(251, 255, 248, 0.84);
-  --chip-bg: rgba(255, 255, 255, 0.8);
-  --chip-line: rgba(47, 106, 74, 0.18);
-  --link-bg-hover: rgba(255, 255, 255, 0.9);
-  --hero-a: rgba(79, 184, 178, 0.36);
-  --hero-b: rgba(47, 106, 74, 0.2);
-}
-
-:root[data-theme='dark'] {
-  --sea-ink: #d7ece8;
-  --sea-ink-soft: #afcdc8;
-  --lagoon: #60d7cf;
-  --lagoon-deep: #8de5db;
-  --palm: #6ec89a;
-  --sand: #0f1a1e;
-  --foam: #101d22;
-  --surface: rgba(16, 30, 34, 0.8);
-  --surface-strong: rgba(15, 27, 31, 0.92);
-  --line: rgba(141, 229, 219, 0.18);
-  --inset-glint: rgba(194, 247, 238, 0.14);
-  --kicker: #b8efe5;
-  --bg-base: #0a1418;
-  --header-bg: rgba(10, 20, 24, 0.8);
-  --chip-bg: rgba(13, 28, 32, 0.9);
-  --chip-line: rgba(141, 229, 219, 0.24);
-  --link-bg-hover: rgba(24, 44, 49, 0.8);
-  --hero-a: rgba(96, 215, 207, 0.18);
-  --hero-b: rgba(110, 200, 154, 0.12);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --sea-ink: #d7ece8;
-    --sea-ink-soft: #afcdc8;
-    --lagoon: #60d7cf;
-    --lagoon-deep: #8de5db;
-    --palm: #6ec89a;
-    --sand: #0f1a1e;
-    --foam: #101d22;
-    --surface: rgba(16, 30, 34, 0.8);
-    --surface-strong: rgba(15, 27, 31, 0.92);
-    --line: rgba(141, 229, 219, 0.18);
-    --inset-glint: rgba(194, 247, 238, 0.14);
-    --kicker: #b8efe5;
-    --bg-base: #0a1418;
-    --header-bg: rgba(10, 20, 24, 0.8);
-    --chip-bg: rgba(13, 28, 32, 0.9);
-    --chip-line: rgba(141, 229, 219, 0.24);
-    --link-bg-hover: rgba(24, 44, 49, 0.8);
-    --hero-a: rgba(96, 215, 207, 0.18);
-    --hero-b: rgba(110, 200, 154, 0.12);
-  }
-}
-
 * {
   box-sizing: border-box;
 }
@@ -122,3 +54,54 @@
 .imageExpandHeader {
   display: none;
 }
+
+/* Striped/Dashed Outline Utility */
+/* the wrapper needs a box of its own, otherwise there is nothing to outline */
+.striped-active {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* :active = while the pointer is held down.
+   :focus = after a click, and stays until focus moves elsewhere.
+   Needs tabindex="0" on the element, otherwise a div can never take focus.
+   Use :focus, NOT :focus-visible — the latter ignores mouse clicks. */
+.striped-active:active,
+.striped-active:focus {
+  outline: 3px dashed var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+  position: relative;
+  z-index: 10;
+}
+
+input:focus-visible,
+button:focus-visible,
+a:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus,
+input:focus,
+button:focus,
+textarea:focus,
+select:focus {
+  outline: 2px dashed var(--mantine-primary-color-filled) !important;
+  outline-offset: 2px !important;
+}
+
+::selection {
+  background-color: var(--mantine-color-text);
+  color: var(--mantine-color-body);
+}
+/* 
+input[type='checkbox']:checked {
+  accent-color: black !important;
+  color: var(--mantine-color-text);
+  background-color: var(--mantine-color-background);
+} */
+
+/* input {
+  icon: {
+    color: black;
+  }
+} */

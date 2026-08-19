@@ -5,10 +5,6 @@
   position: relative;
 }
 
-.imageLift:hover {
-  transform: translateY(-4px);
-}
-
 .movieInfo {
   text-overflow: ellipsis;
   white-space: nowrap;

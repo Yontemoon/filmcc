@@ -18,7 +18,7 @@ import {
 } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
 import { Clapperboard, Search, SearchX } from 'lucide-react'
-import Button from '#/components/ui/button'
+import Button from '#/components/ui/buttons/button'
 import GameCard from '#/components/pages/archive/game-card'
 import {
   FILTER_OPTIONS,
