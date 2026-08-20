@@ -7,7 +7,10 @@ import Paper from '#/components/ui/paper/paper'
 import classes from './game.module.css'
 import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import OpenPersonImageExpand from '#/components/modals/image-expand'
-import { TMDB_IMAGE_POSTER_URL_EXPAND } from '#/lib/constants'
+import {
+  TMDB_IMAGE_POSTER_URL_EXPAND,
+  TMDB_IMAGE_PROFILE_URL_EXPAND,
+} from '#/lib/constants'
 import ModalGameHistory from '#/components/modals/game-history'
 import type { TReturnUsePicks } from '#/hooks/use-picks'
 import type { TReturnUseGame } from '#/hooks/use-game'
@@ -102,7 +105,7 @@ const CurrentImage = ({ current }: { current: HistoryItem }) => {
   if (current.entityType === 'MOVIE') {
     const expandedProfileUrl = current.entity?.imgPath
       ? `${TMDB_IMAGE_POSTER_URL_EXPAND}${current.entity.imgPath}`
-      : ''
+      : `${TMDB_IMAGE_PROFILE_URL_EXPAND}${current.entity?.imgPath}`
 
     return (
       <div className="h-12 w-9">
@@ -120,9 +123,16 @@ const CurrentImage = ({ current }: { current: HistoryItem }) => {
   } else {
     return (
       <div className="h-12 w-9">
-        <ProfileImage
-          profilePath={current.entity?.imgPath}
-          creditId={current.entityId}
+        <PosterImage
+          posterPath={current.entity?.imgPath}
+          id={current.entityId.toString()}
+          onClick={(e) => {
+            e.stopPropagation()
+            OpenPersonImageExpand(
+              true,
+              `${TMDB_IMAGE_PROFILE_URL_EXPAND}${current.entity?.imgPath}`,
+            )
+          }}
         />
       </div>
     )
@@ -133,7 +143,7 @@ const Header = ({ start, end, history, moves, picks, giveUp }: PropTypes) => {
   const current = history.length > 0 ? history[history.length - 1] : null
   return (
     <div className={classes.headerSticky} id="header">
-      <Paper withBorder radius="lg" p="sm" mb="xs" shadow="xs">
+      <Paper withBorder radius="sm" p="sm" mb="xs">
         <Group wrap="nowrap" gap="xs" align="center">
           <div style={{ flex: '0 1 auto', minWidth: 0 }}>
             <Endpoint kicker="From" controller={start} variant="origin" />

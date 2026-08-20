@@ -1,8 +1,7 @@
 import { modals } from '@mantine/modals'
 import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 
-import PosterImage from '#/components/poster/poster'
-import ProfileImage from '#/components/profile-image'
+import Poster from '#/components/poster/poster'
 import { ScrollArea, Text } from '@mantine/core'
 
 import { TMDB_IMAGE_POSTER_URL_EXPAND } from '#/lib/constants'
@@ -11,16 +10,19 @@ import type { TlinkType } from '#/types/client.types'
 
 const GameHistory = ({
   history,
+  centered = true,
 }: {
   history: ReturnGetUserGameId['gameMovesLog']
+  centered?: boolean
 }) => {
-  return <History history={history} />
+  return <History history={history} centered={centered} />
 }
 
 type HistoryItem = ReturnGetUserGameId['gameMovesLog'][0]
 
 type PropTypes = {
   history: ReturnGetUserGameId['gameMovesLog']
+  centered?: boolean
 }
 
 const connectionLabel = (item: HistoryItem) => {
@@ -99,7 +101,7 @@ const Node = ({
       </Text>
       {item.entityType === 'MOVIE' ? (
         <div className="h-36 w-24">
-          <PosterImage
+          <Poster
             onClick={(e) => {
               e.stopPropagation()
               OpenPersonImageExpand(true, expandedProfileUrl)
@@ -110,9 +112,13 @@ const Node = ({
         </div>
       ) : (
         <div className="h-36 w-24">
-          <ProfileImage
-            profilePath={item.entity?.imgPath}
-            creditId={`${item.entityId}-${indx}`}
+          <Poster
+            posterPath={item.entity?.imgPath}
+            id={`${item.entityId}-${indx}`}
+            onClick={(e) => {
+              e.stopPropagation()
+              OpenPersonImageExpand(true, expandedProfileUrl)
+            }}
           />
         </div>
       )}
@@ -123,10 +129,14 @@ const Node = ({
   )
 }
 
-const History = ({ history }: PropTypes) => {
+const History = ({ history, centered = true }: PropTypes) => {
   const lastIdx = history.length - 1
   return (
-    <div className="flex h-full items-center gap-0 px-2 flex-col-reverse justify-center">
+    <div
+      className={`flex items-center gap-0 px-2 flex-col-reverse ${
+        centered ? 'h-full justify-center' : 'py-2'
+      }`}
+    >
       {history.map((curr, indx) => (
         <div
           key={`${curr.moveIndex}-${indx}`}
@@ -157,3 +167,4 @@ const ModalGameHistory = (history: ReturnGetUserGameId['gameMovesLog']) => {
 }
 
 export default ModalGameHistory
+export { GameHistory }

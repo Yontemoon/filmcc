@@ -1,7 +1,7 @@
 import React from 'react'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import useGame from '#/hooks/use-game'
-import { Modal, Title, Text, Flex, Stack, Badge } from '@mantine/core'
+import { Modal, Text, Flex, Stack, Badge } from '@mantine/core'
 import Button from '#/components/ui/buttons/button'
 import type { TController } from '#/types/client.types'
 import Spinner from '#/components/ui/spinner'
@@ -12,10 +12,13 @@ import { signInAnon, getSession } from '#/lib/auth.functions'
 import { gameAttemptOption, dailyGameOption } from '#/lib/options'
 import Poster from '#/components/poster/poster'
 import ModalHowTo from '#/components/modals/how-to'
+import EndScreen from '#/components/pages/game/end-screen'
+import type { TEndStatus } from '#/components/pages/game/end-screen'
 import { ArrowRight } from 'lucide-react'
-import { ButtonLink } from '#/components/ui/buttons'
 
 const USE_DEMO = false as boolean
+
+const END_STATUSES: Array<TEndStatus> = ['completed', 'failed', 'gave_up']
 
 export const Route = createFileRoute('/_authenticated/game/$game_id')({
   component: RouteComponent,
@@ -79,48 +82,18 @@ export const Route = createFileRoute('/_authenticated/game/$game_id')({
 function RouteComponent() {
   const controllerInformation = Route.useLoaderData()
   const { user } = Route.useRouteContext()
-  const isAnon = user.isAnonymous
+  const isAnon = user.isAnonymous ?? false
   const start = controllerInformation.start
   const end = controllerInformation.end
 
   const { state, data, actions, stats } = useGame(controllerInformation)
   const status = state.status
+  const endStatus = END_STATUSES.includes(status as TEndStatus)
+    ? (status as TEndStatus)
+    : null
 
   return (
     <React.Suspense>
-      <Modal
-        opened={status === 'failed'}
-        withCloseButton={false}
-
-        onClose={() => {
-          return false
-        }}
-
-        centered
-        title={'You have failed!'}
-      >
-        <h2>You cannot make any other moves.</h2>
-
-        <div className="w-full ">
-          {isAnon ? (
-            <ButtonLink
-              LinkProps={{
-                to: '/signup',
-              }}
-            >
-              Sign up to play more
-            </ButtonLink>
-          ) : (
-            <ButtonLink
-              LinkProps={{
-                to: '/archive',
-              }}
-            >
-              Check out Archieve
-            </ButtonLink>
-          )}
-        </div>
-      </Modal>
       <Modal
         opened={status === 'started'}
         withCloseButton={false}
@@ -185,22 +158,18 @@ function RouteComponent() {
           </Button>
         </div>
       </Modal>
-      <Modal
-        opened={status === 'gave_up'}
-        title={'You gave up :('}
-        centered
-        withCloseButton={false}
-        onClose={() => {
-          return false
-        }}
-      >
-        <Link to={'/archive'}>
-          <Button>Go to Achieves</Button>
-        </Link>
-      </Modal>
       <div className="mx-auto max-w-200 h-full flex flex-col px-2 relative overflow-hidden">
-        {state.status === 'completed' ? (
-          <CompletedGame />
+        {endStatus ? (
+          <EndScreen
+            status={endStatus}
+            isAnon={isAnon}
+            start={start}
+            end={end}
+            history={data.history}
+            moves={stats.moves}
+            picks={data.picks}
+            stuckReason={state.stuckReason}
+          />
         ) : (
           <>
             <div className="shrink-0 pt-1">
@@ -228,32 +197,5 @@ function RouteComponent() {
         )}
       </div>
     </React.Suspense>
-  )
-}
-
-const CompletedGame = () => {
-  const context = Route.useRouteContext()
-  const { session } = context
-  const guest = session.isAnonymous
-  return (
-    guest && (
-      <Flex
-        w={'100%'}
-        direction={'column'}
-        m={'sm'}
-        align={'center'}
-        justify={'center'}
-        h={'100%'}
-        gap={'md'}
-      >
-        <Title>You have completed the game</Title>
-        <Text size="lg">Display stats</Text>
-        <Text size="md">Looks like you played your one game as a guest</Text>
-        <Text>Sign up to keep playing!</Text>
-        <Link to={'/signup'}>
-          <Button>Sign Up</Button>
-        </Link>
-      </Flex>
-    )
   )
 }

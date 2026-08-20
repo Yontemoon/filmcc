@@ -1,6 +1,14 @@
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 
+:root {
+  --mantine-color-body: #f5f5f5 !important;
+}
+
+:root[data-mantine-color-scheme='dark'] {
+  --mantine-color-body: #232324 !important;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -66,10 +74,14 @@
 /* :active = while the pointer is held down.
    :focus = after a click, and stays until focus moves elsewhere.
    Needs tabindex="0" on the element, otherwise a div can never take focus.
-   Use :focus, NOT :focus-visible — the latter ignores mouse clicks. */
+   Use :focus, NOT :focus-visible — the latter ignores mouse clicks.
+   outline-offset must stay NEGATIVE: an outline paints outside the border box,
+   and this wrapper fills its container exactly, so an ancestor with
+   overflow: hidden (e.g. .imageLift on the poster tiles) clips the whole ring. */
 .striped-active:active,
+.striped-active:focus-visible,
 .striped-active:focus {
-  outline: 3px dashed var(--mantine-primary-color-filled);
+  outline: 2px dashed var(--mantine-primary-color-filled);
   outline-offset: 2px;
   position: relative;
   z-index: 10;
@@ -92,16 +104,6 @@ select:focus {
 ::selection {
   background-color: var(--mantine-color-text);
   color: var(--mantine-color-body);
+  position: relative;
+  z-index: 10;
 }
-/* 
-input[type='checkbox']:checked {
-  accent-color: black !important;
-  color: var(--mantine-color-text);
-  background-color: var(--mantine-color-background);
-} */
-
-/* input {
-  icon: {
-    color: black;
-  }
-} */

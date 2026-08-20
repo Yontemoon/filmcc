@@ -63,7 +63,6 @@ const Poster = ({
       ) : (
         <div className="striped-active" tabIndex={0}>
           <Image
-            // draggable={false}
             className={classes.posterImage}
             alt={`${altText}-${id}`}
             onLoad={() => setIsLoaded(true)}

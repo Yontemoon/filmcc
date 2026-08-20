@@ -3,7 +3,7 @@ import Spinner from '#/components/ui/spinner'
 import type { TReturnReformatTable } from './utils'
 import { displayCrew, movieRowToMove, personRowToMove } from './utils'
 import type { TController, TMove } from '#/types/client.types'
-import PosterImage from '#/components/poster/poster'
+import Poster from '#/components/poster/poster'
 import type { TReturnUseCredits } from '#/hooks/use-credits'
 import { Text, Title, Grid, Group, Badge } from '@mantine/core'
 import { TRACKER_META } from './point-tracker'
@@ -99,7 +99,7 @@ const GridLayout = ({
           : details?.details.name}{' '}
         ({combinedLength})
       </Title>
-      <Grid>
+      <Grid gap={'lg'}>
         {memoData?.type === 'PERSON' &&
           memoData.combined.map((curr) => {
             const id = curr.id
@@ -123,7 +123,7 @@ const GridLayout = ({
                     changeController(personRowToMove(curr))
                   }}
                 >
-                  <PosterImage
+                  <Poster
                     posterPath={posterUrl}
                     id={id.toString()}
                     showExpand={false}
@@ -208,7 +208,7 @@ const GridLayout = ({
                     changeController(movieRowToMove(person))
                   }}
                 >
-                  <PosterImage
+                  <Poster
                     posterPath={profile_url}
                     id={id.toString()}
                     showExpand={false}

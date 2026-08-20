@@ -1,7 +1,4 @@
 .imageLift {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow: hidden;
-  will-change: transform;
   position: relative;
 }
 
@@ -18,7 +15,6 @@
   cursor: not-allowed;
 }
 
-/* Must follow .imageLift:hover — equal specificity, so source order wins. */
 .personDisabled:hover {
   transform: none;
 }
@@ -30,8 +26,6 @@
   right: 5px;
 }
 
-/* Journey hierarchy: the target is the thing you're hunting, so it carries the
-   visual weight. The start is where you've already been — it recedes. */
 .startFrame {
   border-radius: var(--mantine-radius-sm);
   overflow: hidden;
