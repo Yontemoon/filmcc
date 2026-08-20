@@ -6,7 +6,7 @@ import type {
   TPersonCrewCol,
 } from './types'
 import ProfileImage from '#/components/profile-image'
-import PosterImage from '#/components/poster/poster'
+import Poster from '#/components/poster/poster'
 import Badge from '#/components/ui/badge'
 import { displayYear } from '#/lib/utils'
 import { Group, Scroller, Text } from '@mantine/core'
@@ -106,7 +106,8 @@ const personCastCol: ColumnDef<TPersonCastCol>[] = [
     cell: ({ row, table }) => {
       const onClickName = table.options.meta?.onClickName
       return (
-        <PosterImage
+        <Poster
+          type="person"
           onClick={() => {
             if (onClickName) onClickName(row.original)
           }}
@@ -172,7 +173,8 @@ const personCrewCol: ColumnDef<TPersonCrewCol>[] = [
     cell: ({ row, table }) => {
       const onClickName = table.options.meta?.onClickName
       return (
-        <PosterImage
+        <Poster
+          type="person"
           onClick={() => {
             if (onClickName) onClickName(row.original)
           }}

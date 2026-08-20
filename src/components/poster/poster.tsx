@@ -3,13 +3,15 @@ import type { ComponentProps } from 'react'
 import {
   TMDB_IMAGE_POSTER_URL,
   TMDB_IMAGE_POSTER_URL_EXPAND,
+  TMDB_IMAGE_PROFILE_URL_EXPAND,
 } from '#/lib/constants'
 import { AspectRatio, Overlay, Image } from '@mantine/core'
-
+import { preload } from 'react-dom'
 import classes from './poster.module.css'
 
 type PosterImageProps = {
   posterPath: string | null | undefined
+  type: 'movie' | 'person'
   id: number | string
   showExpand?: boolean
   altText?: string
@@ -21,6 +23,7 @@ type PosterImageProps = {
 const Poster = ({
   posterPath,
   id,
+  type,
   showExpand = true,
   altText = 'Movie poster',
   className = 'w-10 h-15',
@@ -28,9 +31,10 @@ const Poster = ({
   overlay = false,
   ...props
 }: PosterImageProps) => {
-  const expandedProfileUrl = posterPath
-    ? `${TMDB_IMAGE_POSTER_URL_EXPAND}${posterPath}`
-    : ''
+  const expandedProfileUrl =
+    type === 'movie'
+      ? `${TMDB_IMAGE_POSTER_URL_EXPAND}${posterPath}`
+      : `${TMDB_IMAGE_PROFILE_URL_EXPAND}${posterPath}`
 
   const [hasError, setHasError] = React.useState(false)
   const [isLoaded, setIsLoaded] = React.useState(false)
@@ -38,6 +42,9 @@ const Poster = ({
 
   return (
     <AspectRatio
+      onMouseEnter={() => {
+        preload(expandedProfileUrl, { as: 'image' })
+      }}
       ratio={2 / 3}
       opacity={isLoaded || showFallback ? 1 : 0}
       {...props}

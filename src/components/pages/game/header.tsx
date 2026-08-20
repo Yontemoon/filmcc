@@ -1,6 +1,6 @@
 import type { TController } from '#/types/client.types'
 import { Group, Text, Badge, Divider, Flex, Stack, Button } from '@mantine/core'
-import PosterImage from '#/components/poster/poster'
+import Poster from '#/components/poster/poster'
 import ProfileImage from '#/components/profile-image'
 import PointTracker from './point-tracker'
 import Paper from '#/components/ui/paper/paper'
@@ -57,11 +57,12 @@ const Endpoint = ({
     >
       {controller.type === 'MOVIE' ? (
         <div className={frame}>
-          <PosterImage
+          <Poster
             onClick={(e) => {
               e.stopPropagation()
               OpenPersonImageExpand(true, expandedProfileUrl)
             }}
+            type="movie"
             posterPath={controller.img_path}
             id={controller.id.toString()}
             altText={`${controller.img_path}-${controller.id}`}
@@ -102,14 +103,15 @@ const Endpoint = ({
 }
 
 const CurrentImage = ({ current }: { current: HistoryItem }) => {
-  if (current.entityType === 'MOVIE') {
-    const expandedProfileUrl = current.entity?.imgPath
-      ? `${TMDB_IMAGE_POSTER_URL_EXPAND}${current.entity.imgPath}`
+  const expandedProfileUrl =
+    current.entityType === 'MOVIE'
+      ? `${TMDB_IMAGE_POSTER_URL_EXPAND}${current.entity?.imgPath}`
       : `${TMDB_IMAGE_PROFILE_URL_EXPAND}${current.entity?.imgPath}`
-
+  if (current.entityType === 'MOVIE') {
     return (
       <div className="h-12 w-9">
-        <PosterImage
+        <Poster
+          type="movie"
           onClick={(e) => {
             e.stopPropagation()
             OpenPersonImageExpand(true, expandedProfileUrl)
@@ -123,7 +125,8 @@ const CurrentImage = ({ current }: { current: HistoryItem }) => {
   } else {
     return (
       <div className="h-12 w-9">
-        <PosterImage
+        <Poster
+          type="person"
           posterPath={current.entity?.imgPath}
           id={current.entityId.toString()}
           onClick={(e) => {

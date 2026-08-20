@@ -117,7 +117,11 @@ function RouteComponent() {
               Start
             </Badge>
             <div className="h-36 w-24">
-              <Poster id={start.id.toString()} posterPath={start.img_path} />
+              <Poster
+                id={start.id.toString()}
+                posterPath={start.img_path}
+                type="movie"
+              />
             </div>
             <Text>{start.label}</Text>
           </Stack>
@@ -129,7 +133,11 @@ function RouteComponent() {
               Finish
             </Badge>
             <div className="h-36 w-24">
-              <Poster id={end.id.toString()} posterPath={end.img_path} />
+              <Poster
+                id={end.id.toString()}
+                posterPath={end.img_path}
+                type="person"
+              />
             </div>
             <Text>{end.label}</Text>
           </Stack>

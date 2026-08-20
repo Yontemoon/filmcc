@@ -1,6 +1,5 @@
 import { modals } from '@mantine/modals'
 import type { ReturnGetUserGameId } from '#/lib/server/attempt'
-
 import Poster from '#/components/poster/poster'
 import { ScrollArea, Text } from '@mantine/core'
 
@@ -102,6 +101,7 @@ const Node = ({
       {item.entityType === 'MOVIE' ? (
         <div className="h-36 w-24">
           <Poster
+            type="movie"
             onClick={(e) => {
               e.stopPropagation()
               OpenPersonImageExpand(true, expandedProfileUrl)
@@ -113,6 +113,7 @@ const Node = ({
       ) : (
         <div className="h-36 w-24">
           <Poster
+            type="person"
             posterPath={item.entity?.imgPath}
             id={`${item.entityId}-${indx}`}
             onClick={(e) => {

@@ -16,7 +16,7 @@ import {
   UserRound,
   Ban,
 } from 'lucide-react'
-import PosterImage from '#/components/poster/poster'
+import Poster from '#/components/poster/poster'
 import PointTracker, {
   TRACKER_META,
 } from '#/components/pages/game/point-tracker'
@@ -109,7 +109,8 @@ const Step = ({ step }: { step: ExampleStep }) => {
 
       {step.type === 'MOVIE' ? (
         <div className="h-15 w-10">
-          <PosterImage
+          <Poster
+            type="movie"
             posterPath={step.img_path}
             id={step.id.toString()}
             showExpand={false}

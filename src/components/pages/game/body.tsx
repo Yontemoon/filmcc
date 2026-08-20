@@ -124,6 +124,7 @@ const GridLayout = ({
                   }}
                 >
                   <Poster
+                    type="person"
                     posterPath={posterUrl}
                     id={id.toString()}
                     showExpand={false}
@@ -209,6 +210,7 @@ const GridLayout = ({
                   }}
                 >
                   <Poster
+                    type="movie"
                     posterPath={profile_url}
                     id={id.toString()}
                     showExpand={false}

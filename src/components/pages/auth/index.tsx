@@ -3,18 +3,36 @@ import classes from './auth.module.css'
 import { TextInput, PasswordInput } from '#/components/ui/input'
 import Checkbox from '#/components/ui/checkbox'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { signIn, signUp, useSession, signOut } from '#/lib/auth-client'
+import { signIn, signUp } from '#/lib/auth-client'
 import { useForm, isEmail, hasLength, matchesField } from '@mantine/form'
+import type { UseFormReturnType } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
+import { authFailure, thrownFailure } from '#/lib/auth-errors'
+import type { TAuthFailure } from '#/lib/auth-errors'
 
-interface SignInInt {
+const reportFailure = <T extends Record<string, unknown>>(
+  form: UseFormReturnType<T>,
+  title: string,
+  failure: TAuthFailure,
+) => {
+  if (failure.field && failure.field in form.getValues()) {
+    form.setFieldError(failure.field, failure.message)
+  }
+
+  notifications.show({
+    title,
+    message: failure.message,
+    color: 'red',
+  })
+}
+
+type SignInInt = {
   email: string
   password: string
   rememberMe: boolean
 }
 
 const SigninComp = () => {
-  const session = useSession()
   const form = useForm<SignInInt>({
     mode: 'uncontrolled',
     initialValues: {
@@ -27,28 +45,35 @@ const SigninComp = () => {
     },
   })
 
+  const navigate = useNavigate()
+
   const handleSignIn = async (values: SignInInt) => {
     try {
-      if (session.data?.user.isAnonymous) {
-        await signOut()
-      }
-
+      // Signing in on top of the anonymous session is deliberate: the anonymous
+      // plugin only links this game's attempts to the real account while that
+      // session is still live, and a failed attempt leaves the guest untouched.
       const { error } = await signIn.email({
         email: values.email,
         password: values.password,
         rememberMe: values.rememberMe,
-        callbackURL: '/dashboard',
       })
 
       if (error) {
-        notifications.show({
-          message: error.message,
-        })
-
-        throw new Error(error.message)
+        console.error('[Error Signing In]: ', error)
+        reportFailure(form, 'Sign in failed', authFailure(error))
+        return
       }
+
+      notifications.show({
+        title: 'Welcome back!',
+        message: 'You are signed in.',
+        color: 'teal',
+      })
+
+      await navigate({ to: '/' })
     } catch (error) {
       console.error('[Error Signing In]: ', error)
+      reportFailure(form, 'Sign in failed', thrownFailure(error))
     }
   }
   return (
@@ -81,7 +106,7 @@ const SigninComp = () => {
             mt="xl"
             size="sm"
             key={form.key('rememberMe')}
-            {...form.getInputProps('rememberMe')}
+            {...form.getInputProps('rememberMe', { type: 'checkbox' })}
           />
           <Button
             fullWidth
@@ -138,25 +163,32 @@ const SignUpComp = () => {
 
   const handleAccountCreation = async (values: SigninForm) => {
     try {
-      const response = await signUp.email({
+      const { error } = await signUp.email({
         email: values.email,
-
         name: values.username,
         password: values.password,
         username: values.username,
         displayUsername: values.username,
       })
 
-      if (response.error) {
-        console.error(response.error)
-        throw new Error(response.error.message)
+      if (error) {
+        console.error('[Error Creating Account]: ', error)
+        reportFailure(form, 'Could not create your account', authFailure(error))
+        return
       }
 
-      navigate({
+      notifications.show({
+        title: 'Account created',
+        message: 'Your guest progress has been saved to your account.',
+        color: 'teal',
+      })
+
+      await navigate({
         to: '/archive',
       })
     } catch (error) {
-      console.error('Account creation failed:', error)
+      console.error('[Error Creating Account]: ', error)
+      reportFailure(form, 'Could not create your account', thrownFailure(error))
     }
   }
 
