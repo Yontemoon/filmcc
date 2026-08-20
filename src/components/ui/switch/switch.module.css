@@ -1,0 +1,24 @@
+.track {
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease;
+
+  input:checked + & {
+    background-color: var(--mantine-color-teal-6);
+    border-color: var(--mantine-color-teal-6);
+
+    & > .thumb {
+      background-color: var(--mantine-primary-color-filled);
+
+      &::before {
+        background-color: var(--mantine-primary-color-filled);
+      }
+    }
+  }
+}
+
+input:focus-visible + .track.track,
+input:focus + .track.track {
+  outline: 2px dashed var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}

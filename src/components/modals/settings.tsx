@@ -5,10 +5,10 @@ import {
   Group,
   Text,
   Flex,
-  Switch,
   Divider,
 } from '@mantine/core'
 import Button from '../ui/buttons/button'
+import Switch from '../ui/switch/switch'
 import { signOut } from '#/lib/auth-client'
 import { Route } from '#/routes/_authenticated'
 import { useEntitiesProvider } from '#/provider/entites'
