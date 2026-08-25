@@ -7,13 +7,16 @@ import {
 } from '#/lib/constants'
 import { AspectRatio, Overlay, Image } from '@mantine/core'
 import { preload } from 'react-dom'
+import ImageExpandModal from '../modals/image-expand'
 import classes from './poster.module.css'
 
 type PosterImageProps = {
   posterPath: string | null | undefined
+  toggleImageExpand?: boolean
   type: 'movie' | 'person'
   id: number | string
   showExpand?: boolean
+  stripedActive?: boolean
   altText?: string
   className?: string
   hd?: boolean
@@ -24,7 +27,9 @@ const Poster = ({
   posterPath,
   id,
   type,
+  toggleImageExpand = true,
   showExpand = true,
+  stripedActive = true,
   altText = 'Movie poster',
   className = 'w-10 h-15',
   hd = false,
@@ -68,7 +73,16 @@ const Poster = ({
           </svg>
         </div>
       ) : (
-        <div className="striped-active" tabIndex={0}>
+        <div
+          className={`${stripedActive ? `${classes.imageExpand} striped-active` : ''}`}
+          tabIndex={0}
+          onClick={(e) => {
+            if (toggleImageExpand) {
+              e.stopPropagation()
+              ImageExpandModal(false, expandedProfileUrl)
+            }
+          }}
+        >
           <Image
             className={classes.posterImage}
             alt={`${altText}-${id}`}

@@ -2,7 +2,8 @@
 @plugin "@tailwindcss/typography";
 
 :root {
-  --mantine-color-body: #f5f5f5 !important;
+  --text: #f5f5f5;
+  --mantine-color-body: var(--text) !important;
 }
 
 :root[data-mantine-color-scheme='dark'] {
@@ -16,42 +17,6 @@
 .page-wrap {
   width: min(1080px, calc(100% - 2rem));
   margin-inline: auto;
-}
-
-@keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translatex(-12px);
-  }
-  to {
-    opacity: 1;
-    transform: translatex(0);
-  }
-}
-
-@keyframes shake {
-  0% {
-    transform: translateX(0);
-  }
-  20% {
-    transform: translateX(-6px);
-  }
-  40% {
-    transform: translateX(6px);
-  }
-  60% {
-    transform: translateX(-6px);
-  }
-  80% {
-    transform: translateX(6px);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-.shake-element {
-  animation: shake 0.4s ease-in-out;
 }
 
 .imageExpandParent {

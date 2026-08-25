@@ -128,6 +128,8 @@ const GridLayout = ({
                     posterPath={posterUrl}
                     id={id.toString()}
                     showExpand={false}
+
+                    toggleImageExpand={false}
                     hd={true}
                     overlay={disabled}
                   />
@@ -214,6 +216,7 @@ const GridLayout = ({
                     posterPath={profile_url}
                     id={id.toString()}
                     showExpand={false}
+                    toggleImageExpand={false}
                     hd={true}
                     overlay={disabled}
                   />

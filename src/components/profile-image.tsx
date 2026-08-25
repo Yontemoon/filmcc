@@ -6,7 +6,7 @@ import {
 } from '#/lib/constants'
 import Paper from './ui/paper/paper'
 import { Image } from '@mantine/core'
-import OpenPersonImageExpand from './modals/image-expand'
+import ImageExpand from './modals/image-expand'
 
 type ProfileImageProps = {
   profilePath: string | null | undefined
@@ -59,7 +59,7 @@ const ProfileImage: React.FC<ProfileImageProps> = ({
             onError={() => setHasError(true)}
             onClick={(e) => {
               e.stopPropagation()
-              OpenPersonImageExpand(pathBool, expandedProfileUrl)
+              ImageExpand(pathBool, expandedProfileUrl)
             }}
           />
         </div>

@@ -121,6 +121,8 @@ function RouteComponent() {
                 id={start.id.toString()}
                 posterPath={start.img_path}
                 type="movie"
+                toggleImageExpand={false}
+                stripedActive={false}
               />
             </div>
             <Text>{start.label}</Text>
@@ -137,6 +139,8 @@ function RouteComponent() {
                 id={end.id.toString()}
                 posterPath={end.img_path}
                 type="person"
+                toggleImageExpand={false}
+                stripedActive={false}
               />
             </div>
             <Text>{end.label}</Text>

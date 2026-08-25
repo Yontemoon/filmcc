@@ -8,14 +8,7 @@ import {
   Text,
   ThemeIcon,
 } from '@mantine/core'
-import {
-  ArrowRight,
-  CalendarClock,
-  Clapperboard,
-  Ticket,
-  UserRound,
-  Ban,
-} from 'lucide-react'
+import { ArrowRight, Clapperboard, Ticket, UserRound } from 'lucide-react'
 import Poster from '#/components/poster/poster'
 import PointTracker, {
   TRACKER_META,
@@ -33,7 +26,6 @@ type ExampleStep = {
   label: string
   img_path: string
   kicker: string
-  via: string | null
   cost: TlinkType | null
 }
 
@@ -44,7 +36,6 @@ const EXAMPLE: ExampleStep[] = [
     label: 'The Dark Knight',
     img_path: '/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
     kicker: 'Start',
-    via: null,
     cost: null,
   },
   {
@@ -52,8 +43,7 @@ const EXAMPLE: ExampleStep[] = [
     type: 'PERSON',
     label: 'Michael Caine',
     img_path: '/bVZRMlpjTAO2pJK6v90buFgVbSW.jpg',
-    kicker: 'Move 1',
-    via: 'Alfred',
+    kicker: '',
     cost: 'CAST',
   },
   {
@@ -61,8 +51,7 @@ const EXAMPLE: ExampleStep[] = [
     type: 'MOVIE',
     label: 'Interstellar',
     img_path: '/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg',
-    kicker: 'Move 2',
-    via: 'He acted in it',
+    kicker: '',
     cost: null,
   },
   {
@@ -71,7 +60,6 @@ const EXAMPLE: ExampleStep[] = [
     label: 'Christopher Nolan',
     img_path: '/xuAIuYSmsUzKlUMBFGVZaWsY3DZ.jpg',
     kicker: 'Target',
-    via: 'Director',
     cost: 'CREW',
   },
 ]
@@ -93,49 +81,49 @@ const CostChip = ({ cost }: { cost: TlinkType | null }) => {
   )
 }
 
-const Step = ({ step }: { step: ExampleStep }) => {
-  const isEndpoint = step.via === null || step.kicker === 'Target'
-
-  return (
-    <Stack gap={4} align="center" w={84} style={{ flexShrink: 0 }}>
+const Step = ({ step, indx }: { step: ExampleStep; indx: number }) => (
+  <Stack gap={4} align="center" w={84} style={{ flexShrink: 0 }}>
+    {step.kicker ? (
       <Badge
         variant="light"
-        color={isEndpoint ? (step.via ? 'grape' : 'teal') : 'gray'}
+        color={step.kicker === 'Start' ? 'teal' : 'grape'}
         size="xs"
         radius="sm"
       >
         {step.kicker}
       </Badge>
+    ) : (
+      <div className="h-4.5" />
+    )}
 
-      {step.type === 'MOVIE' ? (
-        <div className="h-15 w-10">
-          <Poster
-            type="movie"
-            posterPath={step.img_path}
-            id={step.id.toString()}
-            showExpand={false}
-            altText={step.label}
-          />
-        </div>
-      ) : (
-        <Avatar
-          src={`${TMDB_IMAGE_PROFILE_URL}${step.img_path}`}
-          alt={step.label}
-          size={40}
-          radius="sm"
+    {step.type === 'MOVIE' ? (
+      <div className="h-15 w-10">
+        <Poster
+          type="movie"
+          posterPath={step.img_path}
+          id={step.id.toString()}
+          showExpand={false}
+          altText={step.label}
         />
-      )}
+      </div>
+    ) : (
+      <div className="h-15 w-10">
+        <Poster
+          type="person"
+          posterPath={step.img_path}
+          id={step.id.toString()}
+          showExpand={false}
+          altText={step.label}
+        />
+      </div>
+    )}
 
-      <Text size="xs" fw={700} ta="center" className="leading-tight">
-        {step.label}
-      </Text>
-      <Text size="10px" c="dimmed" ta="center" className="leading-tight">
-        {step.via ?? 'Where you begin'}
-      </Text>
-      {step.kicker !== 'Start' && <CostChip cost={step.cost} />}
-    </Stack>
-  )
-}
+    <Text size="xs" fw={700} ta="center" className="leading-tight">
+      {step.label}
+    </Text>
+    {indx > 0 && <CostChip cost={step.cost} />}
+  </Stack>
+)
 
 const Rule = ({
   icon,
@@ -158,63 +146,46 @@ const HowToBody = () => {
   return (
     <Stack gap="md">
       <Text size="sm">
-        Every day you get a <b>Start</b> and a <b>Target</b> — a film or a
-        person. Get from one to the other through shared credits. The catch: you
-        only get so many people to travel through.
+        Connect the <b>Start</b> to the <b>Target</b> through shared credits.
       </Text>
 
-      <div>
-        <Text size="xs" c="dimmed" fw={600} tt="uppercase" mb={6}>
-          Example — solved on one cast pick and one crew pick
-        </Text>
-        <Group
-          gap={4}
-          wrap="nowrap"
-          justify="center"
-          className="overflow-x-auto"
-        >
-          {EXAMPLE.map((step, indx) => (
-            <Group key={step.id} gap={4} wrap="nowrap">
-              {indx > 0 && (
-                <ThemeIcon variant="subtle" color="gray" size="sm">
-                  <ArrowRight />
-                </ThemeIcon>
-              )}
-              <Step step={step} />
-            </Group>
-          ))}
-        </Group>
-      </div>
+      <Group gap={4} wrap="nowrap" justify="center" className="overflow-x-auto">
+        {EXAMPLE.map((step, indx) => (
+          <Group key={step.id} gap={4} wrap="nowrap">
+            {indx > 0 && (
+              <ThemeIcon variant="subtle" color="gray" size="sm">
+                <ArrowRight />
+              </ThemeIcon>
+            )}
+            <Step step={step} indx={indx} />
+          </Group>
+        ))}
+      </Group>
 
       <Divider />
 
       <Stack gap="xs">
-        <Rule icon={<Clapperboard size={14} />}>
-          Standing on a <b>film</b>? Pick anyone from its cast or crew. This is
-          the move that costs you — an actor spends a <b>cast pick</b>, anyone
-          else spends a <b>crew pick</b>.
-        </Rule>
         <Rule icon={<UserRound size={14} />}>
-          Standing on a <b>person</b>? Pick any film they worked on. Film hops
-          are always <b>free</b>.
+          On a <b>person</b>: pick any film they worked on — <b>free</b>.
+        </Rule>
+        <Rule icon={<Clapperboard size={14} />}>
+          On a <b>film</b>: pick an actor (<b>cast pick</b>) or anyone else (
+          <b>crew pick</b>).
         </Rule>
         <Rule icon={<Ticket size={14} />}>
-          A run gives you <b>{MAX_CAST_LINKS} cast picks</b> and{' '}
-          <b>{MAX_CREW_LINKS} crew picks</b>. Crew are scarce but they travel
-          further — a director or composer links films that share no actors.
+          You get {MAX_CAST_LINKS} cast picks and {MAX_CREW_LINKS} crew picks.
+          No repeats.
         </Rule>
 
         <Group gap="lg" pl={30} py={2}>
           <PointTracker type="CAST" curr={0} max={MAX_CAST_LINKS} />
           <PointTracker type="CREW" curr={0} max={MAX_CREW_LINKS} />
         </Group>
-
-        <Rule icon={<Ban size={14} />}>No repeats.</Rule>
-        <Rule icon={<CalendarClock size={14} />}>
-          A new game drops daily at midnight. Sign up to get a reminder each
-          day.
-        </Rule>
       </Stack>
+
+      <Text size="xs" c="dimmed" ta="center">
+        New game daily at midnight.
+      </Text>
     </Stack>
   )
 }

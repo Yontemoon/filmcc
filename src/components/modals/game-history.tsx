@@ -3,8 +3,6 @@ import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import Poster from '#/components/poster/poster'
 import { ScrollArea, Text } from '@mantine/core'
 
-import { TMDB_IMAGE_POSTER_URL_EXPAND } from '#/lib/constants'
-import OpenPersonImageExpand from '#/components/modals/image-expand'
 import type { TlinkType } from '#/types/client.types'
 
 const GameHistory = ({
@@ -80,10 +78,6 @@ const Node = ({
   const isStart = indx === 0
   const title = item.entity?.label
 
-  const expandedProfileUrl = item.entity?.imgPath
-    ? `${TMDB_IMAGE_POSTER_URL_EXPAND}${item.entity.imgPath}`
-    : ''
-
   return (
     <div
       className="flex w-36 shrink-0 flex-col items-center gap-0.5"
@@ -102,10 +96,6 @@ const Node = ({
         <div className="h-36 w-24">
           <Poster
             type="movie"
-            onClick={(e) => {
-              e.stopPropagation()
-              OpenPersonImageExpand(true, expandedProfileUrl)
-            }}
             posterPath={item.entity?.imgPath}
             id={item.entityId.toString()}
           />
@@ -116,10 +106,6 @@ const Node = ({
             type="person"
             posterPath={item.entity?.imgPath}
             id={`${item.entityId}-${indx}`}
-            onClick={(e) => {
-              e.stopPropagation()
-              OpenPersonImageExpand(true, expandedProfileUrl)
-            }}
           />
         </div>
       )}

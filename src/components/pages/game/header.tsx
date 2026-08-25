@@ -79,7 +79,8 @@ const Endpoint = ({
 
       <div style={{ minWidth: 0, textAlign: isTarget ? 'right' : 'left' }}>
         <Badge
-          variant={isTarget ? 'filled' : 'transparent'}
+          variant="light"
+
           color={isTarget ? 'grape' : 'gray'}
           size="xs"
           radius="sm"

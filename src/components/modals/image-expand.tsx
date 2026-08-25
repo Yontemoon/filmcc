@@ -1,50 +1,72 @@
 import { modals } from '@mantine/modals'
-import { Paper, Image } from '@mantine/core'
+import { Image } from '@mantine/core'
 import useImgLoader from '#/hooks/use-img-loader'
+
+const MAX_HEIGHT = 'calc(100dvh - var(--modal-y-offset) * 2)'
+const MAX_WIDTH = 'calc(100vw - var(--modal-x-offset) * 2)'
+const MIN_WIDTH = `min(calc(17.5rem * var(--mantine-scale)), ${MAX_WIDTH})`
 
 type PropTypes = {
   init: boolean
   path: string
 }
 
-const PersonImageExpand = ({ init, path }: PropTypes) => {
+const ImageExpand = ({ init, path }: PropTypes) => {
   const { expandingLoading, handleOnLoad, imgRef } = useImgLoader({
     init,
     path,
   })
+
   return (
-    <Paper>
-      <Image
-        ref={imgRef}
-        onLoad={handleOnLoad}
-        className={`w-full h-full object-cover ${expandingLoading ? 'invisible' : ''}`}
-        alt={path}
-        src={path}
-      />
-    </Paper>
+    <Image
+      ref={imgRef}
+      onLoad={handleOnLoad}
+      className={expandingLoading ? 'invisible' : ''}
+      style={{
+        width: 'auto',
+        height: 'auto',
+        maxHeight: MAX_HEIGHT,
+
+        objectFit: 'contain',
+      }}
+      alt={path}
+      src={path}
+    />
   )
 }
 
-const OpenPersonImageExpand = (init: boolean, path: string) => {
+const ImageExpandModal = (init: boolean, path: string) => {
   return modals.open({
     centered: true,
+
     styles: {
       content: {
+        flex: '0 0 autopnp',
+        width: 'auto',
+        minWidth: MIN_WIDTH,
+        maxWidth: MAX_WIDTH,
+        maxHeight: MAX_HEIGHT,
         margin: 0,
         padding: 0,
-        border: '2px solid black',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'transparent',
       },
       body: {
         margin: 0,
         padding: 0,
-        border: '2px solid black',
+        overflow: 'hidden',
+        display: 'flex',
+        width: 'auto',
       },
       header: {
         display: 'none',
       },
     },
-    children: <PersonImageExpand init={init} path={path} />,
+    children: <ImageExpand init={init} path={path} />,
   })
 }
 
-export default OpenPersonImageExpand
+export default ImageExpandModal

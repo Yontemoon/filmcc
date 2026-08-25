@@ -91,7 +91,7 @@ const EndScreen = ({
             {blurb}
           </Text>
           <Group gap="xs" justify="center">
-            <Badge variant="light" color="gray" size="lg" radius="sm">
+            <Badge variant="light" color="teal" size="lg" radius="sm">
               {moves} moves
             </Badge>
             <Badge variant="light" color="blue" size="lg" radius="sm">
@@ -110,7 +110,6 @@ const EndScreen = ({
         className="shrink-0"
       />
 
-      {/* The chain scrolls here, so it opts out of its own centering. */}
       <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none">
         <GameHistory history={history} centered={false} />
       </div>

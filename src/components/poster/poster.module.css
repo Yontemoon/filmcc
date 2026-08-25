@@ -8,12 +8,11 @@
   object-fit: cover;
 }
 
-.posterImage:hover {
+.imageExpand:hover {
   cursor: pointer;
 }
 
 .overLay {
   overflow: hidden;
-
   border: var(--mantine-primary-color-filled);
 }
