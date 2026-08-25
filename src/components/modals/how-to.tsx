@@ -1,24 +1,12 @@
 import { modals } from '@mantine/modals'
-import {
-  Avatar,
-  Badge,
-  Divider,
-  Group,
-  Stack,
-  Text,
-  ThemeIcon,
-} from '@mantine/core'
+import { Badge, Divider, Group, Stack, Text, ThemeIcon } from '@mantine/core'
 import { ArrowRight, Clapperboard, Ticket, UserRound } from 'lucide-react'
 import Poster from '#/components/poster/poster'
 import PointTracker, {
   TRACKER_META,
 } from '#/components/pages/game/point-tracker'
 import type { TlinkType } from '#/types/client.types'
-import {
-  MAX_CAST_LINKS,
-  MAX_CREW_LINKS,
-  TMDB_IMAGE_PROFILE_URL,
-} from '#/lib/constants'
+import { MAX_CAST_LINKS, MAX_CREW_LINKS } from '#/lib/constants'
 
 type ExampleStep = {
   id: number

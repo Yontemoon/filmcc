@@ -35,12 +35,13 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
   const picks = usePicks(dailyGameId)
 
   const attempt = attemptQuery.data
+  console.log(attempt)
   if (!attempt) {
     throw new Error(`No game attempt found for daily game ${dailyGameId}`)
   }
 
   const history = attempt.gameMovesLog
-
+  console.log(history)
   const lastMove = history.at(-1)
   const lastEntity = lastMove?.entity
   if (!lastEntity) {

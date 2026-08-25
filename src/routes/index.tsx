@@ -1,7 +1,7 @@
-import { createFileRoute, Link, useRouterState } from '@tanstack/react-router'
-import { Flex, Text } from '@mantine/core'
-import Button from '#/components/ui/buttons/button'
+import { createFileRoute, useRouterState } from '@tanstack/react-router'
+import { Flex, Text, Title } from '@mantine/core'
 import { getSession } from '#/lib/auth.functions'
+import { ButtonLink } from '#/components/ui/buttons'
 
 export const Route = createFileRoute('/')({
   beforeLoad: async () => {
@@ -56,47 +56,36 @@ function HomePage() {
             textAlign: 'center',
           }}
         >
-          <h1 className="text-6xl font-black ">Film CC</h1>
+          <Title>Film CC</Title>
           <Text size="lg">
             Test your knowledge of connecting movies and the people that created
             them.
           </Text>
           <Flex direction={{ base: 'column', sm: 'row' }} gap={'md'} w={'100%'}>
             {!user && (
-              <Link
-                to="/signin"
-                style={{
-                  flex: 1,
-                  width: '100%',
-                }}
-              >
-                <Button
-                  size="lg"
-                  variant="outline"
-                  style={{
-                    width: '100%',
+              <>
+                <ButtonLink
+                  LinkProps={{
+                    to: '/signin',
+                    size: 'lg',
+                    variant: 'outline',
+                    fullWidth: true,
                   }}
                 >
                   Log in
-                </Button>
-              </Link>
+                </ButtonLink>
+              </>
             )}
-            <Link
-              to={'/game'}
-              style={{
-                flex: 1,
+            <ButtonLink
+              LinkProps={{
+                to: '/game',
+                size: 'lg',
+                variant: 'filled',
+                fullWidth: true,
               }}
             >
-              <Button
-                size="lg"
-                variant="filled"
-                style={{
-                  width: '100%',
-                }}
-              >
-                {isRouterLoading ? 'Loading...' : '  Play'}
-              </Button>
-            </Link>
+              {isRouterLoading ? 'Loading...' : '  Play'}
+            </ButtonLink>
           </Flex>
           <Flex direction={'column'} gap={'sm'} align={'center'}>
             <div>

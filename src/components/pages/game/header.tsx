@@ -14,6 +14,7 @@ import {
 import ModalGameHistory from '#/components/modals/game-history'
 import type { TReturnUsePicks } from '#/hooks/use-picks'
 import type { TReturnUseGame } from '#/hooks/use-game'
+import ModalConfirmGiveUp from '#/components/modals/confirm-give-up'
 
 type HistoryItem = ReturnGetUserGameId['gameMovesLog'][0]
 
@@ -219,8 +220,7 @@ const Header = ({ start, end, history, moves, picks, giveUp }: PropTypes) => {
               onClick={(e) => {
                 e.stopPropagation()
                 e.preventDefault()
-
-                giveUp()
+                ModalConfirmGiveUp(giveUp)
               }}
             >
               Give Up

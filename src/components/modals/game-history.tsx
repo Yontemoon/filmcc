@@ -2,7 +2,6 @@ import { modals } from '@mantine/modals'
 import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import Poster from '#/components/poster/poster'
 import { ScrollArea, Text } from '@mantine/core'
-
 import type { TlinkType } from '#/types/client.types'
 
 const GameHistory = ({

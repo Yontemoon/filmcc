@@ -1,7 +1,15 @@
 import React from 'react'
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import useGame from '#/hooks/use-game'
-import { Modal, Text, Flex, Stack, Badge } from '@mantine/core'
+import {
+  Modal,
+  Text,
+  Flex,
+  Stack,
+  Badge,
+  SimpleGrid,
+  Title,
+} from '@mantine/core'
 import Button from '#/components/ui/buttons/button'
 import type { TController } from '#/types/client.types'
 import Spinner from '#/components/ui/spinner'
@@ -14,7 +22,7 @@ import Poster from '#/components/poster/poster'
 import ModalHowTo from '#/components/modals/how-to'
 import EndScreen from '#/components/pages/game/end-screen'
 import type { TEndStatus } from '#/components/pages/game/end-screen'
-import { ArrowRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 const USE_DEMO = false as boolean
 
@@ -81,6 +89,7 @@ export const Route = createFileRoute('/_authenticated/game/$game_id')({
 
 function RouteComponent() {
   const controllerInformation = Route.useLoaderData()
+  const router = useRouter()
   const { user } = Route.useRouteContext()
   const isAnon = user.isAnonymous ?? false
   const start = controllerInformation.start
@@ -96,79 +105,70 @@ function RouteComponent() {
     <React.Suspense>
       <Modal
         opened={status === 'started'}
-        withCloseButton={false}
+        closeOnClickOutside={false}
         onClose={() => {
-          return false
+          router.history.back()
+        }}
+        closeButtonProps={{
+          icon: <ArrowLeft size={40} />,
         }}
         centered
-        title={'You are about to start!'}
       >
-        <h2>Are you ready?</h2>
+        <Stack align="center" w={'100%'}>
+          <Title order={2}>Are you ready?</Title>
 
-        <Flex
-          dir="row"
-          justify={'space-between'}
-          p={'lg'}
-          m={'lg'}
-          align={'center'}
-        >
-          <Stack align="center">
-            <Badge variant="light" color={'teal'} size="xs" radius="sm">
-              Start
-            </Badge>
-            <div className="h-36 w-24">
-              <Poster
-                id={start.id.toString()}
-                posterPath={start.img_path}
-                type="movie"
-                toggleImageExpand={false}
-                stripedActive={false}
-              />
-            </div>
-            <Text>{start.label}</Text>
-          </Stack>
-          <div className="flex items-center">
+          <Flex dir="row" justify={'space-between'} align={'center'}>
+            <Stack align="center">
+              <Badge variant="light" color={'teal'} size="xs" radius="sm">
+                Start
+              </Badge>
+              <div className="h-36 w-24">
+                <Poster
+                  id={start.id.toString()}
+                  posterPath={start.img_path}
+                  type="movie"
+                />
+              </div>
+              <Text>{start.label}</Text>
+            </Stack>
             <ArrowRight size={'45'} />
-          </div>
-          <Stack align="center">
-            <Badge variant="light" color={'grape'} size="xs" radius="sm">
-              Finish
-            </Badge>
-            <div className="h-36 w-24">
-              <Poster
-                id={end.id.toString()}
-                posterPath={end.img_path}
-                type="person"
-                toggleImageExpand={false}
-                stripedActive={false}
-              />
-            </div>
-            <Text>{end.label}</Text>
-          </Stack>
-        </Flex>
+            <Stack align="center">
+              <Badge variant="light" color={'grape'} size="xs" radius="sm">
+                Finish
+              </Badge>
+              <div className="h-36 w-24">
+                <Poster
+                  id={end.id.toString()}
+                  posterPath={end.img_path}
+                  type="person"
+                />
+              </div>
+              <Text size="md" style={{}}>
+                {end.label}
+              </Text>
+            </Stack>
+          </Flex>
 
-        <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <Button
-            className="w-full"
-            onClick={() => {
-              actions.startGame()
-            }}
-          >
-            I am ready!
-          </Button>
-          <Button
-            variant="transparent"
-            onClick={() => {
-              ModalHowTo()
-            }}
-          >
-            How to play
-          </Button>
-
-          <Button variant="filled" color="red">
-            <Link to={'/'}>Go back</Link>
-          </Button>
-        </div>
+          <SimpleGrid cols={{ base: 1, xs: 2 }} w={'100%'}>
+            <Button
+              data-autofocus
+              className="w-full"
+              onClick={() => {
+                actions.startGame()
+              }}
+            >
+              I am ready!
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                ModalHowTo()
+              }}
+            >
+              How to play
+            </Button>
+          </SimpleGrid>
+        </Stack>
       </Modal>
       <div className="mx-auto max-w-200 h-full flex flex-col px-2 relative overflow-hidden">
         {endStatus ? (

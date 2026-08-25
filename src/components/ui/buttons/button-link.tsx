@@ -1,30 +1,21 @@
 import React from 'react'
 import { Link } from '@tanstack/react-router'
 import { Button } from '@mantine/core'
-import type { ButtonProps } from '@mantine/core'
-import type { LinkProps } from '@tanstack/react-router'
-import classes from './button.module.css'
+import type { ButtonProps, ElementProps } from '@mantine/core'
+
+interface CustomButtonProps
+  extends ButtonProps, ElementProps<typeof Link, keyof ButtonProps> {}
 
 type ButtonLinkProps = {
   children: React.ReactNode
-  ButtonProps?: ButtonProps
-  LinkProps: LinkProps
+  LinkProps: CustomButtonProps
 }
 
-export const ButtonLink = ({
-  children,
-  ButtonProps,
-  LinkProps,
-}: ButtonLinkProps) => {
+export const ButtonLink = ({ children, LinkProps }: ButtonLinkProps) => {
   return (
-    <Button
-      {...ButtonProps}
-      renderRoot={(rootProps) => (
-        <Link className={classes.buttonLink} {...rootProps} {...LinkProps}>
-          {children}
-        </Link>
-      )}
-    />
+    <Button component={Link} {...LinkProps}>
+      {children}
+    </Button>
   )
 }
 
