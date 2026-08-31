@@ -16,7 +16,6 @@ import Spinner from '#/components/ui/spinner'
 import Header from '#/components/pages/game/header'
 import { DEMO } from '#/lib/constants'
 import MainBody from '#/components/pages/game/body'
-import { signInAnon, getSession } from '#/lib/auth.functions'
 import { gameAttemptOption, dailyGameOption } from '#/lib/options'
 import Poster from '#/components/poster/poster'
 import ModalHowTo from '#/components/modals/how-to'
@@ -37,7 +36,6 @@ export const Route = createFileRoute('/_authenticated/game/$game_id')({
     const game = await queryClient.ensureQueryData(
       dailyGameOption(Number(game_id)),
     )
-    const session = await getSession()
 
     if (!game) {
       redirect({
@@ -45,11 +43,7 @@ export const Route = createFileRoute('/_authenticated/game/$game_id')({
       })
     }
 
-    if (!session) {
-      const authSession = await signInAnon()
-      return { session: authSession, game: game ?? null }
-    }
-    return { session: session.user, game: game ?? null }
+    return { game: game ?? null }
   },
   loader: async ({ context, params }) => {
     const { game_id } = params
@@ -143,9 +137,7 @@ function RouteComponent() {
                   type="person"
                 />
               </div>
-              <Text size="md" style={{}}>
-                {end.label}
-              </Text>
+              <Text size="md">{end.label}</Text>
             </Stack>
           </Flex>
 

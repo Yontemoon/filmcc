@@ -6,7 +6,6 @@ export const relations = defineRelations(schema, (r) => ({
     sessions: r.many.session(),
     accounts: r.many.account(),
     gameAttempts: r.many.gameAttempts(),
-    gameMoves: r.many.gameMoves(),
   },
   session: {
     user: r.one.user({
@@ -39,7 +38,6 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.gameMoves.attemptId,
       to: r.gameAttempts.id,
     }),
-    user: r.one.user({ from: r.gameMoves.userId, to: r.user.id }),
     entity: r.one.entities({
       from: [r.gameMoves.entityType, r.gameMoves.entityId],
       to: [r.entities.entityType, r.entities.entityId],

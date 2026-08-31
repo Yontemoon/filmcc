@@ -26,8 +26,15 @@ const auth = betterAuth({
     anonymous({
       emailDomainName: 'guest.com',
       onLinkAccount: async ({ anonymousUser, newUser }) => {
-        console.log('anon', anonymousUser)
-        console.log('new', newUser)
+        const gameAttempts = await db.query.gameAttempts.findFirst({
+          where: {
+            userId: newUser.user.id,
+          },
+        })
+        if (gameAttempts) {
+          console.log(`User has logged in previously and does not need to link`)
+          return
+        }
 
         await db
           .update(schema.gameAttempts)

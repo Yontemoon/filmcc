@@ -72,7 +72,7 @@ const getUserGameId = createServerFn({ method: 'GET' })
             attemptId: result.id,
             entityId: dailyGame.start.id,
             entityType: dailyGame.start.type,
-            userId: userDetails.id,
+
             moveIndex: 0,
             isStart: true,
           })
@@ -154,23 +154,25 @@ const addUserGameId = createServerFn({ method: 'POST' })
       } = data
 
       const res = await db.transaction(async (tx) => {
-        const currentMovesDetails = await tx.query.gameMoves.findMany({
+        const attemptDetails = await tx.query.gameAttempts.findFirst({
           where: {
-            attemptId: attemptId,
+            id: attemptId,
             userId: userId,
           },
           with: {
-            attempt: {
-              with: {
-                dailyGame: true,
-              },
-            },
+            gameMovesLog: true,
+            dailyGame: true,
           },
         })
+        const currentMovesDetails = attemptDetails?.gameMovesLog
+
+        if (!currentMovesDetails) {
+          return
+        }
 
         const attemptLength = currentMovesDetails.length
-        const gameEndId = currentMovesDetails[0].attempt?.dailyGame?.end.id
-        const gameEndType = currentMovesDetails[0].attempt?.dailyGame?.end.type
+        const gameEndId = attemptDetails.dailyGame?.end.id
+        const gameEndType = attemptDetails.dailyGame?.end.type
         const isGoal = entityId === gameEndId && entityType === gameEndType
 
         await tx
@@ -187,7 +189,6 @@ const addUserGameId = createServerFn({ method: 'POST' })
           attemptId,
           entityId,
           entityType,
-          userId,
           roleName,
           roleType,
           moveIndex: attemptLength,
@@ -208,7 +209,7 @@ const addUserGameId = createServerFn({ method: 'POST' })
 
       return res
     } catch (error) {
-      console.error(error)
+      console.error(`[addUserGameId] Error Caught: `, error)
       return 'error'
     }
   })

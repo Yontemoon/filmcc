@@ -59,7 +59,10 @@ export const gameAttempts = pgTable(
     gameId: integer('game_id')
       .notNull()
       .references(() => dailyGames.id, { onDelete: 'cascade' }),
-    userId: uuid('user_id').references(() => user.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id').references(() => user.id, {
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    }),
     status: enumGameStatus('status').default('started').notNull(),
     completedAt: timestamp('completed_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true })
@@ -105,10 +108,13 @@ export const gameMoves = pgTable(
   {
     attemptId: uuid('attempt_id')
       .notNull()
-      .references(() => gameAttempts.id, { onDelete: 'cascade' }),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
+      .references(() => gameAttempts.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
+    // userId: uuid('user_id')
+    //   .notNull()
+    //   .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     moveIndex: integer('move_index').notNull(),
     entityType: enumEntityType('entity_type').notNull(),
     entityId: integer('entity_id').notNull(),
@@ -124,11 +130,14 @@ export const gameMoves = pgTable(
   (t) => [
     primaryKey({ columns: [t.attemptId, t.moveIndex] }),
     foreignKey({
+      name: 'entity_type_entity_id_fkey',
       columns: [t.entityType, t.entityId],
       foreignColumns: [entities.entityType, entities.entityId],
-    }).onDelete('restrict'),
+    })
+      .onDelete('restrict')
+      .onUpdate('cascade'),
     index('game_moves_user_entity_idx')
-      .on(t.userId, t.entityType, t.entityId)
+      .on(t.entityType, t.entityId)
       .where(sql`move_index > 0`),
     check('game_moves_index_nonneg', sql`${t.moveIndex} >= 0`),
   ],
@@ -168,7 +177,7 @@ export const session = pgTable(
     userAgent: text('user_agent'),
     userId: uuid('user_id')
       .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
   },
   (table) => [index('session_userId_idx').on(table.userId)],
 )
@@ -183,7 +192,7 @@ export const account = pgTable(
     providerId: text('provider_id').notNull(),
     userId: uuid('user_id')
       .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     accessToken: text('access_token'),
     refreshToken: text('refresh_token'),
     idToken: text('id_token'),

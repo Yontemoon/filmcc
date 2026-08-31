@@ -1,6 +1,6 @@
 import { modals } from '@mantine/modals'
 import { Route } from '#/routes/_authenticated'
-import { Anchor, Flex, Text, Title } from '@mantine/core'
+import { Flex, Text, Title } from '@mantine/core'
 import { ButtonLink } from '../ui/buttons'
 
 const StatsBody = () => {

@@ -1,26 +1,26 @@
-import { createServerFn } from '@tanstack/react-start'
-import db from '../db'
-import { guardAuthMiddlware } from './middleware/auth'
+// import { createServerFn } from '@tanstack/react-start'
+// import db from '../db'
+// import { guardAuthMiddlware } from './middleware/auth'
 
-const getMoves = createServerFn({ method: 'GET' })
-  .middleware([guardAuthMiddlware])
-  .handler(async ({ context }) => {
-    try {
-      const { userDetails } = context
-      const data = await db.query.gameMoves.findMany({
-        where: {
-          userId: userDetails.id,
-        },
-        with: {
-          entity: true,
-        },
-      })
+// const getMoves = createServerFn({ method: 'GET' })
+//   .middleware([guardAuthMiddlware])
+//   .handler(async ({ context }) => {
+//     try {
+//       const { userDetails } = context
+//       const data = await db.query.gameMoves.findMany({
+//         where: {
+//           userId: userDetails.id,
+//         },
+//         with: {
+//           entity: true,
+//         },
+//       })
 
-      return data
-    } catch (error) {
-      console.error(error)
-      return null
-    }
-  })
+//       return data
+//     } catch (error) {
+//       console.error(error)
+//       return null
+//     }
+//   })
 
-export { getMoves }
+// export { getMoves }
