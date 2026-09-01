@@ -2,6 +2,7 @@ import {
   createTheme,
   defaultVariantColorsResolver,
   MantineProvider as MantineClientProvider,
+  SegmentedControl,
 } from '@mantine/core'
 import type { MantineColorsTuple, VariantColorsResolver } from '@mantine/core'
 import { ModalsProvider } from '@mantine/modals'
@@ -32,7 +33,13 @@ const variantColorResolver: VariantColorsResolver = (input) => {
 const theme = createTheme({
   autoContrast: true,
   variantColorResolver,
-
+  components: {
+    SegmentedControl: SegmentedControl.extend({
+      classNames: {
+        control: 'striped-active',
+      },
+    }),
+  },
   colors: {
     brandColors,
   },
@@ -47,6 +54,8 @@ const theme = createTheme({
     sm: '0',
     md: '0',
   },
+  defaultRadius: 'xs',
+
   focusRing: 'always',
   lineHeights: {
     xs: '1.4',

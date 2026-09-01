@@ -6,16 +6,16 @@ import {
   Center,
   Container,
   Group,
-  Paper,
   SegmentedControl,
   SimpleGrid,
   Skeleton,
   Stack,
   Text,
-  TextInput,
   ThemeIcon,
   Title,
 } from '@mantine/core'
+import Paper from '#/components/ui/paper/paper'
+import { TextInput } from '#/components/ui/input'
 import { useDebouncedValue } from '@mantine/hooks'
 import { Clapperboard, Search, SearchX } from 'lucide-react'
 import Button from '#/components/ui/buttons/button'
@@ -50,6 +50,9 @@ export const Route = createFileRoute('/_authenticated/archive')({
   pendingComponent: PendingArchive,
   loader: async () => {
     const data = await getDailyGames()
+    {
+      data
+    }
     return data ?? []
   },
 })
@@ -73,7 +76,7 @@ function ArchiveHeader({
   ]
 
   return (
-    <Paper withBorder radius="lg" p="lg" shadow="xs">
+    <Paper withBorder radius="xs" p="lg" shadow="xs">
       <Group justify="space-between" align="flex-start" wrap="wrap" gap="lg">
         <Group gap="md" wrap="nowrap">
           <ThemeIcon variant="light" color="blue" radius="md" size="xl">
@@ -175,13 +178,13 @@ function RouteComponent() {
 
               <Group gap="sm" wrap="wrap">
                 <SegmentedControl
-                  radius="md"
+                  radius="xs"
                   data={FILTER_OPTIONS}
                   value={filter}
                   onChange={setFilter}
                 />
                 <SegmentedControl
-                  radius="md"
+                  radius="xs"
                   data={SORT_OPTIONS}
                   value={sort}
                   onChange={setSort}

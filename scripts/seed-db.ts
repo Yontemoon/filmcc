@@ -262,40 +262,41 @@ const SEED_DATA = [
 const main = async () => {
   try {
     const date = new Date()
-    let addDate = 0
+    date.setDate(date.getDate() - 12)
 
     for (const currentData of SEED_DATA) {
-      await db.insert(entities).values({
-        entityType: currentData.start.type,
-        entityId: currentData.start.id,
-        label: currentData.start.label,
-        imgPath: currentData.start.img_path,
-      })
-      console.log(`Added ${currentData.start.label} as entity`)
+      await db.transaction(async (tx) => {
+        const formateDate = date.toISOString().split('T')[0]
+        console.log(formateDate)
+        await tx.insert(entities).values({
+          entityType: currentData.start.type,
+          entityId: currentData.start.id,
+          label: currentData.start.label,
+          imgPath: currentData.start.img_path,
+        })
+        console.log(`Added ${currentData.start.label} as entity`)
 
-      await db.insert(entities).values({
-        entityType: currentData.end.type,
-        entityId: currentData.end.id,
-        label: currentData.end.label,
-        imgPath: currentData.end.img_path,
-      })
-      console.log(`Added ${currentData.end.label} as entity`)
+        await tx.insert(entities).values({
+          entityType: currentData.end.type,
+          entityId: currentData.end.id,
+          label: currentData.end.label,
+          imgPath: currentData.end.img_path,
+        })
+        console.log(`Added ${currentData.end.label} as entity`)
 
-      await db.insert(dailyGames).values({
-        id: currentData.dailyGameId,
-        displayDate: date.toDateString(),
-        start: currentData.start,
-        end: currentData.end,
-        startId: currentData.start.id,
-        endId: currentData.end.id,
+        await tx.insert(dailyGames).values({
+          id: currentData.dailyGameId,
+          displayDate: formateDate,
+          start: currentData.start,
+          end: currentData.end,
+          startId: currentData.start.id,
+          endId: currentData.end.id,
+        })
       })
       console.log(
         `Added ${currentData.start.label} --> ${currentData.end.label} as daily game.`,
       )
-
-      addDate++
-
-      date.setDate(date.getDate() + addDate)
+      date.setDate(date.getDate() + 1)
     }
 
     return 'success'

@@ -11,7 +11,6 @@ import {
 } from '@mantine/core'
 import { Link } from '@tanstack/react-router'
 import { ArrowRight, Footprints, Lock, Trophy } from 'lucide-react'
-import Button from '#/components/ui/buttons/button'
 import type { TArchivedGame } from '#/lib/server/daily'
 import type { TController } from '#/types/client.types'
 import { formatDisplayDate } from '#/lib/utils'
@@ -68,16 +67,6 @@ const Endpoint = ({
       <Badge variant="light" color={color} size="xs" radius="sm">
         {kicker}
       </Badge>
-
-      {/* <Text
-        fw={700}
-        size="sm"
-        lineClamp={2}
-        title={controller.label}
-        className={classes.label}
-      >
-        {controller.label}
-      </Text> */}
     </Stack>
   )
 }
@@ -90,113 +79,117 @@ const GameCard = ({ game }: PropTypes) => {
   const StatusIcon = meta.icon
 
   return (
-    <Card
-      withBorder
-      radius="lg"
-      padding={0}
-      shadow="xs"
-      className={`${classes.card} ${locked ? classes.cardLocked : ''}`}
+    <Link
+      to={'/game/$game_id'}
+      params={{ game_id: String(game.game.id) }}
+      preload={false}
     >
-      <Card.Section
-        inheritPadding
-        py="xs"
-        px="md"
-        className={classes.cardHeader}
+      <Card
+        withBorder
+
+        radius="xs"
+        padding={0}
+        pb={'sm'}
+        shadow="xs"
+        className={`${classes.card} ${locked ? classes.cardLocked : ''}`}
       >
-        <Group justify="space-between" wrap="nowrap">
-          <Badge variant="light" color="blue" radius="sm">
-            No. {game.game.id}
-          </Badge>
-          <Text size="xs" c="dimmed" fw={600} tt="uppercase">
-            {formatDisplayDate(game.game.displayDate)}
-          </Text>
-        </Group>
-      </Card.Section>
-
-      <Group
-        justify="space-between"
-        wrap="nowrap"
-        gap="0"
-        pos={'relative'}
-        p={'0'}
-      >
-        <ThemeIcon
-          variant="light"
-          color="gray"
-          radius="xl"
-          size="md"
-          pos={'absolute'}
-
-          className={classes.arrowRight}
-
-          // top={'50%'}
-          // bottom={'50%'}
+        <Card.Section
+          inheritPadding
+          py="xs"
+          px="md"
+          className={classes.cardHeader}
         >
-          <ArrowRight size={16} />
-        </ThemeIcon>
-        <Endpoint controller={game.game.start} kicker="Start" color="teal" />
-        <Divider orientation="vertical" />
-        <Endpoint controller={game.game.end} kicker="Target" color="grape" />
-      </Group>
-
-      <Divider my="md" />
-
-      <Group justify="space-between" wrap="nowrap" gap="xs" px="md">
-        <Badge
-          variant="light"
-          color={locked ? 'gray' : meta.color}
-          radius="sm"
-          leftSection={locked ? <Lock size={12} /> : <StatusIcon size={12} />}
-        >
-          {locked ? 'Locked' : meta.label}
-        </Badge>
-
-        {game.movesCount ? (
-          <Tooltip label="Moves in the shortest known solution" withArrow>
-            <Badge
-              variant="default"
-              radius="sm"
-              leftSection={<Trophy size={12} />}
-            >
-              Par {game.game.parMoves}
+          <Group justify="space-between" wrap="nowrap">
+            <Badge variant="light" color="blue" radius="sm">
+              No. {game.game.id}
             </Badge>
-          </Tooltip>
-        ) : null}
-      </Group>
-
-      {attempt ? (
-        <Group gap="xs" mt="xs" wrap="nowrap" px="md">
-          <Group gap={4} wrap="nowrap">
-            <Footprints size={14} />
-            <Text size="xs" c="dimmed">
-              {attempt} {attempt === 1 ? 'move' : 'moves'}
+            <Text size="xs" c="dimmed" fw={600} tt="uppercase">
+              {formatDisplayDate(game.game.displayDate)}
             </Text>
           </Group>
-        </Group>
-      ) : (
-        <Text size="xs" c="dimmed" mt="xs">
-          {locked ? 'Unlocks on its release date' : 'No attempt yet'}
-        </Text>
-      )}
+        </Card.Section>
 
-      <Group gap="xs" my="xs" wrap="nowrap" px="md">
-        {locked ? (
-          <Button fullWidth mt="md" variant="light" disabled>
-            Locked
-          </Button>
-        ) : (
-          <Link
-            to="/game/$game_id"
-            params={{ game_id: String(game.game.id) }}
-            className={classes.playLink}
+        <Group
+          justify="space-between"
+          wrap="nowrap"
+          gap="0"
+          pos={'relative'}
+          p={'0'}
+        >
+          <ThemeIcon
+            variant="light"
+            color="gray"
+            radius="xl"
+            size="md"
+            pos={'absolute'}
+            className={classes.arrowRight}
           >
-            <Button fullWidth mt="md" variant={attempt ? 'light' : 'filled'}>
-              {CTA_LABEL[status]}
-            </Button>
-          </Link>
+            <ArrowRight size={16} />
+          </ThemeIcon>
+          <Endpoint controller={game.game.start} kicker="Start" color="teal" />
+          <Divider orientation="vertical" />
+          <Endpoint controller={game.game.end} kicker="Target" color="grape" />
+        </Group>
+
+        <Divider my="md" />
+
+        <Group justify="space-between" wrap="nowrap" gap="xs" px="md">
+          <Badge
+            variant="light"
+            color={locked ? 'gray' : meta.color}
+            radius="sm"
+            leftSection={locked ? <Lock size={12} /> : <StatusIcon size={12} />}
+          >
+            {locked ? 'Locked' : meta.label}
+          </Badge>
+
+          {game.movesCount ? (
+            <Tooltip label="Moves in the shortest known solution" withArrow>
+              <Badge
+                variant="default"
+                radius="sm"
+                leftSection={<Trophy size={12} />}
+              >
+                Par {game.game.parMoves}
+              </Badge>
+            </Tooltip>
+          ) : null}
+        </Group>
+
+        {attempt ? (
+          <Group gap="xs" mt="xs" wrap="nowrap" px="md">
+            <Group gap={4} wrap="nowrap">
+              <Footprints size={14} />
+              <Text size="xs" c="dimmed">
+                {attempt} {attempt === 1 ? 'move' : 'moves'}
+              </Text>
+            </Group>
+          </Group>
+        ) : (
+          <Text size="xs" c="dimmed" mt="xs" px={'md'}>
+            {locked ? 'Unlocks on its release date' : 'No attempt yet'}
+          </Text>
         )}
-      </Group>
-    </Card>
+
+        {/* <Group gap="xs" my="xs" wrap="nowrap" px="md">
+          {locked ? (
+            <Button fullWidth mt="md" variant="light" disabled>
+              Locked
+            </Button>
+          ) : (
+            <Link
+              to="/game/$game_id"
+              params={{ game_id: String(game.game.id) }}
+              className={classes.playLink}
+            >
+              <Button fullWidth mt="md" variant={attempt ? 'light' : 'filled'}>
+                {CTA_LABEL[status]}
+              </Button>
+            </Link>
+          )}
+        </Group> */}
+      </Card>
+    </Link>
   )
 }
 

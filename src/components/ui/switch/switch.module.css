@@ -4,14 +4,14 @@
     border-color 200ms ease;
 
   input:checked + & {
-    background-color: var(--mantine-color-teal-6);
-    border-color: var(--mantine-color-teal-6);
+    background-color: var(--mantine-color-teal-7);
+    border-color: var(--mantine-color-teal-7);
 
     & > .thumb {
-      background-color: var(--mantine-primary-color-filled);
+      background-color: var(--text);
 
       &::before {
-        background-color: var(--mantine-primary-color-filled);
+        background-color: var(--text);
       }
     }
   }

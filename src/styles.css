@@ -4,6 +4,8 @@
 :root {
   --text: #f5f5f5;
   --mantine-color-body: var(--text) !important;
+  --mantine-border: 2px solid var(--mantine-primary-color-filled);
+  --mantine-border-lg: 4px solid var(--mantine-primary-color-filled);
 }
 
 :root[data-mantine-color-scheme='dark'] {

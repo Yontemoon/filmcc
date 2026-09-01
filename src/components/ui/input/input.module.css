@@ -1,5 +1,5 @@
 .input-container {
-  border: 2px solid var(--mantine-color-text);
+  border: var(--mantine-border);
   background-color: var(--mantine-color-body);
 }
 

@@ -4,21 +4,11 @@
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     border-color 0.25s ease,
     box-shadow 0.25s ease;
+  border: var(--mantine-border);
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  border-color: var(--mantine-color-blue-filled);
-  box-shadow: var(--mantine-shadow-md);
-}
-
-.cardLocked:hover {
-  transform: none;
-  border-color: light-dark(
-    var(--mantine-color-gray-3),
-    var(--mantine-color-dark-4)
-  );
-  box-shadow: none;
+  cursor: pointer;
 }
 
 .cardHeader {
