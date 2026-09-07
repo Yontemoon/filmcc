@@ -12,10 +12,12 @@ import Switch from '../ui/switch/switch'
 import { signOut } from '#/lib/auth-client'
 import { Route } from '#/routes/_authenticated'
 import { useEntitiesProvider } from '#/provider/entites'
+import { useNavigate } from '@tanstack/react-router'
 
 const SettingsChild = () => {
   const { user } = Route.useRouteContext()
   const isAnon = user.isAnonymous
+  const navigate = useNavigate()
   const [_opened, { close }] = useDisclosure(false)
   const { hideUsedEntities, toggleShowEntities } = useEntitiesProvider()
   const { setColorScheme, colorScheme } = useMantineColorScheme({
@@ -56,12 +58,17 @@ const SettingsChild = () => {
             onClick={async (e) => {
               try {
                 e.preventDefault()
-                e.stopPropagation()
+
                 const { error } = await signOut()
                 if (error) {
                   console.error('Error signing out', error)
                   throw new Error(error.message)
                 }
+
+                navigate({
+                  reloadDocument: true,
+                  to: '/',
+                })
                 close()
               } catch (error) {
                 return error
