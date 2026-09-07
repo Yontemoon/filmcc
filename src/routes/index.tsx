@@ -82,6 +82,7 @@ function HomePage() {
                 size: 'lg',
                 variant: 'filled',
                 fullWidth: true,
+                preload: false,
               }}
             >
               {isRouterLoading ? 'Loading...' : '  Play'}

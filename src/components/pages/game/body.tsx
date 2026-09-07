@@ -227,14 +227,16 @@ const GridLayout = ({
                     gap={4}
                     wrap="nowrap"
                   >
-                    <Badge
-                      variant="filled"
-                      color={disabled ? 'gray' : meta.color}
-                      size="xs"
-                      radius="sm"
-                    >
-                      {meta.label}
-                    </Badge>
+                    {!disabled && (
+                      <Badge
+                        variant="light"
+                        color={meta.color}
+                        size="xs"
+                        radius="sm"
+                      >
+                        {meta.label}
+                      </Badge>
+                    )}
                     {blockedReason && (
                       <Badge
                         variant="filled"
