@@ -34,9 +34,6 @@ const signOut = createServerFn({ method: 'POST' }).handler(async () => {
 })
 
 const signInAnon = createServerFn({ method: 'POST' }).handler(async () => {
-  // √
-
-  // const headers = getRequestHeaders()
   const signInRes = await auth.api.signInAnonymous()
   if (!signInRes.token) {
     throw new Error('Something wrong happened')

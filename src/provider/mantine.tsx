@@ -1,4 +1,5 @@
 import {
+  Card,
   createTheme,
   defaultVariantColorsResolver,
   MantineProvider as MantineClientProvider,
@@ -37,6 +38,11 @@ const theme = createTheme({
     SegmentedControl: SegmentedControl.extend({
       classNames: {
         control: 'striped-active',
+      },
+    }),
+    Card: Card.extend({
+      classNames: {
+        root: 'borderDefault',
       },
     }),
   },

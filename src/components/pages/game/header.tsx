@@ -1,9 +1,17 @@
 import type { TController } from '#/types/client.types'
-import { Group, Text, Badge, Divider, Flex, Stack, Button } from '@mantine/core'
+import {
+  Group,
+  Text,
+  Badge,
+  Divider,
+  Flex,
+  Stack,
+  Button,
+  Card,
+} from '@mantine/core'
 import Poster from '#/components/poster/poster'
 import ProfileImage from '#/components/profile-image'
 import PointTracker from './point-tracker'
-import Paper from '#/components/ui/paper/paper'
 import classes from './game.module.css'
 import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import OpenPersonImageExpand from '#/components/modals/image-expand'
@@ -148,7 +156,7 @@ const Header = ({ start, end, history, moves, picks, giveUp }: PropTypes) => {
   const current = history.length > 0 ? history[history.length - 1] : null
   return (
     <div className={classes.headerSticky} id="header">
-      <Paper withBorder radius="sm" p="sm" mb="xs">
+      <Card withBorder radius="sm" p="sm" mb="xs">
         <Group wrap="nowrap" gap="xs" align="center">
           <div style={{ flex: '0 1 auto', minWidth: 0 }}>
             <Endpoint kicker="From" controller={start} variant="origin" />
@@ -227,7 +235,7 @@ const Header = ({ start, end, history, moves, picks, giveUp }: PropTypes) => {
             </Button>
           </Group>
         </Group>
-      </Paper>
+      </Card>
     </div>
   )
 }

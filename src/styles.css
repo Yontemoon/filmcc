@@ -54,6 +54,10 @@
   z-index: 10;
 }
 
+.borderDefault {
+  border: var(--mantine-border) !important;
+}
+
 input:focus-visible,
 button:focus-visible,
 a:focus-visible,
