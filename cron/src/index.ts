@@ -1,3 +1,5 @@
+import 'dotenv/config'
+
 const URL = process.env.PUBLIC_DOMAIN_URL
 
 async function main() {
