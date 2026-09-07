@@ -70,6 +70,8 @@ const getTmdbMovie = async (movieId: number) => {
   }
 }
 
+const regexSelf = /\bself\b/i
+
 const getTmdbPerson = async (personId: number) => {
   const [personDetails, personCredits] = await Promise.all([
     tmdbFetch<T_TMDB_PERSON_DETAILS>(`/person/${personId}?language=en-US`),
@@ -80,19 +82,34 @@ const getTmdbPerson = async (personId: number) => {
 
   const today = new Date()
 
-  const filteredPersonCredits = personCredits.cast.filter((movie) => {
-    if (movie.release_date) {
-      return new Date(movie.release_date) < today
-    }
-  })
+  const cast = personCredits.cast
+    .filter((movie) => {
+      if (movie.release_date) {
+        return new Date(movie.release_date) < today
+      }
+    })
+    .filter((curr) => curr.release_date)
+    .filter((curr) => !regexSelf.test(curr.character))
+    .filter((curr) => curr.character !== '')
+    .sort((a, b) => {
+      if (!a.release_date) return 1
+      if (!b.release_date) return -1
+      return b.release_date.localeCompare(a.release_date)
+    })
 
-  const fileredCrewCredits = filterCrewCredits(personCredits.crew)
+  const crew = filterCrewCredits(personCredits.crew)
+    .filter((curr) => curr.release_date)
+    .sort((a, b) => {
+      if (!a.release_date) return 1
+      if (!b.release_date) return -1
+      return b.release_date.localeCompare(a.release_date)
+    })
 
   return {
     personDetails,
     personCredits: {
-      cast: filteredPersonCredits,
-      crew: fileredCrewCredits,
+      cast,
+      crew,
     },
   }
 }

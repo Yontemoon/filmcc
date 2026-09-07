@@ -18,31 +18,12 @@ const fetchMovieCredits = createServerFn({ method: 'GET' })
     return res
   })
 
-const regexSelf = /\bself\b/i
 const fetchPersonCredits = createServerFn({ method: 'GET' })
   .validator((data: { personId: number }) => data)
   .handler(async ({ data }) => {
     const personId = data.personId
 
     const { personDetails, personCredits } = await getTmdbPerson(personId)
-
-    personCredits.cast = personCredits.cast
-      .filter((curr) => curr.release_date)
-      .filter((curr) => !regexSelf.test(curr.character))
-      .filter((curr) => curr.character !== '')
-      .sort((a, b) => {
-        if (!a.release_date) return 1
-        if (!b.release_date) return -1
-        return b.release_date.localeCompare(a.release_date)
-      })
-
-    personCredits.crew = personCredits.crew
-      .filter((curr) => curr.release_date)
-      .sort((a, b) => {
-        if (!a.release_date) return 1
-        if (!b.release_date) return -1
-        return b.release_date.localeCompare(a.release_date)
-      })
 
     const res = {
       details: personDetails,

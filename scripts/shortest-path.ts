@@ -10,6 +10,7 @@ import {
   note,
   log,
 } from '@clack/prompts'
+import { MAX_CAST_CREDITS } from '#/lib/constants'
 import {
   getSearchTmdbMovie,
   getSearchTmdbPerson,
@@ -25,8 +26,6 @@ const movieKey = (id: number): NodeKey => `M:${id}`
 const personKey = (id: number): NodeKey => `P:${id}`
 const isMovie = (key: NodeKey) => key.startsWith('M:')
 
-const CAST_LIMIT = 15
-const CREW_LIMIT = 8
 const PERSON_MOVIE_LIMIT = 25
 const MAX_DEPTH = 8
 const CONCURRENCY = 8
@@ -58,16 +57,16 @@ async function computeNeighbors(key: NodeKey): Promise<Neighbor[]> {
     let credits
     try {
       credits = (await getTmdbMovie(id)).movieCredits
+      console.log(credits)
     } catch {
       return []
     }
 
     const cast = [...credits.cast]
       .sort((a, b) => a.order - b.order)
-      .slice(0, CAST_LIMIT)
-    const crew = [...credits.crew]
-      .sort((a, b) => b.popularity - a.popularity)
-      .slice(0, CREW_LIMIT)
+      .slice(0, MAX_CAST_CREDITS)
+
+    const crew = [...credits.crew].sort((a, b) => b.popularity - a.popularity)
 
     for (const c of cast) {
       const k = personKey(c.id)
@@ -83,7 +82,7 @@ async function computeNeighbors(key: NodeKey): Promise<Neighbor[]> {
       const k = personKey(c.id)
       if (!c.id || seen.has(k)) continue
       seen.add(k)
-      out.push({ key: k, label: c.name, via: c.job || c.department || 'crew' })
+      out.push({ key: k, label: c.name, via: c.job })
     }
   } else {
     let credits
@@ -98,7 +97,7 @@ async function computeNeighbors(key: NodeKey): Promise<Neighbor[]> {
         m,
         via: m.character ? `as ${m.character}` : 'cast',
       })),
-      ...credits.crew.map((m) => ({ m, via: m.job || 'crew' })),
+      ...credits.crew.map((m) => ({ m, via: m.job })),
     ].sort((a, b) => b.m.popularity - a.m.popularity)
 
     for (const { m, via } of combined.slice(0, PERSON_MOVIE_LIMIT)) {
@@ -241,7 +240,7 @@ function stitch(
 
   const bChain: NodeKey[] = []
   const bVias: string[] = []
-  for (let cur: NodeKey = meet; metaB.get(cur)!.parent !== null; ) {
+  for (let cur: NodeKey = meet; metaB.get(cur)!.parent !== null;) {
     const m = metaB.get(cur)!
     bVias.push(m.via ?? '')
     bChain.push(m.parent!)
