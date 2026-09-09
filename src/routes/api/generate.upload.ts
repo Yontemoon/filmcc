@@ -27,34 +27,52 @@ export const Route = createFileRoute(`/api/generate/upload`)({
               .from(dailyGames)
               .then((d) => d[0].count)
 
-            const formateDate = date.toISOString().split('T')[0]
-            console.log(formateDate)
-            await tx.insert(entities).values({
-              entityType: body.start.type,
-              entityId: body.start.id,
-              label: body.start.label,
-              imgPath: body.start.img_path,
-            })
+            const formatDate = date.toISOString().split('T')[0]
+            await tx
+              .insert(entities)
+              .values({
+                entityType: body.start.type,
+                entityId: body.start.id,
+                label: body.start.label,
+                imgPath: body.start.img_path,
+              })
+              .onConflictDoNothing()
             console.log(`Added ${body.start.label} as entity`)
 
-            await tx.insert(entities).values({
-              entityType: body.end.type,
-              entityId: body.end.id,
-              label: body.end.label,
-              imgPath: body.end.img_path,
-            })
+            await tx
+              .insert(entities)
+              .values({
+                entityType: body.end.type,
+                entityId: body.end.id,
+                label: body.end.label,
+                imgPath: body.end.img_path,
+              })
+              .onConflictDoNothing()
             console.log(`Added ${body.end.label} as entity`)
 
-            await tx.insert(dailyGames).values({
-              id: totalGames + 1,
-              displayDate: formateDate,
-              start: body.start,
-              end: body.end,
-              startId: body.start.id,
-              endId: body.end.id,
-              parMoves: parData?.par,
-              solutionPath: parData?.path,
-            })
+            await tx
+              .insert(dailyGames)
+              .values({
+                id: totalGames + 1,
+                displayDate: formatDate,
+                start: body.start,
+                end: body.end,
+                startId: body.start.id,
+                endId: body.end.id,
+                parMoves: parData?.par,
+                solutionPath: parData?.path,
+              })
+              .onConflictDoUpdate({
+                target: dailyGames.displayDate,
+                set: {
+                  start: body.start,
+                  end: body.end,
+                  startId: body.start.id,
+                  endId: body.end.id,
+                  parMoves: parData?.par,
+                  solutionPath: parData?.path,
+                },
+              })
 
             console.log(
               `Added ${body.start.label} (Movie) as the start and ${body.end.label} (Person) as the end.`,
