@@ -15,10 +15,11 @@ import { Route as SigninRouteImport } from './routes/signin'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as AuthenticatedArchiveRouteImport } from './routes/_authenticated/archive'
 import { Route as AuthenticatedStatsRouteImport } from './routes/_authenticated/stats'
-import { Route as ApiGameRouteImport } from './routes/api/game'
+import { Route as ApiGenerateRouteImport } from './routes/api/generate'
 import { Route as AuthenticatedGameIndexRouteImport } from './routes/_authenticated/game.index'
 import { Route as AuthenticatedGameGame_idRouteImport } from './routes/_authenticated/game.$game_id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiGenerateUploadRouteImport } from './routes/api/generate.upload'
 import { Route as ApiCreditsMovieMovie_idRouteImport } from './routes/api/credits.movie.$movie_id'
 import { Route as ApiCreditsPersonPerson_idRouteImport } from './routes/api/credits.person.$person_id'
 
@@ -51,9 +52,9 @@ const AuthenticatedStatsRoute = AuthenticatedStatsRouteImport.update({
   path: '/stats',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const ApiGameRoute = ApiGameRouteImport.update({
-  id: '/api/game',
-  path: '/api/game',
+const ApiGenerateRoute = ApiGenerateRouteImport.update({
+  id: '/api/generate',
+  path: '/api/generate',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedGameIndexRoute = AuthenticatedGameIndexRouteImport.update({
@@ -71,6 +72,11 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGenerateUploadRoute = ApiGenerateUploadRouteImport.update({
+  id: '/upload',
+  path: '/upload',
+  getParentRoute: () => ApiGenerateRoute,
 } as any)
 const ApiCreditsMovieMovie_idRoute = ApiCreditsMovieMovie_idRouteImport.update({
   id: '/api/credits/movie/$movie_id',
@@ -90,9 +96,10 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/archive': typeof AuthenticatedArchiveRoute
   '/stats': typeof AuthenticatedStatsRoute
-  '/api/game': typeof ApiGameRoute
+  '/api/generate': typeof ApiGenerateRouteWithChildren
   '/game/$game_id': typeof AuthenticatedGameGame_idRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/generate/upload': typeof ApiGenerateUploadRoute
   '/game/': typeof AuthenticatedGameIndexRoute
   '/api/credits/movie/$movie_id': typeof ApiCreditsMovieMovie_idRoute
   '/api/credits/person/$person_id': typeof ApiCreditsPersonPerson_idRoute
@@ -103,9 +110,10 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/archive': typeof AuthenticatedArchiveRoute
   '/stats': typeof AuthenticatedStatsRoute
-  '/api/game': typeof ApiGameRoute
+  '/api/generate': typeof ApiGenerateRouteWithChildren
   '/game/$game_id': typeof AuthenticatedGameGame_idRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/generate/upload': typeof ApiGenerateUploadRoute
   '/game': typeof AuthenticatedGameIndexRoute
   '/api/credits/movie/$movie_id': typeof ApiCreditsMovieMovie_idRoute
   '/api/credits/person/$person_id': typeof ApiCreditsPersonPerson_idRoute
@@ -118,9 +126,10 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_authenticated/archive': typeof AuthenticatedArchiveRoute
   '/_authenticated/stats': typeof AuthenticatedStatsRoute
-  '/api/game': typeof ApiGameRoute
+  '/api/generate': typeof ApiGenerateRouteWithChildren
   '/_authenticated/game/$game_id': typeof AuthenticatedGameGame_idRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/generate/upload': typeof ApiGenerateUploadRoute
   '/_authenticated/game/': typeof AuthenticatedGameIndexRoute
   '/api/credits/movie/$movie_id': typeof ApiCreditsMovieMovie_idRoute
   '/api/credits/person/$person_id': typeof ApiCreditsPersonPerson_idRoute
@@ -133,9 +142,10 @@ export interface FileRouteTypes {
     | '/signup'
     | '/archive'
     | '/stats'
-    | '/api/game'
+    | '/api/generate'
     | '/game/$game_id'
     | '/api/auth/$'
+    | '/api/generate/upload'
     | '/game/'
     | '/api/credits/movie/$movie_id'
     | '/api/credits/person/$person_id'
@@ -146,9 +156,10 @@ export interface FileRouteTypes {
     | '/signup'
     | '/archive'
     | '/stats'
-    | '/api/game'
+    | '/api/generate'
     | '/game/$game_id'
     | '/api/auth/$'
+    | '/api/generate/upload'
     | '/game'
     | '/api/credits/movie/$movie_id'
     | '/api/credits/person/$person_id'
@@ -160,9 +171,10 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_authenticated/archive'
     | '/_authenticated/stats'
-    | '/api/game'
+    | '/api/generate'
     | '/_authenticated/game/$game_id'
     | '/api/auth/$'
+    | '/api/generate/upload'
     | '/_authenticated/game/'
     | '/api/credits/movie/$movie_id'
     | '/api/credits/person/$person_id'
@@ -173,7 +185,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   SigninRoute: typeof SigninRoute
   SignupRoute: typeof SignupRoute
-  ApiGameRoute: typeof ApiGameRoute
+  ApiGenerateRoute: typeof ApiGenerateRouteWithChildren
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiCreditsMovieMovie_idRoute: typeof ApiCreditsMovieMovie_idRoute
   ApiCreditsPersonPerson_idRoute: typeof ApiCreditsPersonPerson_idRoute
@@ -223,11 +235,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStatsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/api/game': {
-      id: '/api/game'
-      path: '/api/game'
-      fullPath: '/api/game'
-      preLoaderRoute: typeof ApiGameRouteImport
+    '/api/generate': {
+      id: '/api/generate'
+      path: '/api/generate'
+      fullPath: '/api/generate'
+      preLoaderRoute: typeof ApiGenerateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/game/': {
@@ -250,6 +262,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/$'
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/generate/upload': {
+      id: '/api/generate/upload'
+      path: '/upload'
+      fullPath: '/api/generate/upload'
+      preLoaderRoute: typeof ApiGenerateUploadRouteImport
+      parentRoute: typeof ApiGenerateRoute
     }
     '/api/credits/movie/$movie_id': {
       id: '/api/credits/movie/$movie_id'
@@ -286,12 +305,24 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface ApiGenerateRouteChildren {
+  ApiGenerateUploadRoute: typeof ApiGenerateUploadRoute
+}
+
+const ApiGenerateRouteChildren: ApiGenerateRouteChildren = {
+  ApiGenerateUploadRoute: ApiGenerateUploadRoute,
+}
+
+const ApiGenerateRouteWithChildren = ApiGenerateRoute._addFileChildren(
+  ApiGenerateRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   SigninRoute: SigninRoute,
   SignupRoute: SignupRoute,
-  ApiGameRoute: ApiGameRoute,
+  ApiGenerateRoute: ApiGenerateRouteWithChildren,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiCreditsMovieMovie_idRoute: ApiCreditsMovieMovie_idRoute,
   ApiCreditsPersonPerson_idRoute: ApiCreditsPersonPerson_idRoute,
