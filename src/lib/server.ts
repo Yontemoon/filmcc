@@ -2,14 +2,15 @@ import type {
   T_TMDB_MOVIE_DETAILS,
   T_TMDB_PERSON_DETAILS,
 } from '#/types/tmdb.types'
-import type { TController } from '#/types/client.types'
-
+import type { TController, TlinkType } from '#/types/client.types'
 import { getTmdbMovie, getTmdbPerson, tmdbFetch } from '#/lib/fetch'
 import { outro, spinner, note, log } from '@clack/prompts'
 import {
   POPULARITY_LIMIT,
   MOVIE_COUNT_LIMIT,
   MAX_CAST_CREDITS,
+  MAX_CAST_LINKS,
+  MAX_CREW_LINKS,
 } from '#/lib/constants'
 import { getRandomNumber } from '#/lib/utils'
 
@@ -128,8 +129,26 @@ const validateRandomPerson = async (personDetails: T_TMDB_PERSON_DETAILS) => {
 }
 
 type NodeKey = string
-type Neighbor = { key: NodeKey; label: string; via: string; imgUrl: string }
-type Meta = { parent: NodeKey | null; via: string | null; dist: number }
+type StateKey = string
+type Neighbor = {
+  key: NodeKey
+  label: string
+  via: string
+  imgUrl: string
+  linkType: TlinkType
+}
+type Meta = {
+  parent: StateKey | null
+  node: NodeKey
+  via: string | null
+  linkType: TlinkType | null
+  dist: number
+  cast: number
+  crew: number
+}
+
+const stateKey = (key: NodeKey, cast: number, crew: number): StateKey =>
+  `${key}|${cast}|${crew}`
 
 const movieKey = (id: number): NodeKey => `M:${id}`
 const personKey = (id: number): NodeKey => `P:${id}`
@@ -186,13 +205,20 @@ async function computeNeighbors(key: NodeKey): Promise<Neighbor[]> {
         label: c.name,
         via: c.character ? `as ${c.character}` : 'cast',
         imgUrl: c.profile_path,
+        linkType: 'CAST',
       })
     }
     for (const c of crew) {
       const k = personKey(c.id)
       if (!c.id || seen.has(k)) continue
       seen.add(k)
-      out.push({ key: k, label: c.name, via: c.job, imgUrl: c.profile_path })
+      out.push({
+        key: k,
+        label: c.name,
+        via: c.job,
+        imgUrl: c.profile_path,
+        linkType: 'CREW',
+      })
     }
   } else {
     let credits
@@ -206,15 +232,20 @@ async function computeNeighbors(key: NodeKey): Promise<Neighbor[]> {
       ...credits.cast.map((m) => ({
         m,
         via: m.character ? `as ${m.character}` : 'cast',
+        linkType: 'CAST' as const,
       })),
-      ...credits.crew.map((m) => ({ m, via: m.job })),
+      ...credits.crew.map((m) => ({
+        m,
+        via: m.job,
+        linkType: 'CREW' as const,
+      })),
     ].sort((a, b) => b.m.popularity - a.m.popularity)
 
-    for (const { m, via } of combined.slice(0, PERSON_MOVIE_LIMIT)) {
+    for (const { m, via, linkType } of combined.slice(0, PERSON_MOVIE_LIMIT)) {
       const k = movieKey(m.id)
       if (!m.id || !m.title || seen.has(k)) continue
       seen.add(k)
-      out.push({ key: k, label: m.title, via, imgUrl: m.poster_path })
+      out.push({ key: k, label: m.title, via, imgUrl: m.poster_path, linkType })
     }
   }
 
@@ -242,10 +273,36 @@ async function pool<T>(
 type PathResult = {
   keys: NodeKey[]
   vias: string[]
+  linkTypes: (TlinkType | null)[]
   labels: Map<NodeKey, string>
   distance: number
   imgs: Map<NodeKey, string>
+  castUsed: number
+  crewUsed: number
 }
+
+/* A path only counts a pick when it lands on a PERSON, so the movie -> person
+ * hop is the one that costs budget. The forward search walks the path in order
+ * (it pays when leaving a movie); the backward search walks it in reverse (it
+ * pays when leaving a person, because that edge is a movie -> person hop once
+ * the path is read forwards). Each direction therefore pays for a disjoint set
+ * of edges, so the two halves' tallies can simply be added at the meet point. */
+const paysAtSource = (node: NodeKey, forward: boolean) =>
+  forward ? isMovie(node) : !isMovie(node)
+
+/* Reaching the same node with fewer picks of both kinds at no extra distance is
+ * strictly better, so the dominated state can never produce a better answer. */
+const isDominated = (
+  metaThis: Map<StateKey, Meta>,
+  statesByNode: Map<NodeKey, StateKey[]>,
+  node: NodeKey,
+  cast: number,
+  crew: number,
+) =>
+  (statesByNode.get(node) ?? []).some((sk) => {
+    const m = metaThis.get(sk)!
+    return m.cast <= cast && m.crew <= crew
+  })
 
 async function biBFS(
   startKey: NodeKey,
@@ -265,47 +322,104 @@ async function biBFS(
     [targetKey, endUrl],
   ])
 
-  const metaF = new Map<NodeKey, Meta>([
-    [startKey, { parent: null, via: null, dist: 0 }],
+  const rootF = stateKey(startKey, 0, 0)
+  const rootB = stateKey(targetKey, 0, 0)
+
+  const metaF = new Map<StateKey, Meta>([
+    [
+      rootF,
+      {
+        parent: null,
+        node: startKey,
+        via: null,
+        linkType: null,
+        dist: 0,
+        cast: 0,
+        crew: 0,
+      },
+    ],
   ])
-  const metaB = new Map<NodeKey, Meta>([
-    [targetKey, { parent: null, via: null, dist: 0 }],
+  const metaB = new Map<StateKey, Meta>([
+    [
+      rootB,
+      {
+        parent: null,
+        node: targetKey,
+        via: null,
+        linkType: null,
+        dist: 0,
+        cast: 0,
+        crew: 0,
+      },
+    ],
   ])
 
-  let frontierF: NodeKey[] = [startKey]
-  let frontierB: NodeKey[] = [targetKey]
+  const statesF = new Map<NodeKey, StateKey[]>([[startKey, [rootF]]])
+  const statesB = new Map<NodeKey, StateKey[]>([[targetKey, [rootB]]])
+
+  let frontierF: StateKey[] = [rootF]
+  let frontierB: StateKey[] = [rootB]
   let depth = 0
 
   const expand = async (
-    frontier: NodeKey[],
-    metaThis: Map<NodeKey, Meta>,
-    metaOther: Map<NodeKey, Meta>,
-  ): Promise<{ next: NodeKey[]; meet: NodeKey | null }> => {
-    const next: NodeKey[] = []
-    let meet: NodeKey | null = null
+    frontier: StateKey[],
+    forward: boolean,
+    metaThis: Map<StateKey, Meta>,
+    statesThis: Map<NodeKey, StateKey[]>,
+    metaOther: Map<StateKey, Meta>,
+    statesOther: Map<NodeKey, StateKey[]>,
+  ): Promise<{
+    next: StateKey[]
+    meet: { here: StateKey; there: StateKey } | null
+  }> => {
+    const next: StateKey[] = []
+    let meet: { here: StateKey; there: StateKey } | null = null
     let meetTotal = Infinity
 
-    await pool(frontier, CONCURRENCY, async (nodeKey) => {
-      const parentDist = metaThis.get(nodeKey)!.dist
-      const nbrs = await neighbors(nodeKey)
+    await pool(frontier, CONCURRENCY, async (from) => {
+      const parent = metaThis.get(from)!
+      const pays = paysAtSource(parent.node, forward)
+      const nbrs = await neighbors(parent.node)
 
       for (const nb of nbrs) {
-        if (metaThis.has(nb.key)) continue
-        metaThis.set(nb.key, {
-          parent: nodeKey,
+        const cast = parent.cast + (pays && nb.linkType === 'CAST' ? 1 : 0)
+        const crew = parent.crew + (pays && nb.linkType === 'CREW' ? 1 : 0)
+
+        if (cast > MAX_CAST_LINKS || crew > MAX_CREW_LINKS) continue
+
+        const to = stateKey(nb.key, cast, crew)
+        if (metaThis.has(to)) continue
+        if (isDominated(metaThis, statesThis, nb.key, cast, crew)) continue
+
+        metaThis.set(to, {
+          parent: from,
+          node: nb.key,
           via: nb.via,
-          dist: parentDist + 1,
+          linkType: pays ? nb.linkType : null,
+          dist: parent.dist + 1,
+          cast,
+          crew,
         })
+        const siblings = statesThis.get(nb.key)
+        if (siblings) siblings.push(to)
+        else statesThis.set(nb.key, [to])
         labels.set(nb.key, nb.label)
         imgs.set(nb.key, nb.imgUrl)
-        next.push(nb.key)
+        next.push(to)
 
-        const other = metaOther.get(nb.key)
-        if (other) {
-          const total = parentDist + 1 + other.dist
+        for (const otherKey of statesOther.get(nb.key) ?? []) {
+          const other = metaOther.get(otherKey)!
+
+          /* The two halves meet on the same node but own disjoint edges, so
+           * their budgets add. Reject the join if the whole path would cost
+           * more picks than the player is given. */
+          if (other.cast + cast > MAX_CAST_LINKS) continue
+          if (other.crew + crew > MAX_CREW_LINKS) continue
+
+          const total = parent.dist + 1 + other.dist
           if (total < meetTotal) {
             meetTotal = total
-            meet = nb.key
+            meet = { here: to, there: otherKey }
           }
         }
       }
@@ -319,8 +433,8 @@ async function biBFS(
 
     const forwardTurn = frontierF.length <= frontierB.length
     const { next, meet } = forwardTurn
-      ? await expand(frontierF, metaF, metaB)
-      : await expand(frontierB, metaB, metaF)
+      ? await expand(frontierF, true, metaF, statesF, metaB, statesB)
+      : await expand(frontierB, false, metaB, statesB, metaF, statesF)
 
     if (forwardTurn) frontierF = next
     else frontierB = next
@@ -330,45 +444,67 @@ async function biBFS(
       `depth ${depth} · forward ${frontierF.length} · backward ${frontierB.length} · ${fetchedNodes} nodes fetched`,
     )
 
-    if (meet) return stitch(meet, metaF, metaB, labels, imgs)
+    if (meet) {
+      const { here, there } = meet
+      return forwardTurn
+        ? stitch(here, there, metaF, metaB, labels, imgs)
+        : stitch(there, here, metaF, metaB, labels, imgs)
+    }
   }
 
   return null
 }
 
 function stitch(
-  meet: NodeKey,
-  metaF: Map<NodeKey, Meta>,
-  metaB: Map<NodeKey, Meta>,
+  meetF: StateKey,
+  meetB: StateKey,
+  metaF: Map<StateKey, Meta>,
+  metaB: Map<StateKey, Meta>,
   labels: Map<NodeKey, string>,
   imgs: Map<NodeKey, string>,
 ): PathResult {
-  const fChain: NodeKey[] = []
+  const fChain: StateKey[] = []
   for (
-    let cur: NodeKey | null = meet;
+    let cur: StateKey | null = meetF;
     cur !== null;
     cur = metaF.get(cur)!.parent
   ) {
     fChain.push(cur)
   }
   fChain.reverse()
-  const fVias: string[] = []
+
+  const keys: NodeKey[] = fChain.map((sk) => metaF.get(sk)!.node)
+  const vias: string[] = []
+  const linkTypes: (TlinkType | null)[] = []
   for (let i = 1; i < fChain.length; i++) {
-    fVias.push(metaF.get(fChain[i])!.via ?? '')
+    const m = metaF.get(fChain[i])!
+    vias.push(m.via ?? '')
+    linkTypes.push(m.linkType)
   }
 
-  const bChain: NodeKey[] = []
-  const bVias: string[] = []
-  for (let cur: NodeKey = meet; metaB.get(cur)!.parent !== null;) {
+  for (let cur: StateKey = meetB; metaB.get(cur)!.parent !== null;) {
     const m = metaB.get(cur)!
-    bVias.push(m.via ?? '')
-    bChain.push(m.parent!)
+    /* `m` describes the edge between `cur` and its backward parent, which is
+     * the very next edge in path order, so it lines up with the forward half. */
+    vias.push(m.via ?? '')
+    linkTypes.push(m.linkType)
+    keys.push(metaB.get(m.parent!)!.node)
     cur = m.parent!
   }
 
-  const keys = [...fChain, ...bChain]
-  const vias = [...fVias, ...bVias]
-  return { keys, vias, labels, distance: vias.length, imgs: imgs }
+  const castUsed = metaF.get(meetF)!.cast + metaB.get(meetB)!.cast
+  const crewUsed = metaF.get(meetF)!.crew + metaB.get(meetB)!.crew
+
+  return {
+    keys,
+    vias,
+    linkTypes,
+    labels,
+    distance: vias.length,
+    imgs,
+    castUsed,
+    crewUsed,
+  }
 }
 
 function renderPath(result: PathResult): string {
@@ -377,7 +513,10 @@ function renderPath(result: PathResult): string {
     const label = result.labels.get(key) ?? key
     lines.push(`${label}`)
     if (i < result.keys.length - 1) {
-      lines.push(`     │  ${result.vias[i]}`)
+      const linkType = result.linkTypes[i]
+      lines.push(
+        `     │  ${result.vias[i]}${linkType ? ` (${linkType} pick)` : ''}`,
+      )
       lines.push(`     ▼`)
     }
   })
@@ -436,10 +575,26 @@ async function getPar(selectedMovie: number, selectedPerson: number) {
   if (!result) {
     searchSpin.stop('No path found.')
     log.warn(
-      `Couldn't connect them within ${MAX_DEPTH} degrees (with pruned fan-out). ` +
-        `Fetched ${fetchedNodes} nodes in ${(elapsedMs / 1000).toFixed(1)}s.`,
+      `Couldn't connect them within ${MAX_DEPTH} degrees on a budget of ` +
+        `${MAX_CAST_LINKS} cast / ${MAX_CREW_LINKS} crew picks (with pruned ` +
+        `fan-out). Fetched ${fetchedNodes} nodes in ${(
+          elapsedMs / 1000
+        ).toFixed(1)}s.`,
     )
     outro('Try a more mainstream movie or person.')
+    return
+  }
+
+  /* The search can only build budget-legal paths, so this is a guard against a
+   * future regression rather than an expected outcome. Publishing a par a
+   * player cannot reach is worse than publishing no game at all. */
+  if (result.castUsed > MAX_CAST_LINKS || result.crewUsed > MAX_CREW_LINKS) {
+    searchSpin.stop('Path exceeds the pick budget.')
+    log.error(
+      `[getPar] path costs ${result.castUsed} cast / ${result.crewUsed} crew, ` +
+        `over the ${MAX_CAST_LINKS} / ${MAX_CREW_LINKS} budget.`,
+    )
+    outro('Refusing to publish an unreachable par.')
     return
   }
 
@@ -449,13 +604,19 @@ async function getPar(selectedMovie: number, selectedPerson: number) {
 
   note(renderPath(result), 'Shortest path')
   log.info(
-    `par: ${result.distance} moves · ${fetchedNodes} nodes fetched · ${(
-      elapsedMs / 1000
-    ).toFixed(1)}s`,
+    `par: ${result.distance} moves · ${result.castUsed}/${MAX_CAST_LINKS} cast · ` +
+      `${result.crewUsed}/${MAX_CREW_LINKS} crew · ${fetchedNodes} nodes fetched · ${(
+        elapsedMs / 1000
+      ).toFixed(1)}s`,
   )
   outro('Done.')
 
-  return { par: result.distance, path: controllerFormat }
+  return {
+    par: result.distance,
+    path: controllerFormat,
+    castUsed: result.castUsed,
+    crewUsed: result.crewUsed,
+  }
 }
 
 export {
