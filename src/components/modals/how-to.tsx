@@ -1,6 +1,6 @@
 import { modals } from '@mantine/modals'
 import { Badge, Divider, Group, Stack, Text, ThemeIcon } from '@mantine/core'
-import { ArrowRight, Clapperboard, Ticket, UserRound } from 'lucide-react'
+import { ArrowRight, Clapperboard, Tags, Ticket, UserRound } from 'lucide-react'
 import Poster from '#/components/poster/poster'
 import PointTracker, {
   TRACKER_META,
@@ -14,7 +14,16 @@ type ExampleStep = {
   label: string
   img_path: string
   kicker: string
-  cost: TlinkType | null
+  cost:
+    | {
+        type: 'PERSON'
+        link: TlinkType
+      }
+    | {
+        type: 'MOVIE'
+        link: string
+      }
+    | null
 }
 
 const EXAMPLE: ExampleStep[] = [
@@ -24,7 +33,10 @@ const EXAMPLE: ExampleStep[] = [
     label: 'The Dark Knight',
     img_path: '/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
     kicker: 'Start',
-    cost: null,
+    cost: {
+      type: 'MOVIE',
+      link: 'ACTION',
+    },
   },
   {
     id: 3895,
@@ -32,7 +44,10 @@ const EXAMPLE: ExampleStep[] = [
     label: 'Michael Caine',
     img_path: '/bVZRMlpjTAO2pJK6v90buFgVbSW.jpg',
     kicker: '',
-    cost: 'CAST',
+    cost: {
+      type: 'PERSON',
+      link: 'CAST',
+    },
   },
   {
     id: 157336,
@@ -40,7 +55,10 @@ const EXAMPLE: ExampleStep[] = [
     label: 'Interstellar',
     img_path: '/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg',
     kicker: '',
-    cost: null,
+    cost: {
+      type: 'MOVIE',
+      link: 'ADVENTURE',
+    },
   },
   {
     id: 525,
@@ -48,11 +66,12 @@ const EXAMPLE: ExampleStep[] = [
     label: 'Christopher Nolan',
     img_path: '/xuAIuYSmsUzKlUMBFGVZaWsY3DZ.jpg',
     kicker: 'Target',
-    cost: 'CREW',
+    cost: null,
   },
 ]
 
-const CostChip = ({ cost }: { cost: TlinkType | null }) => {
+const CostChip = ({ cost }: { cost: ExampleStep['cost'] }) => {
+  console.log(cost)
   if (!cost) {
     return (
       <Badge variant="outline" color="gray" size="xs" radius="sm">
@@ -61,15 +80,23 @@ const CostChip = ({ cost }: { cost: TlinkType | null }) => {
     )
   }
 
-  const { label, color } = TRACKER_META[cost]
-  return (
-    <Badge variant="light" color={color} size="xs" radius="sm">
-      −1 {label}
-    </Badge>
-  )
+  if (cost.type === 'PERSON') {
+    const { label, color } = TRACKER_META[cost.link]
+    return (
+      <Badge variant="light" color={color} size="xs" radius="sm">
+        -1 {label}
+      </Badge>
+    )
+  } else {
+    return (
+      <Badge variant="light" color={'lime'} size="xs" radius="sm">
+        -1 {cost.link}
+      </Badge>
+    )
+  }
 }
 
-const Step = ({ step, indx }: { step: ExampleStep; indx: number }) => (
+const Step = ({ step }: { step: ExampleStep }) => (
   <Stack gap={4} align="center" w={84} style={{ flexShrink: 0 }}>
     {step.kicker ? (
       <Badge
@@ -109,7 +136,7 @@ const Step = ({ step, indx }: { step: ExampleStep; indx: number }) => (
     <Text size="xs" fw={700} ta="center" className="leading-tight">
       {step.label}
     </Text>
-    {indx > 0 && <CostChip cost={step.cost} />}
+    {<CostChip cost={step.cost} />}
   </Stack>
 )
 
@@ -145,7 +172,7 @@ const HowToBody = () => {
                 <ArrowRight />
               </ThemeIcon>
             )}
-            <Step step={step} indx={indx} />
+            <Step step={step} />
           </Group>
         ))}
       </Group>
@@ -159,6 +186,10 @@ const HowToBody = () => {
         <Rule icon={<Clapperboard size={14} />}>
           On a <b>film</b>: pick an actor (<b>cast pick</b>) or anyone else (
           <b>crew pick</b>).
+        </Rule>
+        <Rule icon={<Tags size={14} />}>
+          Every film counts as a single <b>genre</b>, and each genre can only be
+          routed through once.
         </Rule>
         <Rule icon={<Ticket size={14} />}>
           You get {MAX_CAST_LINKS} cast picks and {MAX_CREW_LINKS} crew picks.

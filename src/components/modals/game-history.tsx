@@ -1,7 +1,8 @@
 import { modals } from '@mantine/modals'
 import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import Poster from '#/components/poster/poster'
-import { ScrollArea, Text } from '@mantine/core'
+import { Badge, Text } from '@mantine/core'
+import { useEffect, useRef } from 'react'
 import type { TlinkType } from '#/types/client.types'
 
 const GameHistory = ({
@@ -29,6 +30,16 @@ const connectionLabel = (item: HistoryItem) => {
   return type
 }
 
+const connectorLine = (type?: TlinkType | null) =>
+  type === 'CAST'
+    ? 'bg-blue-400'
+    : type === 'CREW'
+      ? 'bg-orange-400'
+      : 'bg-black/50'
+
+const connectorText = (type?: TlinkType | null) =>
+  type === 'CAST' ? 'blue' : type === 'CREW' ? 'orange' : 'dimmed'
+
 const Connector = ({
   label,
   type,
@@ -36,32 +47,21 @@ const Connector = ({
   label: string | null
   type?: TlinkType | null
 }) => (
-  <div className="flex  shrink-0 flex-col items-center">
-    <div
-      className={`h-4 w-0.5 ${!type ? 'bg-black/50' : type === 'CREW' && 'bg-orange-400'} ${type === 'CAST' && 'bg-blue-400'}`}
-    />
-    {label ? (
-      <Text
-        size="xs"
-        c={!type ? 'dimmed' : type === 'CREW' ? 'orange' : 'blue'}
-        fw={600}
-        tt="uppercase"
-        lineClamp={2}
-        title={label}
-        className="max-w-full px-1.5 py-px text-center leading-tight"
-      >
-        {type ? (
-          <>
-            {label} ({type})
-          </>
-        ) : (
-          <>{label}</>
-        )}
-      </Text>
-    ) : null}
-    <div
-      className={`h-4 w-0.5 ${!type ? 'bg-black/50' : type === 'CREW' && 'bg-orange-400'} ${type === 'CAST' && 'bg-blue-400'}`}
-    />
+  <div className="flex w-24 shrink-0 flex-col items-center gap-1 px-1">
+    <Text
+      size="xs"
+      c={connectorText(type)}
+      fw={600}
+      tt="uppercase"
+      lineClamp={2}
+      title={label ?? undefined}
+      className="min-h-8 w-full text-center leading-tight"
+    >
+      {label}
+      {label && type ? ` (${type})` : null}
+    </Text>
+    <div className={`h-0.5 w-full ${connectorLine(type)}`} />
+    <div className="min-h-8" />
   </div>
 )
 
@@ -79,11 +79,11 @@ const Node = ({
 
   return (
     <div
-      className="flex w-36 shrink-0 flex-col items-center gap-0.5"
-      title={title ? title : ''}
+      className="flex w-28 shrink-0 flex-col items-center gap-1"
+      title={title ?? ''}
     >
       <Text
-        size="md"
+        size="xs"
         c="dimmed"
         fw={700}
         tt="uppercase"
@@ -91,51 +91,66 @@ const Node = ({
       >
         {isStart ? 'Start' : isCurrent ? 'Current' : indx}
       </Text>
-      {item.entityType === 'MOVIE' ? (
-        <div className="h-36 w-24">
+      <div className="h-36 w-24">
+        {item.entityType === 'MOVIE' ? (
           <Poster
             type="movie"
             posterPath={item.entity?.imgPath}
             id={item.entityId.toString()}
           />
-        </div>
-      ) : (
-        <div className="h-36 w-24">
+        ) : (
           <Poster
             type="person"
             posterPath={item.entity?.imgPath}
             id={`${item.entityId}-${indx}`}
           />
-        </div>
-      )}
-      <Text size="md" fw={600} className="w-full text-center leading-tight">
-        {item.entity?.label}{' '}
-        {item.entity?.genre && '(' + item.entity.genre.name + ')'}
+        )}
+      </div>
+      <Text
+        size="sm"
+        fw={600}
+        lineClamp={2}
+        className="w-full text-center leading-tight"
+      >
+        {item.entity?.label}
       </Text>
+      {item.entity?.genre ? (
+        <Badge size="xs" className="leading-none" variant="light" color="cyan">
+          {item.entity.genre.name}
+        </Badge>
+      ) : null}
     </div>
   )
 }
 
 const History = ({ history, centered = true }: PropTypes) => {
   const lastIdx = history.length - 1
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (el) el.scrollLeft = -el.scrollWidth
+  }, [history.length])
+
   return (
     <div
-      className={`flex items-center gap-0 px-2 flex-col-reverse ${
-        centered ? 'h-full justify-center' : 'py-2'
+      ref={scrollRef}
+      className={`flex w-full flex-row-reverse items-center scrollbar-none overflow-x-auto px-2 py-2 ${
+        centered ? 'h-full justify-center-safe' : ''
       }`}
     >
       {history.map((curr, indx) => (
         <div
           key={`${curr.moveIndex}-${indx}`}
-          className="flex items-center flex-col"
+          className="flex shrink-0 flex-row-reverse items-center"
         >
-          <Node item={curr} indx={indx} isCurrent={indx === lastIdx} />
           {indx > 0 && (
             <Connector
               label={connectionLabel(curr)}
               type={curr.entityType === 'PERSON' ? curr.linkType : null}
             />
           )}
+          <Node item={curr} indx={indx} isCurrent={indx === lastIdx} />
         </div>
       ))}
     </div>
@@ -146,8 +161,8 @@ const ModalGameHistory = (history: ReturnGetUserGameId['gameMovesLog']) => {
   return modals.open({
     title: 'Your Moves',
     centered: true,
+    size: 'xl',
     zIndex: 1000,
-    scrollAreaComponent: ScrollArea.Autosize,
     children: <GameHistory history={history} />,
     onClose() {},
   })
