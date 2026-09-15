@@ -49,8 +49,10 @@ const MainBody = ({
           const isEndPoint = end.id === entity.id
           const added = entity.already_added
           const genreUsed = genres.find((val) => val.id === entity.genre.id)
+          console.log(genreUsed)
           const disabled =
-            !isEndPoint && (added || !entity.can_be_picked || genreUsed)
+            !isEndPoint &&
+            (added || !entity.can_be_picked || genreUsed !== undefined)
           return disabled === false
         })
 
