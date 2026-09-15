@@ -1,5 +1,7 @@
 import type {
+  T_TMDB_GENRE,
   T_TMDB_MOVIE_DETAILS,
+  T_TMDB_MOVIE_DETAILS_DISCOVER,
   T_TMDB_PERSON_DETAILS,
 } from '#/types/tmdb.types'
 import type { TController, TlinkType } from '#/types/client.types'
@@ -11,8 +13,9 @@ import {
   MAX_CAST_CREDITS,
   MAX_CAST_LINKS,
   MAX_CREW_LINKS,
+  GENRES,
 } from '#/lib/constants'
-import { getRandomNumber } from '#/lib/utils'
+import { getRandomNumber, resolveGenre } from '#/lib/utils'
 
 const createRandomDaily = async () => {
   try {
@@ -61,18 +64,25 @@ const getRandomValidMovie = async (): Promise<T_TMDB_MOVIE_DETAILS> => {
   let keepLooking = true as boolean
   while (keepLooking) {
     const randomPage = getRandomNumber(100)
-    const movies = await tmdbFetch<{ results: T_TMDB_MOVIE_DETAILS[] }>(
-      `/discover/movie?include_adult=false&page=${randomPage}&region=us`,
-    ).then((res) => res.results)
+    const movies = await tmdbFetch<{
+      results: T_TMDB_MOVIE_DETAILS_DISCOVER[]
+    }>(`/discover/movie?include_adult=false&page=${randomPage}&region=us`).then(
+      (res) => res.results,
+    )
     const randomIdx = Math.floor(Math.random() * movies.length)
     const randomMovie = movies[randomIdx]
-    console.log('page', randomPage)
+    console.log({ randomMovie })
 
     const isValid = randomMovie.vote_count > MOVIE_COUNT_LIMIT
 
     if (isValid) {
       keepLooking = false
-      return randomMovie
+
+      const movieDetails = await tmdbFetch<T_TMDB_MOVIE_DETAILS>(
+        `/movie/${randomMovie.id}?language=en-US`,
+      )
+
+      return movieDetails
     }
   }
   console.error(`[getRandomValidMovie]`)
@@ -136,6 +146,8 @@ type Neighbor = {
   via: string
   imgUrl: string
   linkType: TlinkType
+  /* Movies only. Stepping onto a person spends no genre, so it carries none. */
+  genre: T_TMDB_GENRE | null
 }
 type Meta = {
   parent: StateKey | null
@@ -145,10 +157,29 @@ type Meta = {
   dist: number
   cast: number
   crew: number
+  genres: GenreMask
 }
 
-const stateKey = (key: NodeKey, cast: number, crew: number): StateKey =>
-  `${key}|${cast}|${crew}`
+/* --- Genres as a third budget -------------------------------------------- *
+ * A path may route through each genre at most once, so every state carries the
+ * set of genres its movies have already spent. There are only ~20 genres, so
+ * the set fits in a bitmask that is cheap to union and compare.
+ * ------------------------------------------------------------------------ */
+type GenreMask = number
+
+const GENRE_BITS = new Map(GENRES.map((genre, indx) => [genre.id, 1 << indx]))
+
+/* `resolveGenre` only ever hands back a listed genre, so the fallback is a
+ * guard against GENRES drifting rather than an expected branch. */
+const genreBit = (genre: T_TMDB_GENRE): GenreMask =>
+  GENRE_BITS.get(genre.id) ?? 0
+
+const stateKey = (
+  key: NodeKey,
+  cast: number,
+  crew: number,
+  genres: GenreMask,
+): StateKey => `${key}|${cast}|${crew}|${genres}`
 
 const movieKey = (id: number): NodeKey => `M:${id}`
 const personKey = (id: number): NodeKey => `P:${id}`
@@ -206,6 +237,7 @@ async function computeNeighbors(key: NodeKey): Promise<Neighbor[]> {
         via: c.character ? `as ${c.character}` : 'cast',
         imgUrl: c.profile_path,
         linkType: 'CAST',
+        genre: null,
       })
     }
     for (const c of crew) {
@@ -218,6 +250,7 @@ async function computeNeighbors(key: NodeKey): Promise<Neighbor[]> {
         via: c.job,
         imgUrl: c.profile_path,
         linkType: 'CREW',
+        genre: null,
       })
     }
   } else {
@@ -245,7 +278,14 @@ async function computeNeighbors(key: NodeKey): Promise<Neighbor[]> {
       const k = movieKey(m.id)
       if (!m.id || !m.title || seen.has(k)) continue
       seen.add(k)
-      out.push({ key: k, label: m.title, via, imgUrl: m.poster_path, linkType })
+      out.push({
+        key: k,
+        label: m.title,
+        via,
+        imgUrl: m.poster_path,
+        linkType,
+        genre: resolveGenre(m.genre_ids),
+      })
     }
   }
 
@@ -279,6 +319,8 @@ type PathResult = {
   imgs: Map<NodeKey, string>
   castUsed: number
   crewUsed: number
+  genres: Map<NodeKey, T_TMDB_GENRE>
+  genresUsed: T_TMDB_GENRE[]
 }
 
 /* A path only counts a pick when it lands on a PERSON, so the movie -> person
@@ -291,17 +333,22 @@ const paysAtSource = (node: NodeKey, forward: boolean) =>
   forward ? isMovie(node) : !isMovie(node)
 
 /* Reaching the same node with fewer picks of both kinds at no extra distance is
- * strictly better, so the dominated state can never produce a better answer. */
+ * strictly better, so the dominated state can never produce a better answer.
+ * Genres work the same way but as a set: spending a subset of the genres leaves
+ * at least as many open for the rest of the path. A state that spent *other*
+ * genres is not dominated, however cheap it was — it can still reach movies the
+ * incumbent has locked itself out of. */
 const isDominated = (
   metaThis: Map<StateKey, Meta>,
   statesByNode: Map<NodeKey, StateKey[]>,
   node: NodeKey,
   cast: number,
   crew: number,
+  genres: GenreMask,
 ) =>
   (statesByNode.get(node) ?? []).some((sk) => {
     const m = metaThis.get(sk)!
-    return m.cast <= cast && m.crew <= crew
+    return m.cast <= cast && m.crew <= crew && (m.genres & genres) === m.genres
   })
 
 async function biBFS(
@@ -311,6 +358,7 @@ async function biBFS(
   targetLabel: string,
   startUrl: string,
   endUrl: string,
+  startGenre: T_TMDB_GENRE,
   onProgress?: (msg: string) => void,
 ): Promise<PathResult | null> {
   const labels = new Map<NodeKey, string>([
@@ -321,9 +369,15 @@ async function biBFS(
     [startKey, startUrl],
     [targetKey, endUrl],
   ])
+  const genresByNode = new Map<NodeKey, T_TMDB_GENRE>([[startKey, startGenre]])
 
-  const rootF = stateKey(startKey, 0, 0)
-  const rootB = stateKey(targetKey, 0, 0)
+  /* The player starts *on* the opening movie, so its genre is already spent
+   * before the first move — the board seeds the used-genre list from the move
+   * log, which includes that movie. The target is a person and spends none. */
+  const rootGenres = genreBit(startGenre)
+
+  const rootF = stateKey(startKey, 0, 0, rootGenres)
+  const rootB = stateKey(targetKey, 0, 0, 0)
 
   const metaF = new Map<StateKey, Meta>([
     [
@@ -336,6 +390,7 @@ async function biBFS(
         dist: 0,
         cast: 0,
         crew: 0,
+        genres: rootGenres,
       },
     ],
   ])
@@ -350,6 +405,7 @@ async function biBFS(
         dist: 0,
         cast: 0,
         crew: 0,
+        genres: 0,
       },
     ],
   ])
@@ -387,9 +443,16 @@ async function biBFS(
 
         if (cast > MAX_CAST_LINKS || crew > MAX_CREW_LINKS) continue
 
-        const to = stateKey(nb.key, cast, crew)
+        /* Landing on a movie spends that movie's genre, and a genre can only be
+         * spent once, so a repeat is not a costlier route — it is no route. */
+        const bit = nb.genre ? genreBit(nb.genre) : 0
+        if (bit && (parent.genres & bit) !== 0) continue
+        const genres = parent.genres | bit
+
+        const to = stateKey(nb.key, cast, crew, genres)
         if (metaThis.has(to)) continue
-        if (isDominated(metaThis, statesThis, nb.key, cast, crew)) continue
+        if (isDominated(metaThis, statesThis, nb.key, cast, crew, genres))
+          continue
 
         metaThis.set(to, {
           parent: from,
@@ -399,12 +462,14 @@ async function biBFS(
           dist: parent.dist + 1,
           cast,
           crew,
+          genres,
         })
         const siblings = statesThis.get(nb.key)
         if (siblings) siblings.push(to)
         else statesThis.set(nb.key, [to])
         labels.set(nb.key, nb.label)
         imgs.set(nb.key, nb.imgUrl)
+        if (nb.genre) genresByNode.set(nb.key, nb.genre)
         next.push(to)
 
         for (const otherKey of statesOther.get(nb.key) ?? []) {
@@ -415,6 +480,12 @@ async function biBFS(
            * more picks than the player is given. */
           if (other.cast + cast > MAX_CAST_LINKS) continue
           if (other.crew + crew > MAX_CREW_LINKS) continue
+
+          /* Genres add the same way, except that both halves already counted
+           * the node they meet on. When that node is a movie its own bit is the
+           * one overlap a legal join may have; any other shared bit means the
+           * stitched path would visit the same genre twice. */
+          if ((genres & other.genres) !== bit) continue
 
           const total = parent.dist + 1 + other.dist
           if (total < meetTotal) {
@@ -447,8 +518,8 @@ async function biBFS(
     if (meet) {
       const { here, there } = meet
       return forwardTurn
-        ? stitch(here, there, metaF, metaB, labels, imgs)
-        : stitch(there, here, metaF, metaB, labels, imgs)
+        ? stitch(here, there, metaF, metaB, labels, imgs, genresByNode)
+        : stitch(there, here, metaF, metaB, labels, imgs, genresByNode)
     }
   }
 
@@ -462,6 +533,7 @@ function stitch(
   metaB: Map<StateKey, Meta>,
   labels: Map<NodeKey, string>,
   imgs: Map<NodeKey, string>,
+  genresByNode: Map<NodeKey, T_TMDB_GENRE>,
 ): PathResult {
   const fChain: StateKey[] = []
   for (
@@ -495,6 +567,14 @@ function stitch(
   const castUsed = metaF.get(meetF)!.cast + metaB.get(meetB)!.cast
   const crewUsed = metaF.get(meetF)!.crew + metaB.get(meetB)!.crew
 
+  /* Read the genres off the stitched path rather than off the meeting states'
+   * masks: the path is what the player walks, so a repeat shows up here even if
+   * the masks were somehow mismatched. */
+  const genresUsed = keys.flatMap((key) => {
+    const genre = genresByNode.get(key)
+    return genre ? [genre] : []
+  })
+
   return {
     keys,
     vias,
@@ -504,6 +584,8 @@ function stitch(
     imgs,
     castUsed,
     crewUsed,
+    genres: genresByNode,
+    genresUsed,
   }
 }
 
@@ -511,7 +593,8 @@ function renderPath(result: PathResult): string {
   const lines: string[] = []
   result.keys.forEach((key, i) => {
     const label = result.labels.get(key) ?? key
-    lines.push(`${label}`)
+    const genre = result.genres.get(key)
+    lines.push(genre ? `${label}  [${genre.name}]` : `${label}`)
     if (i < result.keys.length - 1) {
       const linkType = result.linkTypes[i]
       lines.push(
@@ -531,13 +614,23 @@ const reformatToController = (result: PathResult): TController[] => {
     const imgUrl = result.imgs.get(key) ?? key
     const keyVals = key.split(':')
     const id = Number(keyVals[1])
-
-    controller.push({
-      id: id,
-      label: label,
-      type: isMovie(key) ? 'MOVIE' : 'PERSON',
-      img_path: imgUrl,
-    })
+    if (isMovie(key)) {
+      controller.push({
+        id: id,
+        label: label,
+        type: 'MOVIE',
+        img_path: imgUrl,
+        genre: result.genres.get(key) ?? GENRES[0],
+      })
+    } else {
+      controller.push({
+        id: id,
+        label: label,
+        type: 'PERSON',
+        img_path: imgUrl,
+        genre: null,
+      })
+    }
   })
   return controller
 }
@@ -560,6 +653,10 @@ async function getPar(selectedMovie: number, selectedPerson: number) {
   searchSpin.start('Digging from both ends…')
   const startedAt = Date.now()
 
+  /* `/movie/{id}` returns full genre objects while the credit lists the board
+   * reads return bare ids, so line them up before resolving. */
+  const startGenre = resolveGenre(movieDetails.genres.map((genre) => genre.id))
+
   const result = await biBFS(
     startKey,
     targetKey,
@@ -567,6 +664,7 @@ async function getPar(selectedMovie: number, selectedPerson: number) {
     personDetails.name,
     moviePosterUrl,
     personImageUrl,
+    startGenre,
     (msg) => searchSpin.message(`Digging from both ends… (${msg})`),
   )
 
@@ -598,6 +696,23 @@ async function getPar(selectedMovie: number, selectedPerson: number) {
     return
   }
 
+  /* Same guard, for the genre budget: the search only builds paths that spend
+   * each genre once, so a repeat here means a regression, and a par the player
+   * is barred from walking is worse than no game at all. */
+  const repeatedGenre = result.genresUsed.find(
+    (genre, indx) =>
+      result.genresUsed.findIndex((seen) => seen.id === genre.id) !== indx,
+  )
+  if (repeatedGenre) {
+    searchSpin.stop('Path repeats a genre.')
+    log.error(
+      `[getPar] path routes through ${repeatedGenre.name} more than once: ` +
+        `${result.genresUsed.map((genre) => genre.name).join(' → ')}.`,
+    )
+    outro('Refusing to publish an unreachable par.')
+    return
+  }
+
   searchSpin.stop(`Connected in ${result.distance} moves!`)
 
   const controllerFormat = reformatToController(result)
@@ -605,7 +720,10 @@ async function getPar(selectedMovie: number, selectedPerson: number) {
   note(renderPath(result), 'Shortest path')
   log.info(
     `par: ${result.distance} moves · ${result.castUsed}/${MAX_CAST_LINKS} cast · ` +
-      `${result.crewUsed}/${MAX_CREW_LINKS} crew · ${fetchedNodes} nodes fetched · ${(
+      `${result.crewUsed}/${MAX_CREW_LINKS} crew · ${result.genresUsed.length}/` +
+      `${GENRES.length} genres (${result.genresUsed
+        .map((genre) => genre.name)
+        .join(' → ')}) · ${fetchedNodes} nodes fetched · ${(
         elapsedMs / 1000
       ).toFixed(1)}s`,
   )
@@ -616,6 +734,7 @@ async function getPar(selectedMovie: number, selectedPerson: number) {
     path: controllerFormat,
     castUsed: result.castUsed,
     crewUsed: result.crewUsed,
+    genresUsed: result.genresUsed,
   }
 }
 

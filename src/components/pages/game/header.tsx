@@ -8,6 +8,7 @@ import {
   Stack,
   Button,
   Card,
+  Tooltip,
 } from '@mantine/core'
 import Poster from '#/components/poster/poster'
 import ProfileImage from '#/components/profile-image'
@@ -23,6 +24,7 @@ import ModalGameHistory from '#/components/modals/game-history'
 import type { TReturnUsePicks } from '#/hooks/use-picks'
 import type { TReturnUseGame } from '#/hooks/use-game'
 import ModalConfirmGiveUp from '#/components/modals/confirm-give-up'
+import type { T_TMDB_GENRE } from '#/types/tmdb.types'
 
 type HistoryItem = ReturnGetUserGameId['gameMovesLog'][0]
 
@@ -33,6 +35,7 @@ type PropTypes = {
   moves: number
   picks: TReturnUsePicks
   giveUp: TReturnUseGame['actions']['gaveUpGame']
+  genres: T_TMDB_GENRE[]
 }
 
 const Endpoint = ({
@@ -152,7 +155,53 @@ const CurrentImage = ({ current }: { current: HistoryItem }) => {
   }
 }
 
-const Header = ({ start, end, history, moves, picks, giveUp }: PropTypes) => {
+const GenresUsed = ({ genres }: { genres: T_TMDB_GENRE[] }) => {
+  // The move log can replay the same genre more than once even though a live
+  // pick can't, so collapse to one badge per genre.
+  const used = Array.from(new Map(genres.map((g) => [g.id, g])).values())
+
+  return (
+    <Tooltip
+      label="Each genre can only be routed through once."
+      withArrow
+      position="bottom"
+      openDelay={400}
+    >
+      <Group gap={6} wrap="wrap" align="center">
+        <Text size="xs" c="dimmed" fw={600} tt="uppercase">
+          Genres used
+        </Text>
+        {used.length > 0 ? (
+          used.map((genre) => (
+            <Badge
+              key={genre.id}
+              variant="light"
+              color="gray"
+              size="xs"
+              radius="sm"
+            >
+              {genre.name}
+            </Badge>
+          ))
+        ) : (
+          <Text size="xs" c="dimmed">
+            None yet
+          </Text>
+        )}
+      </Group>
+    </Tooltip>
+  )
+}
+
+const Header = ({
+  start,
+  end,
+  history,
+  moves,
+  picks,
+  genres,
+  giveUp,
+}: PropTypes) => {
   const current = history.length > 0 ? history[history.length - 1] : null
   return (
     <div className={classes.headerSticky} id="header">
@@ -235,6 +284,8 @@ const Header = ({ start, end, history, moves, picks, giveUp }: PropTypes) => {
             </Button>
           </Group>
         </Group>
+        <Divider my={6} />
+        <GenresUsed genres={genres} />
       </Card>
     </div>
   )

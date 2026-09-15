@@ -17,7 +17,7 @@ const LayoutGameProvider = ({ children }: { children: React.ReactNode }) => {
 
       return item ? (item as LayoutTypes) : 'table'
     } catch (error) {
-      console.log('Error reading localStorage key', LOCAL_STORAGE_KEY, error)
+      console.error('Error reading localStorage key', LOCAL_STORAGE_KEY, error)
       return 'table'
     }
   })

@@ -18,6 +18,11 @@ import {
 } from 'drizzle-orm/pg-core'
 import type { TController } from '#/types/client.types'
 import { MAX_CAST_LINKS, MAX_CREW_LINKS } from '../constants'
+import type {
+  T_TMDB_MOVIE_DETAILS,
+  T_TMDB_PERSON_DETAILS,
+  T_TMDB_GENRE,
+} from '#/types/tmdb.types'
 
 export const enumGameStatus = pgEnum('game_status', [
   'started',
@@ -89,6 +94,7 @@ export const entities = pgTable(
     entityId: integer('entity_id').notNull(),
     label: text('label').notNull(),
     imgPath: text('img_path'),
+    genre: jsonb('genre').$type<T_TMDB_GENRE>(),
     popularity: real('popularity'),
     createdAt: timestamp('created_at', { withTimezone: true })
       .defaultNow()
@@ -97,8 +103,9 @@ export const entities = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date())
       .notNull(),
-
-    metadata: jsonb('metadata'),
+    metadata: jsonb('metadata').$type<
+      T_TMDB_MOVIE_DETAILS | T_TMDB_PERSON_DETAILS
+    >(),
   },
   (t) => [primaryKey({ columns: [t.entityType, t.entityId] })],
 )
@@ -112,9 +119,6 @@ export const gameMoves = pgTable(
         onDelete: 'cascade',
         onUpdate: 'cascade',
       }),
-    // userId: uuid('user_id')
-    //   .notNull()
-    //   .references(() => user.id, { onDelete: 'cascade', onUpdate: 'cascade' }),
     moveIndex: integer('move_index').notNull(),
     entityType: enumEntityType('entity_type').notNull(),
     entityId: integer('entity_id').notNull(),

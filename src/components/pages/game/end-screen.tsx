@@ -95,10 +95,10 @@ const EndScreen = ({
               {moves} moves
             </Badge>
             <Badge variant="light" color="blue" size="lg" radius="sm">
-              {castScore.curr}/{castScore.max} cast
+              {Math.min(castScore.curr, castScore.max)}/{castScore.max} cast
             </Badge>
             <Badge variant="light" color="orange" size="lg" radius="sm">
-              {crewScore.curr}/{crewScore.max} crew
+              {Math.min(crewScore.max, crewScore.curr)}/{crewScore.max} crew
             </Badge>
           </Group>
         </Stack>

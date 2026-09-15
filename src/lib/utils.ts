@@ -1,3 +1,6 @@
+import { GENRES } from '#/lib/constants'
+import type { T_TMDB_GENRE } from '#/types/tmdb.types'
+
 // Format time into MM:SS:CC (Minutes : Seconds : Centiseconds)
 const formatTime = (ms: number) => {
   // 1. Extract total components
@@ -20,6 +23,13 @@ const formatTime = (ms: number) => {
 const displayYear = (date: string) => {
   return new Date(date).getFullYear()
 }
+
+// TMDB hands back a list of genre ids ordered by relevance and the game only
+// ever plays a movie as its primary genre, so the first recognised id wins.
+// Both the board and the par search resolve genres through here, otherwise a
+// published par could route through a genre the player is not allowed to use.
+const resolveGenre = (genreIds: number[] | undefined): T_TMDB_GENRE =>
+  GENRES.find((genre) => genre.id === genreIds?.[0]) ?? GENRES[0]
 
 const getRandomNumber = (maxNumber: number) => {
   return Math.floor(Math.random() * maxNumber)
@@ -49,6 +59,7 @@ const formatDisplayDate = (displayDate: string) => {
 export {
   formatTime,
   getRandomNumber,
+  resolveGenre,
   displayYear,
   parseDisplayDate,
   formatDisplayDate,

@@ -38,7 +38,7 @@ const Connector = ({
 }) => (
   <div className="flex  shrink-0 flex-col items-center">
     <div
-      className={`h-3 w-px ${!type ? 'bg-black/50' : type === 'CREW' && 'bg-orange-400'} ${type === 'CAST' && 'bg-blue-400'}`}
+      className={`h-4 w-0.5 ${!type ? 'bg-black/50' : type === 'CREW' && 'bg-orange-400'} ${type === 'CAST' && 'bg-blue-400'}`}
     />
     {label ? (
       <Text
@@ -60,7 +60,7 @@ const Connector = ({
       </Text>
     ) : null}
     <div
-      className={`h-3 w-px ${!type ? 'bg-black/50' : type === 'CREW' && 'bg-orange-400'} ${type === 'CAST' && 'bg-blue-400'}`}
+      className={`h-4 w-0.5 ${!type ? 'bg-black/50' : type === 'CREW' && 'bg-orange-400'} ${type === 'CAST' && 'bg-blue-400'}`}
     />
   </div>
 )
@@ -109,7 +109,8 @@ const Node = ({
         </div>
       )}
       <Text size="md" fw={600} className="w-full text-center leading-tight">
-        {item.entity?.label}
+        {item.entity?.label}{' '}
+        {item.entity?.genre && '(' + item.entity.genre.name + ')'}
       </Text>
     </div>
   )

@@ -8,21 +8,21 @@ interface T_TMDB_MOVIE_CREDITS {
 
 interface T_TMDB_PERSON_CREDITS {
   id: number
-  cast: TPersonCast[]
-  crew: TPersonCrew[]
+  cast: T_TMDB_CAST[]
+  crew: T_TMDB_CREW[]
 }
 
-interface TPersonCast extends T_TMDB_MOVIE_DETAILS {
-  character: string
-  credit_id: string
-  order: number
-}
-interface TPersonCrew extends T_TMDB_MOVIE_DETAILS {
-  department: string
-  job: string
-}
+// interface TPersonCast extends T_TMDB_MOVIE_DETAILS {
+//   character: string
+//   credit_id: string
+//   order: number
+// }
+// interface TPersonCrew extends T_TMDB_MOVIE_DETAILS {
+//   department: string
+//   job: string
+// }
 
-interface T_TMDB_MOVIE_DETAILS {
+interface T_TMDB_MOVIE_DETAILS_DISCOVER {
   adult: boolean
   backdrop_path: string
   genre_ids: number[]
@@ -53,6 +53,12 @@ interface T_TMDB_CAST {
   character: string
   credit_id: string
   order: number
+  genre_ids: number[]
+  release_date: string
+  title: string
+  poster_path: string
+  vote_average: number
+  vote_count: number
 }
 
 interface T_TMDB_CREW {
@@ -67,6 +73,17 @@ interface T_TMDB_CREW {
   credit_id: string
   department: string
   job: (typeof FILTERED_CREW_TYPES)[number] | (string & {})
+  genre_ids: number[]
+  release_date: string
+  title: string
+  poster_path: string
+  vote_average: number
+  vote_count: number
+}
+
+type T_TMDB_GENRE = {
+  id: number
+  name: string
 }
 
 interface T_TMDB_MOVIE_DETAILS {
@@ -74,10 +91,7 @@ interface T_TMDB_MOVIE_DETAILS {
   backdrop_path: string
   belongs_to_collection: any | null
   budget: number
-  genres: {
-    id: number
-    name: string
-  }[]
+  genres: T_TMDB_GENRE[]
   homepage: string
   id: number
   imdb_id: string
@@ -133,10 +147,12 @@ interface T_TMDB_PERSON_DETAILS {
 }
 
 export type {
-  T_TMDB_MOVIE_CREDITS,
   T_TMDB_CAST,
   T_TMDB_CREW,
+  T_TMDB_MOVIE_CREDITS,
   T_TMDB_PERSON_CREDITS,
   T_TMDB_MOVIE_DETAILS,
   T_TMDB_PERSON_DETAILS,
+  T_TMDB_GENRE,
+  T_TMDB_MOVIE_DETAILS_DISCOVER,
 }

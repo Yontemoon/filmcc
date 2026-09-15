@@ -19,7 +19,6 @@ const movieCombineCol: ColumnDef<TMovieCastCol | TMovieCrewCol>[] = [
     cell: ({ row, table }) => {
       const onClickName = table.options.meta?.onClickName
       const isPickable = row.original.can_be_picked
-      // console.log(row.original.name, isPickable)
 
       return (
         <div className="flex items-center gap-3">
@@ -39,7 +38,7 @@ const movieCombineCol: ColumnDef<TMovieCastCol | TMovieCrewCol>[] = [
               e.stopPropagation()
               if (onClickName) {
                 if (isPickable === false) {
-                  console.log('nahh')
+                  console.error('nahh')
                   return
                 } else {
                   onClickName(row.original)

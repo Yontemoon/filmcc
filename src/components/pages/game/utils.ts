@@ -3,6 +3,7 @@ import { FILTERED_CREW_TYPES } from '#/lib/constants'
 import type { FILTERED_CREW_TYPES as TFILTERED_CREW_TYPES } from '#/lib/constants'
 import type { ReturnGetUserGameId } from '#/lib/server/attempt'
 import type { TMove } from '#/types/client.types'
+import { resolveGenre } from '#/lib/utils'
 import type {
   TMovieCastCol,
   TMovieCrewCol,
@@ -49,6 +50,7 @@ const reformatForTable = (
             already_added: isDuplicate >= 0 ? true : false,
             person_type: 'crew' as const,
             can_be_picked: crewCanPick,
+            genre: null,
           }
 
           acc.push(newReduce)
@@ -94,8 +96,9 @@ const reformatForTable = (
         already_added: isDuplicate >= 0 ? true : false,
         person_type: 'cast' as const,
         can_be_picked: castCanPick,
+        genre: null,
       }
-    }) as TMovieCastCol[]
+    })
 
     return {
       type: 'MOVIE' as const,
@@ -119,9 +122,10 @@ const reformatForTable = (
           already_added: isDuplicate >= 0 ? true : false,
           person_type: 'cast' as const,
           can_be_picked: movieCanBePicked,
+          genre: resolveGenre(credit.genre_ids),
         }
       })
-      .filter((movie) => movie.poster_url) as TPersonCastCol[]
+      .filter((movie) => movie.poster_url)
 
     const crewCredits = data.credits.crew
       .reduce((acc: TPersonCrewCol[], curr) => {
@@ -145,6 +149,7 @@ const reformatForTable = (
             already_added: isDuplicate >= 0 ? true : false,
             person_type: 'crew' as const,
             can_be_picked: movieCanBePicked,
+            genre: resolveGenre(curr.genre_ids),
           }
 
           acc.push(newReduce)
@@ -222,6 +227,7 @@ const movieRowToMove = (row: TMovieCastCol | TMovieCrewCol): TMove =>
         linkType: 'CAST',
         roleName: row.role,
         roleType: 'Acting',
+        genre: null,
       }
     : {
         entityId: row.id,
@@ -231,6 +237,7 @@ const movieRowToMove = (row: TMovieCastCol | TMovieCrewCol): TMove =>
         linkType: 'CREW',
         roleName: null,
         roleType: row.job,
+        genre: null,
       }
 
 const personRowToMove = (row: TPersonCastCol | TPersonCrewCol): TMove =>
@@ -243,6 +250,7 @@ const personRowToMove = (row: TPersonCastCol | TPersonCrewCol): TMove =>
         linkType: 'CAST',
         roleName: row.role,
         roleType: 'Acting',
+        genre: row.genre,
       }
     : {
         entityId: row.id,
@@ -252,6 +260,7 @@ const personRowToMove = (row: TPersonCastCol | TPersonCrewCol): TMove =>
         linkType: 'CREW',
         roleName: null,
         roleType: row.job,
+        genre: row.genre,
       }
 
 const crewMapDisplay: Record<(typeof TFILTERED_CREW_TYPES)[number], string> = {

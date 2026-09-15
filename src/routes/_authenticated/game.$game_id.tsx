@@ -181,6 +181,7 @@ function RouteComponent() {
                 start={controllerInformation.start}
                 end={controllerInformation.end}
                 history={data.history}
+                genres={data.genres}
                 moves={stats.moves}
                 picks={data.picks}
                 giveUp={actions.gaveUpGame}
@@ -195,6 +196,7 @@ function RouteComponent() {
                 query={data.credits}
                 bodyData={data.bodyData}
                 end={end}
+                genres={data.genres}
               />
             </div>
           </>

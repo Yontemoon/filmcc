@@ -1,4 +1,5 @@
 import type { FILTERED_CREW_TYPES } from '#/lib/constants'
+import type { T_TMDB_GENRE } from '#/types/tmdb.types'
 
 type TMovieCastCol = {
   id: number
@@ -8,6 +9,7 @@ type TMovieCastCol = {
   already_added: boolean
   person_type: 'cast'
   can_be_picked: boolean
+  genre: null
 }
 
 type TMovieCrewCol = {
@@ -20,6 +22,7 @@ type TMovieCrewCol = {
   already_added: boolean
   person_type: 'crew'
   can_be_picked: boolean
+  genre: null
 }
 
 type TPersonCastCol = {
@@ -31,6 +34,7 @@ type TPersonCastCol = {
   already_added: boolean
   person_type: 'cast'
   can_be_picked: boolean
+  genre: T_TMDB_GENRE
 }
 
 type TPersonCrewCol = {
@@ -44,6 +48,7 @@ type TPersonCrewCol = {
   already_added: boolean
   person_type: 'crew'
   can_be_picked: boolean
+  genre: T_TMDB_GENRE
 }
 
 export type { TMovieCastCol, TMovieCrewCol, TPersonCastCol, TPersonCrewCol }

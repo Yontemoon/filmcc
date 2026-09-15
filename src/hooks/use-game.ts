@@ -32,6 +32,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
   const [, scrollTo] = useWindowScroll()
 
   const attemptQuery = useSuspenseQuery(gameAttemptOption(dailyGameId))
+
   const picks = usePicks(dailyGameId)
 
   const attempt = attemptQuery.data
@@ -42,6 +43,12 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
 
   const history = attempt.gameMovesLog
 
+  const [genres, setGenres] = React.useState(() => {
+    return history.flatMap((curr) =>
+      curr.entity?.genre ? [curr.entity.genre] : [],
+    )
+  })
+
   const lastMove = history.at(-1)
   const lastEntity = lastMove?.entity
   if (!lastEntity) {
@@ -50,15 +57,25 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
     )
   }
 
-  const controller = React.useMemo<TController>(
-    () => ({
-      type: lastEntity.entityType,
-      id: lastEntity.entityId,
-      label: lastEntity.label,
-      img_path: lastEntity.imgPath,
-    }),
-    [lastEntity],
-  )
+  const controller = React.useMemo<TController>(() => {
+    if (lastEntity.entityType === 'PERSON') {
+      return {
+        type: lastEntity.entityType,
+        id: lastEntity.entityId,
+        label: lastEntity.label,
+        img_path: lastEntity.imgPath,
+        genre: null,
+      }
+    } else {
+      return {
+        type: lastEntity.entityType,
+        id: lastEntity.entityId,
+        label: lastEntity.label,
+        img_path: lastEntity.imgPath,
+        genre: lastEntity.genre!,
+      }
+    }
+  }, [lastEntity])
 
   const credits = useCredits(controller.type, controller.id)
 
@@ -124,6 +141,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
     onMutate: async (variables, context) => {
       const move = variables.data
 
+      // console.log('moveMutation', { move })
       await context.client.cancelQueries({ queryKey: gameKey(dailyGameId) })
       const previous = context.client.getQueryData<TAttempt>(
         gameKey(dailyGameId),
@@ -155,6 +173,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
           metadata: null,
           createdAt: now,
           updatedAt: now,
+          genre: move.genre,
         },
       }
 
@@ -229,6 +248,8 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
       return
     }
 
+    const genresId = genres.map((curr) => curr.id)
+
     const alreadyVisited = history.some(
       (curr) =>
         curr.entityId === move.entityId && curr.entityType === move.entityType,
@@ -240,6 +261,22 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
         message: `${move.label} is already in your history.`,
       })
       return
+    }
+
+    if (move.genre) {
+      const isGenreFound = genresId.includes(move.genre.id)
+
+      if (isGenreFound) {
+        notifications.show({
+          title: 'Already genre chosen!',
+          message: `${move.genre.name} is already in your history.`,
+        })
+        return
+      } else {
+        setGenres((prev) => {
+          return [...prev, move.genre!]
+        })
+      }
     }
 
     moveMutation.mutate({ data: { attemptId: attempt.id, ...move } })
@@ -258,6 +295,7 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
       picks,
       bodyData,
       credits,
+      genres,
     },
     actions: {
       startGame,

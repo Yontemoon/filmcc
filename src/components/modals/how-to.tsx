@@ -154,7 +154,7 @@ const HowToBody = () => {
 
       <Stack gap="xs">
         <Rule icon={<UserRound size={14} />}>
-          On a <b>person</b>: pick any film they worked on — <b>free</b>.
+          On a <b>person</b>: pick any film they worked on — <b>genre pick</b>.
         </Rule>
         <Rule icon={<Clapperboard size={14} />}>
           On a <b>film</b>: pick an actor (<b>cast pick</b>) or anyone else (

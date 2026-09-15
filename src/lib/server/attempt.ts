@@ -6,6 +6,7 @@ import { entities, gameAttempts, gameMoves } from '../db/schema'
 import type { TlinkType, TType } from '#/types/client.types'
 import type { TGameStatuses } from '#/types/server.types'
 import { eq, sql } from 'drizzle-orm'
+import type { T_TMDB_GENRE } from '#/types/tmdb.types'
 
 // get info for specific game
 // Gets called when user goes to the game ID Page
@@ -41,7 +42,6 @@ const getUserGameId = createServerFn({ method: 'GET' })
             where: {
               id: gameId,
             },
-            with: {},
           })
           .then((val) => {
             if (!val) {
@@ -72,7 +72,6 @@ const getUserGameId = createServerFn({ method: 'GET' })
             attemptId: result.id,
             entityId: dailyGame.start.id,
             entityType: dailyGame.start.type,
-
             moveIndex: 0,
             isStart: true,
           })
@@ -135,6 +134,7 @@ const addUserGameId = createServerFn({ method: 'POST' })
       roleName: string | null
       attemptId: string
       linkType: TlinkType
+      genre: T_TMDB_GENRE | null
     }) => data,
   )
   .handler(async ({ data, context }) => {
@@ -151,6 +151,7 @@ const addUserGameId = createServerFn({ method: 'POST' })
         roleType,
         attemptId,
         linkType,
+        genre,
       } = data
 
       const res = await db.transaction(async (tx) => {
@@ -175,6 +176,7 @@ const addUserGameId = createServerFn({ method: 'POST' })
         const gameEndType = attemptDetails.dailyGame?.end.type
         const isGoal = entityId === gameEndId && entityType === gameEndType
 
+        // TODO ADD METADATA
         await tx
           .insert(entities)
           .values({
@@ -182,6 +184,7 @@ const addUserGameId = createServerFn({ method: 'POST' })
             entityType,
             label,
             imgPath,
+            genre: genre || null,
           })
           .onConflictDoNothing()
 

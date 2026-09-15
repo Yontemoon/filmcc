@@ -10,15 +10,23 @@ import { TRACKER_META } from './point-tracker'
 import { displayYear } from '#/lib/utils'
 import classes from './game.module.css'
 import { useEntitiesProvider } from '#/provider/entites'
+import type { T_TMDB_GENRE } from '#/types/tmdb.types'
 
 type PropTypes = {
   query: TReturnUseCredits
   changeController: (move: TMove) => void
   bodyData: TReturnReformatTable
   end: TController
+  genres: T_TMDB_GENRE[]
 }
 
-const MainBody = ({ query, changeController, bodyData, end }: PropTypes) => {
+const MainBody = ({
+  query,
+  changeController,
+  bodyData,
+  end,
+  genres,
+}: PropTypes) => {
   const { isLoading, error, data } = query
 
   const { hideUsedEntities } = useEntitiesProvider()
@@ -40,11 +48,13 @@ const MainBody = ({ query, changeController, bodyData, end }: PropTypes) => {
         const filter = bodyData.combined.filter((entity) => {
           const isEndPoint = end.id === entity.id
           const added = entity.already_added
-          const disabled = !isEndPoint && (added || !entity.can_be_picked)
+          const genreUsed = genres.find((val) => val.id === entity.genre.id)
+          const disabled =
+            !isEndPoint && (added || !entity.can_be_picked || genreUsed)
           return disabled === false
         })
 
-        return { type: 'PERSON' as const, combined: filter }
+        return { type: bodyData.type, combined: filter }
       }
     }
   }, [hideUsedEntities, bodyData])
@@ -63,6 +73,7 @@ const MainBody = ({ query, changeController, bodyData, end }: PropTypes) => {
           memoData={filteredEntites}
           changeController={changeController}
           end={end}
+          genresUsed={genres}
         />
       )}
       {filteredEntites?.type === 'PERSON' && data?.type === 'PERSON' && (
@@ -71,6 +82,7 @@ const MainBody = ({ query, changeController, bodyData, end }: PropTypes) => {
           memoData={filteredEntites}
           changeController={changeController}
           end={end}
+          genresUsed={genres}
         />
       )}
     </div>
@@ -82,11 +94,13 @@ type GridLayoutProps = {
   changeController: (move: TMove) => void
   details: TReturnUseCredits['data']
   end: TController
+  genresUsed: T_TMDB_GENRE[]
 }
 const GridLayout = ({
   memoData,
   changeController,
   details,
+  genresUsed,
   end,
 }: GridLayoutProps) => {
   const combinedLength = memoData?.combined.length
@@ -105,22 +119,29 @@ const GridLayout = ({
             const id = curr.id
             const title = curr.title
             const posterUrl = curr.poster_url
+            const genre = curr.genre
 
             const date =
               curr.person_type === 'crew' ? curr.release_date : curr.date
             const added = curr.already_added
+            const genreIsUsed = genresUsed
+              .map((val) => val.id)
+              .includes(genre.id)
 
             const isEndPoint = end.id === curr.id
-            const disabled = !isEndPoint && (added || !curr.can_be_picked)
+            const disabled =
+              !isEndPoint && (added || !curr.can_be_picked || genreIsUsed)
             const jobs =
               curr.person_type === 'crew' ? [...new Set(curr.jobs)] : []
+            const reformat = personRowToMove(curr)
+
             return (
               <Grid.Col key={id} span={{ base: 4, md: 3, lg: 2 }}>
                 <div
                   className={classes.imageLift}
                   onClick={() => {
                     if (disabled) return
-                    changeController(personRowToMove(curr))
+                    changeController(reformat)
                   }}
                 >
                   <Poster
@@ -145,7 +166,7 @@ const GridLayout = ({
                   </Text>
                   {date && (
                     <Text c="dimmed" className={classes.movieInfo} size="xs">
-                      {displayYear(date)}
+                      {displayYear(date)}, {genre.name}
                     </Text>
                   )}
                   {curr.person_type === 'cast' && curr.role && (

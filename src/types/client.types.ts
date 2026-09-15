@@ -1,17 +1,28 @@
 import type {
   T_TMDB_MOVIE_DETAILS,
   T_TMDB_PERSON_DETAILS,
+  T_TMDB_GENRE,
 } from '#/types/tmdb.types'
 
 type TType = 'MOVIE' | 'PERSON'
 type TlinkType = 'CAST' | 'CREW'
 
-type TController = {
-  type: TType
+type TControllerBase = {
   id: number
   label: string
   img_path: string | null
 }
+type TPersonControllerChild = TControllerBase & {
+  type: 'PERSON'
+  genre: null
+}
+
+type TMovieControllerChild = TControllerBase & {
+  type: 'MOVIE'
+  genre: T_TMDB_GENRE
+}
+
+type TController = TMovieControllerChild | TPersonControllerChild
 
 type TBaseController<T extends TType, TDetails> = Omit<TController, 'type'> & {
   type: T
@@ -32,6 +43,7 @@ type TMove = {
   linkType: TlinkType
   roleName: string | null
   roleType: string
+  genre: T_TMDB_GENRE | null
 }
 
 export type {

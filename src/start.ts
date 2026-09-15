@@ -7,15 +7,6 @@ import {
 import { auth } from '#/lib/auth'
 import { getRequestHeaders } from '@tanstack/react-start/server'
 
-// const logMiddleware = createMiddleware().server(async ({ next }) => {
-//   const headers = getRequestHeaders()
-//   const session = await auth.api.getSession({ headers })
-//   console.log('[User Log name]: ', session?.user.name)
-//   console.log('[User Log ID]: ', session?.user.id)
-
-//   return next()
-// })
-
 // Called on a global middlware (/src/start.ts)
 const authMiddlware = createMiddleware().server(async ({ next }) => {
   const headers = getRequestHeaders()
