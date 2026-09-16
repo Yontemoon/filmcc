@@ -49,7 +49,6 @@ const MainBody = ({
           const isEndPoint = end.id === entity.id
           const added = entity.already_added
           const genreUsed = genres.find((val) => val.id === entity.genre.id)
-          console.log(genreUsed)
           const disabled =
             !isEndPoint &&
             (added || !entity.can_be_picked || genreUsed !== undefined)
@@ -115,7 +114,7 @@ const GridLayout = ({
           : details?.details.name}{' '}
         ({combinedLength})
       </Title>
-      <Grid gap={'lg'}>
+      <Grid gap={'md'}>
         {memoData?.type === 'PERSON' &&
           memoData.combined.map((curr) => {
             const id = curr.id
@@ -138,7 +137,7 @@ const GridLayout = ({
             const reformat = personRowToMove(curr)
 
             return (
-              <Grid.Col key={id} span={{ base: 4, md: 3, lg: 2 }}>
+              <Grid.Col key={id} span={{ base: 5, md: 4, lg: 2 }}>
                 <div
                   className={classes.imageLift}
                   onClick={() => {
