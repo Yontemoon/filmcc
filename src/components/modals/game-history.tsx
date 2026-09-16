@@ -133,26 +133,28 @@ const History = ({ history, centered = true }: PropTypes) => {
   }, [history.length])
 
   return (
-    <div
-      ref={scrollRef}
-      className={`flex w-full flex-row-reverse items-center scrollbar-none overflow-x-auto px-2 py-2 ${
-        centered ? 'h-full justify-center-safe' : ''
-      }`}
-    >
-      {history.map((curr, indx) => (
-        <div
-          key={`${curr.moveIndex}-${indx}`}
-          className="flex shrink-0 flex-row-reverse items-center"
-        >
-          {indx > 0 && (
-            <Connector
-              label={connectionLabel(curr)}
-              type={curr.entityType === 'PERSON' ? curr.linkType : null}
-            />
-          )}
-          <Node item={curr} indx={indx} isCurrent={indx === lastIdx} />
-        </div>
-      ))}
+    <div className="flex-1 min-h-0 overflow-auto scrollbar-none ">
+      <div
+        ref={scrollRef}
+        className={`flex w-full flex-row-reverse items-center px-2 py-2 ${
+          centered ? 'h-full justify-center-safe' : ''
+        }`}
+      >
+        {history.map((curr, indx) => (
+          <div
+            key={`${curr.moveIndex}-${indx}`}
+            className="flex shrink-0 flex-row-reverse items-center"
+          >
+            {indx > 0 && (
+              <Connector
+                label={connectionLabel(curr)}
+                type={curr.entityType === 'PERSON' ? curr.linkType : null}
+              />
+            )}
+            <Node item={curr} indx={indx} isCurrent={indx === lastIdx} />
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
@@ -163,7 +165,7 @@ const ModalGameHistory = (history: ReturnGetUserGameId['gameMovesLog']) => {
     centered: true,
     size: 'xl',
     zIndex: 1000,
-    children: <GameHistory history={history} />,
+    children: <GameHistory history={history} centered />,
     onClose() {},
   })
 }

@@ -2,7 +2,7 @@ import React from 'react'
 import { LOCAL_STORAGE_ENTITY_KEY } from '#/lib/constants'
 
 interface PropTypes {
-  hideUsedEntities: boolean
+  showUsedEntities: boolean
   toggleShowEntities: () => void
 }
 const EntitiesContext = React.createContext<PropTypes | undefined>(undefined)
@@ -38,11 +38,10 @@ const EntitiesProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <EntitiesContext
       value={{
-        hideUsedEntities: state,
+        showUsedEntities: state,
         toggleShowEntities: toggleShowEntities,
       }}
     >
-      {' '}
       {children}
     </EntitiesContext>
   )

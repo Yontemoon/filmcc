@@ -22,6 +22,7 @@ import ModalHowTo from '#/components/modals/how-to'
 import EndScreen from '#/components/pages/game/end-screen'
 import type { TEndStatus } from '#/components/pages/game/end-screen'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
+import classes from '#/components/pages/game/game.module.css'
 
 const USE_DEMO = false as boolean
 
@@ -162,21 +163,25 @@ function RouteComponent() {
           </SimpleGrid>
         </Stack>
       </Modal>
-      <div className="mx-auto max-w-200 h-full flex flex-col px-2 relative overflow-hidden">
+      <div
+        className={`mx-auto max-w-260 h-full flex flex-col relative overflow-hidden ${classes.gameContainer}`}
+      >
         {endStatus ? (
-          <EndScreen
-            status={endStatus}
-            isAnon={isAnon}
-            start={start}
-            end={end}
-            history={data.history}
-            moves={stats.moves}
-            picks={data.picks}
-            stuckReason={state.stuckReason}
-          />
+          <div className="h-full min-h-0 px-3">
+            <EndScreen
+              status={endStatus}
+              isAnon={isAnon}
+              start={start}
+              end={end}
+              history={data.history}
+              moves={stats.moves}
+              picks={data.picks}
+              stuckReason={state.stuckReason}
+            />
+          </div>
         ) : (
           <>
-            <div className="shrink-0 pt-1">
+            <div className="shrink-0">
               <Header
                 start={controllerInformation.start}
                 end={controllerInformation.end}
@@ -197,6 +202,7 @@ function RouteComponent() {
                 bodyData={data.bodyData}
                 end={end}
                 genres={data.genres}
+                picks={data.picks}
               />
             </div>
           </>

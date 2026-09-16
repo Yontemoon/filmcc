@@ -71,7 +71,6 @@ const EXAMPLE: ExampleStep[] = [
 ]
 
 const CostChip = ({ cost }: { cost: ExampleStep['cost'] }) => {
-  console.log(cost)
   if (!cost) {
     return (
       <Badge variant="outline" color="gray" size="xs" radius="sm">

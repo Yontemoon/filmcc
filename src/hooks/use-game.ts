@@ -1,6 +1,5 @@
 import React from 'react'
 import { notifications } from '@mantine/notifications'
-import { useWindowScroll } from '@mantine/hooks'
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import type { TController, TMove } from '#/types/client.types'
 import type { TGameStatuses } from '#/types/server.types'
@@ -29,8 +28,6 @@ const TERMINAL_STATUSES: ReadonlyArray<TGameStatuses> = [
 ]
 
 const useGame = ({ dailyGameId, end }: PropTypes) => {
-  const [, scrollTo] = useWindowScroll()
-
   const attemptQuery = useSuspenseQuery(gameAttemptOption(dailyGameId))
 
   const picks = usePicks(dailyGameId)
@@ -280,7 +277,10 @@ const useGame = ({ dailyGameId, end }: PropTypes) => {
     }
 
     moveMutation.mutate({ data: { attemptId: attempt.id, ...move } })
-    scrollTo({ y: 0 })
+
+    document
+      .getElementById('main-body')
+      ?.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return {

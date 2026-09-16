@@ -1,67 +1,261 @@
-.imageLift {
-  position: relative;
+.statusBar {
+  flex-shrink: 0;
+  border-bottom: var(--mantine-border);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
 }
 
-.movieInfo {
-  text-overflow: ellipsis;
+.poles {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.pole {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.poleTarget {
+  justify-content: flex-end;
+}
+
+.poleFrame {
+  width: 42px;
+  height: 63px;
+  flex-shrink: 0;
+}
+
+.poleFrameTarget {
+  outline: 2px solid var(--mantine-color-grape-5);
+  outline-offset: 1px;
+}
+
+.poleFrameStart {
+  outline: 2px solid var(--mantine-color-teal-6);
+  outline-offset: 1px;
+}
+
+.kicker {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  padding: 0 2px;
+}
+
+.moveChip {
+  border: 2px dashed var(--mantine-primary-color-filled);
+  background: none;
+  color: inherit;
+  padding: 2px 6px;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  cursor: pointer;
   white-space: nowrap;
-  overflow: hidden;
-  margin-top: 5px;
 }
 
-.personDisabled {
-  opacity: 0.45;
-  filter: saturate(0.15);
+.moveChipEmpty {
+  border-color: var(--mantine-color-gray-5);
+  color: var(--mantine-color-gray-6);
+}
+
+.budgetRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.genreChip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 2px solid var(--mantine-color-cyan-8);
+  background: var(--mantine-color-cyan-0);
+  color: var(--mantine-color-cyan-8);
+  padding: 2px 6px;
+  font: inherit;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.genreChipEmpty {
+  border-color: var(--mantine-color-gray-5);
+  background: none;
+  color: var(--mantine-color-gray-6);
+}
+
+.gameContainer {
+  border-right: var(--mantine-border);
+  border-left: var(--mantine-border);
+}
+
+.boardControls {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background-color: var(--mantine-color-body);
+  border-bottom: var(--mantine-border);
+  padding: 7px 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.searchInput {
+  flex: 1 1 160px;
+  min-width: 0;
+  z-index: 100;
+}
+
+.tileGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  column-gap: 10px;
+  row-gap: 20px;
+  align-content: start;
+}
+
+@media (min-width: 48em) {
+  .tileGrid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
+
+.tileButton {
+  all: unset;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.tileButton:disabled {
   cursor: not-allowed;
 }
 
-.personDisabled:hover {
-  transform: none;
+.tileBlocked {
+  opacity: 0.4;
+  filter: saturate(0.15);
 }
 
-.posterInfo {
-  position: absolute;
-  left: 5px;
-  bottom: 5px;
-  right: 5px;
-  z-index: 200;
-}
-
-.startFrame {
-  border-radius: var(--mantine-radius-sm);
-  overflow: hidden;
-  opacity: 0.55;
-  filter: saturate(0.55);
-  transition:
-    opacity 0.2s ease,
-    filter 0.2s ease;
-}
-
-.startFrame:hover {
-  opacity: 1;
-  filter: none;
-}
-
-/* Dashed run-up that fades from nothing into the target's colour. */
-.connector {
-  flex: 1 1 auto;
-  min-width: 1rem;
-  height: 2px;
-  border-radius: 1px;
-  background-image: linear-gradient(
-    to right,
-    var(--mantine-color-dimmed),
-    var(--mantine-color-grape-5)
-  );
-  opacity: 0.45;
-}
-
-/* The header is pinned by the route's flex layout, not by sticky positioning —
-   it sits above the scrolling body, so it only needs to stack over it. */
-.headerSticky {
+.tileFrame {
   position: relative;
-  z-index: 200;
-  padding-top: 0.25rem;
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
+  width: 100%;
+}
+
+.tileBand {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  padding: 3px 4px;
+  text-align: center;
+  text-transform: uppercase;
+  margin: 2px;
+}
+
+.tileBandBlocked {
+  background-color: var(--mantine-primary-color-filled);
+  color: var(--mantine-primary-color-contrast);
+}
+
+.tileBandTarget {
+  background-color: var(--mantine-color-grape-5);
+  color: var(--mantine-color-white);
+  z-index: 50;
+}
+
+/* Genre is a cost, so it rides on the thing you are buying. */
+.tileTag {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  z-index: 100;
+  border: 2px solid var(--mantine-color-cyan-8);
+  background-color: var(--mantine-color-cyan-0);
+  color: var(--mantine-color-cyan-8);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1.3;
+  padding: 1px 4px;
+  max-width: calc(100% - 8px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.tileDot {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  z-index: 100;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--mantine-color-dark-5);
+}
+
+.tileText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tileTitle {
+  margin-top: 5px;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.sectionRule {
+  flex: 1 1 auto;
+  height: 2px;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.emptyBoard {
+  padding: 32px 12px;
+  text-align: center;
 }

@@ -19,7 +19,7 @@ const SettingsChild = () => {
   const isAnon = user.isAnonymous
   const navigate = useNavigate()
   const [_opened, { close }] = useDisclosure(false)
-  const { hideUsedEntities, toggleShowEntities } = useEntitiesProvider()
+  const { showUsedEntities, toggleShowEntities } = useEntitiesProvider()
   const { setColorScheme, colorScheme } = useMantineColorScheme({
     keepTransitions: true,
   })
@@ -42,9 +42,10 @@ const SettingsChild = () => {
       <Divider my="md" w={'100%'} />
       <Flex align={'center'} justify={'space-between'} w={'100%'}>
         <Text>Hide Used Entities</Text>
+        {/* Controlled, not defaultChecked — the board's All/Open filter drives
+            the same setting, so an uncontrolled switch would drift out of sync. */}
         <Switch
-          defaultChecked={hideUsedEntities === false}
-
+          checked={showUsedEntities === false}
           onChange={() => {
             toggleShowEntities()
           }}

@@ -32,11 +32,14 @@ const PointTracker = ({
   const spent = Math.min(Math.max(curr, 0), max)
   const left = max - spent
   const exhausted = left === 0
+  const lastOne = left === 1 && max > 1
+
+  const tail = exhausted ? 'Out' : lastOne ? 'Last' : String(left)
 
   return (
     <Tooltip label={hint} withArrow position="bottom" openDelay={400}>
       <Group
-        gap={6}
+        gap={5}
         wrap="nowrap"
         role="img"
         aria-label={`${label}: ${left} of ${max} picks left`}
@@ -46,8 +49,6 @@ const PointTracker = ({
           fw={700}
           tt="uppercase"
           c={exhausted ? 'dimmed' : undefined}
-          w={28}
-          ta="right"
         >
           {label}
         </Text>
@@ -56,7 +57,7 @@ const PointTracker = ({
           {Array.from({ length: max }, (_, indx) => (
             <ColorSwatch
               key={indx}
-              size={15}
+              size={13}
               color={
                 indx < left
                   ? `var(--mantine-color-${color}-5)`
@@ -69,11 +70,10 @@ const PointTracker = ({
         <Text
           size="10px"
           fw={700}
-          c={exhausted ? 'red' : 'dimmed'}
-          w={10}
-          ta="right"
+          tt="uppercase"
+          c={exhausted || lastOne ? 'red' : 'dimmed'}
         >
-          {left}
+          {tail}
         </Text>
       </Group>
     </Tooltip>

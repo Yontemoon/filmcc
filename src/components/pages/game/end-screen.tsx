@@ -110,9 +110,7 @@ const EndScreen = ({
         className="shrink-0"
       />
 
-      <div className="flex-1 min-h-0 overflow-auto scrollbar-none">
-        <GameHistory history={history} centered={false} />
-      </div>
+      <GameHistory history={history} />
 
       <Stack gap={'xs'} align="center" className="shrink-0">
         <Text size="sm" c="dimmed" ta="center">
